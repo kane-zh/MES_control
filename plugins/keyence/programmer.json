@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "keyence",
+    "version" : "1.0.0",
+    "type" : "dataSource",
+    "title":"基恩士上位链路",
+    "des" : "基恩士上位链路通讯插件",
+    "dependencies" : []
+}

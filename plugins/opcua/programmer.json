@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "opcUA",
+    "title":"opcUA",
+    "version" : "1.0.0",
+    "type" : "dataSource",
+    "des" : "opcua通讯插件",
+    "dependencies" : []
+}

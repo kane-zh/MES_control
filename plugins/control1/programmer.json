@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "control1",
+    "version" : "1.0.0",
+    "type" : "debugControl",
+    "title":"控制测试1",
+    "des" : "控制测试插件",
+    "dependencies" : []
+}

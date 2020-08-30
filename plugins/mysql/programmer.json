@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "mysql",
+    "version" : "1.0.0",
+    "type" : "container",
+    "title":"mysql数据库",
+    "des" : "mysql数据库存储插件",
+    "dependencies" : []
+}

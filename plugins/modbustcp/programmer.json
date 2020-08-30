@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "modbusTCP",
+    "version" : "1.0.0",
+    "type" : "dataSource",
+    "title":"modbusTCP",
+    "des" : "modbustcp通讯插件",
+    "dependencies" : []
+}
