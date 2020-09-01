@@ -275,7 +275,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->type->setCurrentText(dataSetInfor[index].type);
     ui->number->setText(dataSetInfor[index].number);
@@ -285,7 +285,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     }
 }

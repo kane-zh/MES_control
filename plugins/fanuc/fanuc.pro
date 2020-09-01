@@ -12,11 +12,13 @@ FORMS += \
 
 HEADERS += \
     Fwlib32.h \
+    axisinfor.h \
     configdialog.h \
     metadata.h \
     sourcemanage.h
 
 SOURCES += \
+    axisinfor.cpp \
     configdialog.cpp \
     sourcemanage.cpp
 

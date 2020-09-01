@@ -7,7 +7,7 @@
 struct  SERIALINFOR
 {
     QString name;       //名称
-    bool    enable;     //使能
+    bool    enable=true;     //使能
     QString desc;       //备注
     QString com;        //端口号
     qint32 baudRate;    //串口波特率

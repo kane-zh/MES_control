@@ -9,4 +9,6 @@ SUBDIRS += \
     mysql\
     sqlserver\
     mes\
-    manage/
+    manage\
+    fanuc\
+    influxdb

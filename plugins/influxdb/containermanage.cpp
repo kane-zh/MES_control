@@ -3,8 +3,7 @@
 #include <QThread>
 ContainerManage::ContainerManage(QWidget *parent)
 {
-    loadDataBase();        //加载数据库配置
-    loadDataTable();       //加载数据表配置
+    loadConfig();        //加载配置信息
     m_time=new QTimer();
     connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
     connect(this,SIGNAL(saveDataToDB(int)),this,SLOT(autoSave(int)));
@@ -91,8 +90,7 @@ void ContainerManage::showForm(QWidget *parent)
   connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
   connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
   m_config->exec();
-  loadDataBase();
-  loadDataTable();
+  loadConfig();        //加载配置信息
 }
 
 void ContainerManage::autoSave(int id)
@@ -167,65 +165,40 @@ void ContainerManage::timeOut()
   }
 }
 
-
-/*加载数据库信息*/
-void ContainerManage::loadDataBase()
+/*加载信息*/
+void ContainerManage::loadConfig()
 {
-    QString fileName="../plugins/config/influxdbconfig.log";
+    QDir path = QDir(qApp->applicationDirPath());
+    QString fileName=path.path()+"/plugins/config/mysql.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );
       }
-   QString line ;
-   QStringList list;
-   QString   Data[9];
-   for(int row = 0;row<MaxDataBase;row++){
-      line = file.readLine(200);
-      if (!line.startsWith('#') && line.contains(',')) {
-         list = line.simplified().split(',');
-         if(list.length()<9){
-           for (int i = 0; i < list.length();i++){
-              Data[i]=list.at(i);
-            }
-           dataBaseInfor[row].name=Data[0];
-           dataBaseInfor[row].enable=Data[1].toInt();
-           dataBaseInfor[row].desc=Data[2];
-           dataBaseInfor[row].username=Data[3];
-           dataBaseInfor[row].password=Data[4];
-           dataBaseInfor[row].address=Data[5];
-           dataBaseInfor[row].port=Data[6];
-         }
-       }
-     }
-    file.close();
-}
-/*加载数据表信息*/
-void ContainerManage::loadDataTable()
-{
-    QString fileName="../plugins/config/influxdbconfig1.log";
-    QFile file(fileName);
-   if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
-       file.open( QIODevice::ReadWrite | QIODevice::Text );
-      }
-   QString line ;
-   QStringList list;
-   QString   Data[9];
-   for(int row = 0;row<MaxDataTable;row++){
-      line = file.readLine(10000);
-      if (!line.startsWith('#') && line.contains(';')) {
-         list = line.simplified().split(';');
-         if(list.length()<9){
-           for (int i = 0; i < list.length();i++){
-              Data[i]=list.at(i);
-            }
-           dataTableInfor[row].name=Data[0];
-           dataTableInfor[row].dataBase=Data[1];
-           dataTableInfor[row].enable=Data[2].toInt();
-           dataTableInfor[row].frequency=Data[3];
-           dataTableInfor[row].desc=Data[4];
-           dataTableInfor[row].rules=Data[5];
-         }
-       }
-     }
-    file.close();
+   QByteArray data=file.readAll();
+   file.close();
+   QJsonDocument doc=QJsonDocument::fromJson(data);
+   QJsonObject object=doc.object();
+   QJsonValue dataBase=object.value("dataBase");
+   QJsonArray dataBaseArray=dataBase.toArray();
+   for(int index=0;index<MaxDataBase;index++){
+    QJsonObject json=dataBaseArray.at(index).toObject();
+    dataBaseInfor[index].name=json.value("name").toString();
+    dataBaseInfor[index].enable=json.value("enable").toBool();
+    dataBaseInfor[index].desc=json.value("desc").toString();
+    dataBaseInfor[index].username=json.value("username").toString();
+    dataBaseInfor[index].password=json.value("password").toString();
+    dataBaseInfor[index].address=json.value("address").toString();
+    dataBaseInfor[index].port=json.value("port").toString();
+   }
+   QJsonValue dataTable=object.value("dataTable");
+   QJsonArray dataTableArray=dataTable.toArray();
+   for(int index=0;index<MaxDataTable;index++){
+    QJsonObject json=dataTableArray.at(index).toObject();
+    dataTableInfor[index].name=json.value("name").toString();
+    dataTableInfor[index].dataBase=json.value("dataBase").toString();
+    dataTableInfor[index].enable=json.value("enable").toBool();
+    dataTableInfor[index].frequency=json.value("frequency").toString();
+    dataTableInfor[index].desc=json.value("desc").toString();
+    dataTableInfor[index].rules=json.value("rules").toString();
+   }
 }

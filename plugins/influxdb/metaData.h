@@ -20,7 +20,7 @@ struct ResponseMetaData_dialog
 struct  DATABASE
 {
     QString    name;         //名称
-    bool       enable;  //使能
+    bool       enable=true;  //使能
     QString    desc;         //备注
     QString    address;      //地址
     QString    port;         //端口号
@@ -32,7 +32,7 @@ struct  DATATABLE
 {
     QString name;       //名称
     QString dataBase;   //数据库索引
-    bool    enable;     //使能
+    bool    enable=false;     //使能
     QString frequency;  //采集频率
     QString desc;       //备注
     QString rules;      //字段--数据表对应规则(json字符串)

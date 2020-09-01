@@ -27,7 +27,6 @@ public:
     virtual void showForm(QWidget *parent = nullptr)  Q_DECL_OVERRIDE;
 private:
     void  loadConfig();
-
 private:
     DATASOURCE  dataSourceInfor[MaxDataSource];
     DATASET     dataSetInfor[MaxDataSet];

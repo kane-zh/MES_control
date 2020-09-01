@@ -402,7 +402,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->namespaceIndex->setText(dataSetInfor[index].uaNode.namespaceIndex);
     ui->identifierType->setCurrentIndex(ui->identifierType->findText(dataSetInfor[index].uaNode.identifierType));
@@ -413,7 +413,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->identifierType->setCurrentIndex(ui->identifierType->findText(dataSetInfor[index].uaNode.identifierType));
     ui->dataType->setCurrentIndex(ui->dataType->findText(dataSetInfor[index].uaNode.dataType));

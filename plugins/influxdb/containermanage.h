@@ -8,6 +8,8 @@
 #include <QTimer>
 #include <QDebug>
 #include <QFile>
+#include <QDir>
+#include <QCoreApplication>
 #include "../../mainApp/pluginManage/containerinterface.h"
 #include "metaData.h"
 #include "configdialog.h"
@@ -33,8 +35,7 @@ public:
     virtual void showForm(QWidget *parent = nullptr) Q_DECL_OVERRIDE;
 public slots:
     void receiveMsgFromDialog(RequestMetaData_dialog request) ;
-    void loadDataBase();                         //加载数据库
-    void loadDataTable();                        //加载数据表
+    void loadConfig();                         //加载配置信息
     void autoSave(int id);                             //自动保存
     void timeOut();
 private:

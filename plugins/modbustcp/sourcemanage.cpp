@@ -271,6 +271,7 @@ void SourceManage::loadConfig()
         dataSetInfor[index].sourceName=json.value("sourceName").toString();
         dataSetInfor[index].sourceIndex=json.value("sourceIndex").toString();
         dataSetInfor[index].enable=json.value("enable").toBool();
+        dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();
         dataSetInfor[index].readData.code=static_cast<QModbusDataUnit::RegisterType>(json.value("readData_code").toInt());
         dataSetInfor[index].readData.stringCode=json.value("readData_stringCode").toString();

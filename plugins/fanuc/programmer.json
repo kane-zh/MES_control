@@ -2,9 +2,9 @@
     "author" : "kane",
     "date" : "2020/05/20",
     "name" : "fanuc",
-    "title":"fanuc",
     "version" : "1.0.0",
     "type" : "dataSource",
-    "dependencies" : [],
+    "title":"fanuc网口版",
     "des" : "只适合window系统",
+    "dependencies" : []
 }

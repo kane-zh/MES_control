@@ -20,7 +20,7 @@ struct  DATARTU
 struct  DATASOURCE
 {
     QString name;       //名称
-    bool    enable;     //使能
+    bool    enable=true;     //使能
     QString desc;       //备注
     QString host;       //主机
     QString port;       //端口号
@@ -34,8 +34,8 @@ struct  DATASET
     QString name;       //名称
     QString sourceName;     //数据源名称
     QString sourceIndex;    //数据源索引
-    bool    writeEnable;    //写使能
-    bool    enable;     //使能
+    bool    writeEnable=false;    //写使能
+    bool    enable=true;     //使能
     QString desc;       //备注
     DATARTU readData;   //读数据
     DATARTU writeData;  //写数据

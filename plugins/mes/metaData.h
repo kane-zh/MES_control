@@ -20,7 +20,7 @@ struct ResponseMetaData_dialog
 struct  SERVERINFOR
 {
     QString    name;         //名称
-    bool       enable;       //使能
+    bool       enable=true;       //使能
     QString    desc;         //备注
     QString    address;      //地址
     QString    username;     //用户名
@@ -33,7 +33,7 @@ struct  RECORDINFOR
     QString name;       //名称
     QString server;     //服务器索引
     QString serverid;   //记录在服务器的索引
-    bool    enable;     //使能
+    bool    enable=false;     //使能
     QString frequency;  //采集频率
     QString desc;       //备注
     QString rules;      //字段--数据表对应规则(json字符串)

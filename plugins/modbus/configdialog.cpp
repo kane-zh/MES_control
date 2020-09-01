@@ -369,7 +369,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->server_read->setText(dataSetInfor[index].readData.serverAddress);
     ui->code_read->setCurrentText(dataSetInfor[index].readData.stringCode);
@@ -384,7 +384,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->startAddr_read->setText(dataSetInfor[index].readData.startAddress);
     ui->length_read->setText(dataSetInfor[index].readData.length);
@@ -564,6 +564,7 @@ void ConfigDialog::saveConfig()
             json.insert("sourceName",dataSetInfor[index].sourceName);
             json.insert("sourceIndex",dataSetInfor[index].sourceIndex);
             json.insert("enable",dataSetInfor[index].enable);
+            json.insert("writeEnable",dataSetInfor[index].writeEnable);
             json.insert("desc",dataSetInfor[index].desc);
             json.insert("readData_code",dataSetInfor[index].readData.code);
             json.insert("readData_stringCode",dataSetInfor[index].readData.stringCode);
@@ -633,6 +634,7 @@ void ConfigDialog::loadConfig()
         dataSetInfor[index].sourceName=json.value("sourceName").toString();
         dataSetInfor[index].sourceIndex=json.value("sourceIndex").toString();
         dataSetInfor[index].enable=json.value("enable").toBool();
+        dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();
         dataSetInfor[index].readData.code=static_cast<QModbusDataUnit::RegisterType>(json.value("readData_code").toInt());
         dataSetInfor[index].readData.stringCode=json.value("readData_stringCode").toString();

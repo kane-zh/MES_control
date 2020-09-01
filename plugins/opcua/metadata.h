@@ -24,7 +24,7 @@ struct  UA_NODEID
 struct  DATASOURCE
 {
     QString    name;         //名称
-    bool       enable;       //使能
+    bool       enable=true;       //使能
     QString    desc;         //备注
     UA_INFOR   uaInfor;      //OPCUA连接信息
  };
@@ -34,8 +34,8 @@ struct  DATASET
     QString name;            //名称
     QString sourceName;      //数据源名称
     QString sourceIndex;     //数据源索引
-    bool    writeEnable;     //写使能
-    bool    enable;          //使能
+    bool    writeEnable=false;     //写使能
+    bool    enable=true;          //使能
     QString desc;            //备注
     struct UA_NODEID uaNode;   //UA节点标识
  };

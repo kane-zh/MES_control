@@ -62,7 +62,7 @@ QString SourceManage::setValue(QString id, QString value)
 void SourceManage::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/opcua.ini";
+    QString fileName=path.path()+"/plugins/config/fanuc.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -74,13 +74,13 @@ void SourceManage::loadConfig()
    QJsonValue dataSource=object.value("dataSource");
    QJsonArray dataSourceArray=dataSource.toArray();
    for(int index=0;index<MaxDataSource;index++){
-        QJsonObject json=dataSourceArray.at(index).toObject();
-        dataSourceInfor[index].name=json.value("name").toString();
-        dataSourceInfor[index].enable=json.value("enable").toBool();
-        dataSourceInfor[index].desc=json.value("desc").toString();
-        dataSourceInfor[index].uaInfor.username=json.value("uaInfor_username").toString();
-        dataSourceInfor[index].uaInfor.password=json.value("uaInfor_password").toString();
-        dataSourceInfor[index].uaInfor.address=json.value("uaInfor_address").toString();
+       QJsonObject json=dataSourceArray.at(index).toObject();
+       dataSourceInfor[index].name=json.value("name").toString();
+       dataSourceInfor[index].enable=json.value("enable").toBool();
+       dataSourceInfor[index].desc=json.value("desc").toString();
+       dataSourceInfor[index].host=json.value("host").toString();
+       dataSourceInfor[index].port=json.value("port").toString();
+       dataSourceInfor[index].timeout=json.value("timeout").toString();
    }
    QJsonValue dataSet=object.value("dataSet");
    QJsonArray dataSetArray=dataSet.toArray();
@@ -92,9 +92,5 @@ void SourceManage::loadConfig()
         dataSetInfor[index].enable=json.value("enable").toBool();
         dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();
-        dataSetInfor[index].uaNode.namespaceIndex=json.value("uaNode_namespaceIndex").toString();
-        dataSetInfor[index].uaNode.identifierType=json.value("uaNode_identifierType").toString();
-        dataSetInfor[index].uaNode.identifier=json.value("uaNode_identifier").toString();
-        dataSetInfor[index].uaNode.dataType=json.value("uaNode_dataType").toString();
    }
 }

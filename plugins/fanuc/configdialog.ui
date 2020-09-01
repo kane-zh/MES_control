@@ -14,10 +14,10 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1">
+   <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -26,10 +26,41 @@
       <attribute name="title">
        <string>数据源配置</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4" rowstretch="9,1" columnstretch="3,7">
+      <layout class="QGridLayout" name="gridLayout_8" rowstretch="9,1" columnstretch="3,7">
        <item row="0" column="0">
         <widget class="QWidget" name="widget_3" native="true">
-         <layout class="QGridLayout" name="gridLayout_2">
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="port1">
+            <property name="text">
+             <string>8193</string>
+            </property>
+            <property name="placeholderText">
+             <string>默认:8193</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="enable1">
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="desc1">
+            <property name="placeholderText">
+             <string>备注信息</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="Label_10">
+            <property name="text">
+             <string>主机:</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="Label">
             <property name="text">
@@ -54,6 +85,22 @@
             </property>
            </widget>
           </item>
+          <item row="6" column="1">
+           <widget class="QSpinBox" name="timeout">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000</number>
+            </property>
+            <property name="singleStep">
+             <number>1</number>
+            </property>
+            <property name="value">
+             <number>10</number>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="name1">
             <property name="whatsThis">
@@ -67,17 +114,17 @@
             </property>
            </widget>
           </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="host1">
+            <property name="placeholderText">
+             <string>例如:127.0.0.1</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="Label_3">
             <property name="text">
              <string>使能:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="enable1">
-            <property name="checked">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -88,52 +135,17 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="desc1">
-            <property name="placeholderText">
-             <string>备注信息</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="Label_5">
-            <property name="text">
-             <string>用户名:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="username">
-            <property name="placeholderText">
-             <string>OPCUA服务器登录用户名(可为空)</string>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="0">
-           <widget class="QLabel" name="Label_6">
+           <widget class="QLabel" name="label_9">
             <property name="text">
-             <string>密码:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="password">
-            <property name="placeholderText">
-             <string>OPCUA服务器登录密码(可为空)</string>
+             <string>端口:</string>
             </property>
            </widget>
           </item>
           <item row="6" column="0">
-           <widget class="QLabel" name="Label_7">
+           <widget class="QLabel" name="label_10">
             <property name="text">
-             <string>地址:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLineEdit" name="address">
-            <property name="placeholderText">
-             <string>OPCUA服务器地址(不可为空)</string>
+             <string>超时时间:</string>
             </property>
            </widget>
           </item>
@@ -192,7 +204,7 @@
       <attribute name="title">
        <string>数据集配置</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_7" rowstretch="9,1" columnstretch="3,7">
+      <layout class="QGridLayout" name="gridLayout_7" rowstretch="9,0" columnstretch="3,0">
        <item row="0" column="1" rowspan="2">
         <widget class="QWidget" name="widget_5" native="true">
          <layout class="QGridLayout" name="gridLayout_6">
@@ -238,25 +250,32 @@
        </item>
        <item row="0" column="0">
         <widget class="QWidget" name="widget_6" native="true">
-         <layout class="QGridLayout" name="gridLayout_5">
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_2">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="0">
+           <widget class="QLabel" name="Label_15">
             <property name="text">
-             <string>允许写:</string>
+             <string>索引:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="Label_17">
-            <property name="text">
-             <string>使能:</string>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="index2">
+            <property name="minimum">
+             <number>0</number>
             </property>
            </widget>
           </item>
-          <item row="6" column="2">
-           <widget class="QLineEdit" name="namespaceIndex">
+          <item row="1" column="0">
+           <widget class="QLabel" name="Label_16">
+            <property name="text">
+             <string>名称:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="name2">
             <property name="placeholderText">
-             <string>OPCUA节点--命名空间(不可为空)</string>
+             <string>数据集别名</string>
             </property>
            </widget>
           </item>
@@ -267,63 +286,39 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="2">
-           <widget class="QComboBox" name="dataType">
-            <item>
-             <property name="text">
-              <string>Boolean</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Int16</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>UInt16</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Int32</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>UInt32</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Int64</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>UInt64</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Float</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Double</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>String</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>DateTime</string>
-             </property>
-            </item>
+          <item row="2" column="1">
+           <widget class="QComboBox" name="dataSource">
+            <property name="whatsThis">
+             <string>当前数据集的数据源</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="Label_17">
+            <property name="text">
+             <string>使能:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QCheckBox" name="enable2">
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>允许写:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QCheckBox" name="writeEnable">
+            <property name="text">
+             <string/>
+            </property>
            </widget>
           </item>
           <item row="5" column="0">
@@ -333,119 +328,122 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="Label_15">
-            <property name="text">
-             <string>索引:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QCheckBox" name="enable2">
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="0">
-           <widget class="QLabel" name="Label_21">
-            <property name="text">
-             <string>标识:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QSpinBox" name="index2">
-            <property name="minimum">
-             <number>0</number>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="2">
-           <widget class="QComboBox" name="identifierType">
-            <item>
-             <property name="text">
-              <string>String</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Numeric</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>ByteString</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>String_Alloc</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="Label_16">
-            <property name="text">
-             <string>名称:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0">
-           <widget class="QLabel" name="Label_19">
-            <property name="text">
-             <string>命名空间:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QLineEdit" name="identifier">
-            <property name="placeholderText">
-             <string>OPCUA节点--标识(不可为空)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="Label_20">
-            <property name="text">
-             <string>节点类型:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QComboBox" name="dataSource">
-            <property name="whatsThis">
-             <string>当前数据集的数据源</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLineEdit" name="name2">
-            <property name="placeholderText">
-             <string>数据集别名</string>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>数据类型:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
+          <item row="5" column="1">
            <widget class="QLineEdit" name="desc2">
             <property name="placeholderText">
              <string>备注信息</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
-           <widget class="QCheckBox" name="writeEnable">
+          <item row="6" column="0">
+           <widget class="QLabel" name="label">
             <property name="text">
-             <string/>
+             <string>功能组:</string>
             </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QComboBox" name="group">
+            <item>
+             <property name="text">
+              <string>控制轴主轴相关</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>程序相关</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>NC文件数据相关</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>刀具寿命管理数据相关</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>刀具管理数据相关</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>操作历史数据相关</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>3D干涉检查</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>故障诊断</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>其他</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>图形指令数据</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>伺服学习数据</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>NC显示功能</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>远程诊断功能</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>双重检查安全功能</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>连续位置数据输出功能</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>程序重新启动</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>辅助状态</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>安全IO信号历史</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>机器状态监控器_记录器</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>环保模式</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

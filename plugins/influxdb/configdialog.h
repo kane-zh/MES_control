@@ -10,10 +10,12 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QFile>
+#include <QDir>
 #include <QTextStream>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QCoreApplication>
 #include "ItemDelegate.h"
 #include "metaData.h"
 
@@ -47,10 +49,8 @@ private slots:
     void fillDataTableBox();                     //填充数据表下拉框
     void connectTest();                          //连接测试
     void saveValueTest();                        //保存数值测试
-    void saveDataBase();                         //保存数据库
-    void loadDataBase();                         //加载数据库
-    void saveDataTable();                        //保存数据表
-    void loadDataTable();                        //加载数据表
+    void saveConfig();                           //保存配置信息
+    void loadConfig();                           //加载配置信息
 private:
     DATABASE  dataBaseInfor[MaxDataBase];
     DATATABLE dataTableInfor[MaxDataTable];
