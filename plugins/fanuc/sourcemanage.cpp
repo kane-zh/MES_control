@@ -58,6 +58,7 @@ QString SourceManage::setValue(QString id, QString value)
 }
 
 
+
 /*加载信息*/
 void SourceManage::loadConfig()
 {
@@ -74,13 +75,13 @@ void SourceManage::loadConfig()
    QJsonValue dataSource=object.value("dataSource");
    QJsonArray dataSourceArray=dataSource.toArray();
    for(int index=0;index<MaxDataSource;index++){
-       QJsonObject json=dataSourceArray.at(index).toObject();
-       dataSourceInfor[index].name=json.value("name").toString();
-       dataSourceInfor[index].enable=json.value("enable").toBool();
-       dataSourceInfor[index].desc=json.value("desc").toString();
-       dataSourceInfor[index].host=json.value("host").toString();
-       dataSourceInfor[index].port=json.value("port").toString();
-       dataSourceInfor[index].timeout=json.value("timeout").toString();
+        QJsonObject json=dataSourceArray.at(index).toObject();
+        dataSourceInfor[index].name=json.value("name").toString();
+        dataSourceInfor[index].enable=json.value("enable").toBool();
+        dataSourceInfor[index].desc=json.value("desc").toString();
+        dataSourceInfor[index].host=json.value("host").toString();
+        dataSourceInfor[index].port=json.value("port").toString();
+        dataSourceInfor[index].timeout=json.value("timeout").toString();
    }
    QJsonValue dataSet=object.value("dataSet");
    QJsonArray dataSetArray=dataSet.toArray();
@@ -92,5 +93,11 @@ void SourceManage::loadConfig()
         dataSetInfor[index].enable=json.value("enable").toBool();
         dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();
+        dataSetInfor[index].group=json.value("group").toString();
+        dataSetInfor[index].function=json.value("function").toString();
+        dataSetInfor[index].parameter1=json.value("parameter1").toString();
+        dataSetInfor[index].parameter2=json.value("parameter2").toString();
+        dataSetInfor[index].parameter3=json.value("parameter3").toString();
+        dataSetInfor[index].parameter4=json.value("parameter4").toString();
    }
 }

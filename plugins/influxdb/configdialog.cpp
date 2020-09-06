@@ -326,22 +326,52 @@ void ConfigDialog::fillDataTableBox()
 /*连接数据库测试*/
 void ConfigDialog::connectTest()
 {
-    auto influxdb = influxdb::InfluxDBFactory::Get("http://124.70.176.250:8086/?db=test");
+    if(ui->name1->text()==""){
+      QMessageBox::warning(this,tr("提示"),tr("名称不能为空!!!"),QMessageBox::Yes);
+      return;
+       }
+    if(ui->address->text()==""){
+      QMessageBox::warning(this,tr("提示"),tr("地址不能为空!!!"),QMessageBox::Yes);
+      return;
+       }
+    QString url="http://"+ui->address->text()+":"+ui->port->text()+"/?db=";
+    try {
+         auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
+         try {
+             auto points = influxdb->query("show databases");
+             for(int i=0;i<points.size();i++){
+                 if(",name="+ui->name1->text()==points.at(i).getTags().data())
+                 {
+                   QMessageBox::information(this,tr("提示"),tr("连接数据库成功!!!"),QMessageBox::Yes);
+                   return;
+                 }
+             }
+             QMessageBox::warning(this,tr("提示"),tr("连接服务器成功,但数据库不存在!!!"),QMessageBox::Yes);
+         } catch (...) {
+              QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
+         }
+    } catch (...) {
+         QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
+    }
+
 //    influxdb->write(influxdb::Point{ "cpu" }
 //        .addTag("host", "localhost")
 //        .addTag("region", "china")
-//        .addField("north_latitude", 36)
-//        .addField("east_longitude", 114)
+//        .addField("north_latitude", 12)
+//        .addField("east_longitude", 34)
 //    );
-
-    std::cout << "write over!" << std::endl;
-    auto points = influxdb->query("show databases");
-    std::cout << "query over!" << std::endl;
-//    std::cout << "name : " << points.back().getName() <<std::endl
-//                << "field : "<<points.back().getFields() << std::endl
-//                << "timestamp : " << std::chrono::duration_cast<std::chrono::microseconds>(points.back().getTimestamp().time_since_epoch()).count()  << std::endl;
+//    influxdb->write(influxdb::Point{ "cpu" }
+//        .addTag("host", "localhost")
+//        .addTag("region", "china")
+//        .addField("north_latitude", 67)
+//        .addField("east_longitude", 89)
+//        .addField("north_latitude1", 1011)
+//        .addField("east_longitude1", 1213)
+//    );
+//    auto points = influxdb->query("SELECT * FROM cpu");
+//    qDebug()<< "name : "<<points.back().getFields().data();
+//    }
 }
-
 void ConfigDialog::saveValueTest()
 {
     QSqlDatabase db=QSqlDatabase::database(ui->dataBase->currentText());
@@ -409,7 +439,7 @@ void ConfigDialog::saveConfig()
     document.setObject(object);
     QByteArray data=document.toJson();
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/mysql.ini";
+    QString fileName=path.path()+"/plugins/config/influxdb.ini";
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly|QIODevice::Text)) { //如果文件不存在则新建文件
         file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -421,7 +451,7 @@ void ConfigDialog::saveConfig()
 void ConfigDialog::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/mysql.ini";
+    QString fileName=path.path()+"/plugins/config/influxdb.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );

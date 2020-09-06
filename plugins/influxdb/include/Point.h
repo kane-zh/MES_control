@@ -81,7 +81,7 @@ class Point
 
     /// Fields getter
     std::string getFields() const;
-
+    std::string getTags() const;
   protected:
     /// A value
     std::variant<long long int, std::string, double> mValue;

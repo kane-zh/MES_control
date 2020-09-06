@@ -13,99 +13,73 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout" columnstretch="1,2,2,3,1">
-   <item row="0" column="1">
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="text">
-      <string>1#AGV暂停</string>
-     </property>
-    </widget>
-   </item>
+  <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0">
    <item row="1" column="0">
-    <widget class="QPushButton" name="pushButton_4">
-     <property name="text">
-      <string>2#AGV运行</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QPushButton" name="pushButton_13">
-     <property name="text">
-      <string>2#AGV退料</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3">
-    <widget class="QPushButton" name="pushButton_12">
-     <property name="text">
-      <string>3#AGV退料</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="2">
-    <widget class="QPushButton" name="pushButton_8">
-     <property name="text">
-      <string>3#AGV接料</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="text">
-      <string>1#AGV运行</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="pushButton_9">
-     <property name="text">
-      <string>3#AGV暂停</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="pushButton_6">
-     <property name="text">
-      <string>3#AGV运行</string>
-     </property>
-    </widget>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>串口接收数据:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="serialValue"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>线体名：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="linename"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>楼层号：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="floorcode"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>产品类型：</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="producttype"/>
+     </item>
+    </layout>
    </item>
    <item row="1" column="1">
-    <widget class="QPushButton" name="pushButton_5">
-     <property name="text">
-      <string>2#AGV暂停</string>
-     </property>
-    </widget>
+    <widget class="QTableView" name="tableView"/>
    </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="pushButton_11">
+   <item row="0" column="0">
+    <widget class="QPushButton" name="showDebugForm">
      <property name="text">
-      <string>1#AGV接料</string>
+      <string>配置</string>
      </property>
     </widget>
    </item>
    <item row="1" column="2">
-    <widget class="QPushButton" name="pushButton_10">
-     <property name="text">
-      <string>2#AGV接料</string>
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="4" rowspan="3">
-    <widget class="QListWidget" name="listWidget">
-     <item>
-      <property name="text">
-       <string>测试1</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="QPushButton" name="pushButton_7">
-     <property name="text">
-      <string>1#AGV退料</string>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
      </property>
-    </widget>
+    </spacer>
    </item>
   </layout>
  </widget>

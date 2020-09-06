@@ -25,10 +25,6 @@ public:
     explicit ConfigDialog(QWidget *parent = nullptr);
     ~ConfigDialog();
     void showEvent(QShowEvent *);
-private:
-    QString GroupType="CNC_NC文件数据相关;CNC控制轴主轴相关;CNC_程序相关;CNC_刀具寿命管理数据相关;CNC_刀具管理数据相关;CNC_与操作历史数据相关;CNC_3D干涉检查;CNC_故障诊断;"
-                      "CNC_其他;CNC_图形指令数据;CNC_伺服学习数据;CNC_NC显示功能;CNC_远程诊断功能;双重检查安全功能;连续位置数据输出功能;程序重新启动;辅助状态;安全IO信号历史;"
-                      "机器状态监控器_记录器;环保模式";
 private slots:
     void showDataSource();             //显示数据源
     void showDataSet();                //显示数据集
@@ -43,11 +39,14 @@ private slots:
     void getValueTest();               //读取数值测试
     void saveConfig();                 //保存配置信息
     void loadConfig();                 //加载配置信息
+    void constructList();
+    void fillFunctionBox();            //填充功能下拉框
 private:
     DATASOURCE  dataSourceInfor[MaxDataSource];
     DATASET     dataSetInfor[MaxDataSet];
     QStandardItemModel    *dataSourceModel;
     QStandardItemModel    *dataSetModel;
+    QMap<QString,QString> functionList;
     Ui::ConfigDialog *ui;
 };
 #endif // CONFIGDIALOG_H

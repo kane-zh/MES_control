@@ -6,7 +6,9 @@ TARGET          = influxdb      #生成插件的名称
 win32:CONFIG(release, debug|release): DESTDIR         = ../../mainApp/release/plugins/libs
 else:win32:CONFIG(debug, debug|release): DESTDIR         = ../../mainApp/debug/plugins/libs
 else:unix: DESTDIR         = ../../mainApp/plugins/libs
-
+DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += INFLUXDB_WITH_BOOST
+DEFINES += ONLY_HTTP
 DISTFILES += \
     programmer.json
 

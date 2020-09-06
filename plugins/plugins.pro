@@ -2,13 +2,13 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     keyence \
-    manage\
     modbus\
     modbustcp\
     mqtt\
     mysql\
     sqlserver\
     mes\
-    manage\
     fanuc\
-    influxdb
+    influxdb\
+    control1\
+    control2

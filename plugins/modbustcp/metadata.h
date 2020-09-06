@@ -24,8 +24,8 @@ struct  DATASOURCE
     QString desc;       //备注
     QString host;       //主机
     QString port;       //端口号
-    QString responseTime = "1000";
-    QString numberOfRetries = "3";
+    QString responseTime = "";
+    QString numberOfRetries = "";
     QModbusTcpClient *modbusDevice = nullptr;
  };
 /*数据集信息*/

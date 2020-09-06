@@ -33,8 +33,8 @@ struct  DATASOURCE
     QString  stringdataBits;
     QSerialPort::StopBits stopBits;
     QString stringstopBits;
-    QString responseTime = "1000";
-    QString numberOfRetries = "3";
+    QString responseTime = "";
+    QString numberOfRetries = "";
     QModbusClient *modbusDevice = nullptr;
  };
 /*数据集信息*/

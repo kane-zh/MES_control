@@ -195,7 +195,7 @@ QString ContainerManage::readFromDrive(QString index){
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
     getValueResult="";
-    if(object.value("result")=="err"){
+    if(object.value("result").toString()=="err"){
         return "err";
     }
     return object.value("value").toString();
@@ -215,7 +215,7 @@ QString ContainerManage::writeToDrive(QString index,QString value){
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
     getValueResult="";
-    if(object.value("result")=="err"){
+    if(object.value("result").toString()=="err"){
         return "err";
     }
     return "ok";

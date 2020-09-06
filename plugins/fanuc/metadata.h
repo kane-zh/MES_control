@@ -3,6 +3,9 @@
 #define MaxDataSource   10
 #define MaxDataSet      1000
 #include <QString>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 #include "Fwlib32.h"
 /*数据源信息*/
 struct  DATASOURCE
@@ -12,7 +15,7 @@ struct  DATASOURCE
     QString    desc;          //备注
     QString    host;          //主机
     QString    port;          //端口号
-    QString    timeout = "10";
+    QString    timeout = "";
     QString    flibhndl= "";
  };
 
@@ -31,6 +34,7 @@ struct  DATASET
     QString parameter2;        //参数2
     QString parameter3;        //参数3
     QString parameter4;        //参数4
+    QString flibhndl= "";
 
  };
 #endif // METADATA_H
