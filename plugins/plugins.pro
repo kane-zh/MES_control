@@ -11,4 +11,5 @@ SUBDIRS += \
     fanuc\
     influxdb\
     control1\
-    control2
+    control2\
+    postgresql

@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "postgresql",
+    "version" : "1.0.0",
+    "type" : "container",
+    "title":"postgresql数据库",
+    "des" : "postgresql数据库存储插件",
+    "dependencies" : []
+}
