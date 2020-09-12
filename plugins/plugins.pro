@@ -12,4 +12,5 @@ SUBDIRS += \
     influxdb\
     control1\
     control2\
-    postgresql
+    postgresql\
+    sqllite

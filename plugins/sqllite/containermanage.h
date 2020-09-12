@@ -9,9 +9,8 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
+#include <QTime>
 #include <QCoreApplication>
-#include "InfluxDBFactory.h"
-#include "Point.h"
 #include "../../mainApp/pluginManage/containerinterface.h"
 #include "metaData.h"
 #include "configdialog.h"
@@ -38,7 +37,7 @@ public:
 public slots:
     void receiveMsgFromDialog(RequestMetaData_dialog request) ;
     void loadConfig();                         //加载配置信息
-    void autoSave(int id);                             //自动保存
+    void autoSave(int id);                      //自动保存
     void timeOut();
 private:
     DATABASE  dataBaseInfor[MaxDataBase];

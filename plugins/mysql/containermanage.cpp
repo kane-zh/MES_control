@@ -119,7 +119,7 @@ void ContainerManage::autoSave(int id)
      QJsonArray array= document.array();
      QString  fields="";
      QString  values="";
-     for (int i = 1; i < array.count(); i++)
+     for (int i = 0; i < array.count(); i++)
       {
          QJsonObject value = array.at(i).toObject();
          if(value["dataIndex"].toString()!=""){

@@ -100,13 +100,12 @@ void ContainerManage::autoSave(int id)
     if(!db.isValid()){
         db.close();
         QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
-        db= QSqlDatabase::addDatabase("QPSQL",dataBaseInfor[dataBase].name);
+        db= QSqlDatabase::addDatabase("QMYSQL",dataBaseInfor[dataBase].name);
         db.setHostName(dataBaseInfor[dataBase].address);
-        db.setPort(dataBaseInfor[dataBase].port.toInt());
         db.setDatabaseName(dataBaseInfor[dataBase].name);
         db.setUserName(dataBaseInfor[dataBase].username);
         db.setPassword(dataBaseInfor[dataBase].password);
-        db.setConnectOptions("connect_timeout=3");
+        db.setConnectOptions("MYSQL_OPT_CONNECT_TIMEOUT=3");
         if(!db.open())
         {
            qDebug()<<"连接数据库"+dataBaseInfor[dataBase].name+"失败";
@@ -173,7 +172,7 @@ void ContainerManage::timeOut()
 void ContainerManage::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/postgresql.ini";
+    QString fileName=path.path()+"/plugins/config/mysql.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -192,7 +191,6 @@ void ContainerManage::loadConfig()
     dataBaseInfor[index].username=json.value("username").toString();
     dataBaseInfor[index].password=json.value("password").toString();
     dataBaseInfor[index].address=json.value("address").toString();
-    dataBaseInfor[index].port=json.value("port").toString();
    }
    QJsonValue dataTable=object.value("dataTable");
    QJsonArray dataTableArray=dataTable.toArray();

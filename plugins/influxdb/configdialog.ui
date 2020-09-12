@@ -14,13 +14,17 @@
    <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>INFLUXDB数据库配置界面</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="image.qrc">
+    <normaloff>:/influxDb.png</normaloff>:/influxDb.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -119,7 +123,14 @@
            </widget>
           </item>
           <item row="7" column="1">
-           <widget class="QLineEdit" name="port"/>
+           <widget class="QLineEdit" name="port">
+            <property name="styleSheet">
+             <string notr="true">默认:8086</string>
+            </property>
+            <property name="text">
+             <string>8086</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -304,6 +315,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="image.qrc"/>
+ </resources>
  <connections/>
 </ui>

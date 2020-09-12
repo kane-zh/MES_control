@@ -97,56 +97,48 @@ void ContainerManage::autoSave(int id)
 {
     int index=id;
     int dataBase=dataTableInfor[index].dataBase.toInt();
-    QSqlDatabase db=QSqlDatabase::database(dataBaseInfor[dataBase].name);
-    if(!db.isValid()){
-        db.close();
-        QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
-        db= QSqlDatabase::addDatabase("QMYSQL",dataBaseInfor[dataBase].name);
-        db.setHostName(dataBaseInfor[dataBase].address);
-        db.setPort(dataBaseInfor[dataBase].port.toInt());
-        db.setDatabaseName(dataBaseInfor[dataBase].name);
-        db.setUserName(dataBaseInfor[dataBase].username);
-        db.setPassword(dataBaseInfor[dataBase].password);
-        if(!db.open())
-        {
-           db.close();
-           QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
-           return;
-        }
-    }
-     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
-     QJsonArray array= document.array();
-     QString  fields="";
-     QString  values="";
-     for (int i = 1; i < array.count(); i++)
-      {
-         QJsonObject value = array.at(i).toObject();
-         if(value["dataIndex"].toString()!=""){
-             RequestMetaData data;
-             data.type=getValue;
-             data.from=QString::number(index);
-             data.target="manage";
-             data.drive=value["drive"].toString();
-             data.index=value["dataIndex"].toString();
-             emit sendMsgToManager(data);
-             while(dataTableInfor[index].getValueResult==""){
-             }
-            fields.append(value["field"].toString());
-            fields.append(",");
-            values.append("'");
-            values.append(dataTableInfor[index].getValueResult);
-            values.append("'");
-            values.append(",");
+    QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
+    QJsonArray array= document.array();
+    for (int i = 0; i < array.count(); i++)
+     {
+        qDebug()<<"开始接收";
+        QJsonObject value = array.at(i).toObject();
+        if(value["dataIndex"].toString()!=""){
+            RequestMetaData data;
+            data.type=getValue;
+            data.from=QString::number(index);
+            data.target="manage";
+            data.drive=value["drive"].toString();
+            data.index=value["dataIndex"].toString();
+            emit sendMsgToManager(data);
+            while(dataTableInfor[index].getValueResult==""){
+                 QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+            }
+            qDebug()<<"接收完成";
+            std::string value1=dataTableInfor[index].getValueResult.toStdString();
             dataTableInfor[index].getValueResult="";
-          }
-      }
-     fields.remove(fields.length()-1,1);
-     values.remove(values.length()-1,1);
-     QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
-     QSqlQuery  query(db);
-     query.exec(cmd);
-     count++;
-     qDebug()<<count;
+            int i = 0;
+            while( (i = value1.find(' ',i)) != std::string::npos)
+               {
+                 value1.erase(i,1);
+               }
+            try {
+                QString url="http://"+dataBaseInfor[dataBase].address+":"+dataBaseInfor[dataBase].port+"/?db="+
+                        dataBaseInfor[dataBase].name;
+               auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
+               influxdb->write(influxdb::Point{dataTableInfor[index].name.toStdString()}
+               .addTag("index",QString::number(index).toStdString())
+               .addField(value["field"].toString().toStdString(),value1));
+                qDebug()<<"写入完成";
+            }
+           catch (...) {
+               qDebug()<<"连接服务器失败!!!";
+           }
+         }
+         }
+    dataTableInfor[index].getValueEnable=true;
+     qDebug()<<"一轮完成";
+
 }
 /*时间定时器超时(槽)*/
 void ContainerManage::timeOut()
@@ -156,9 +148,11 @@ void ContainerManage::timeOut()
   {
     if(dataBaseInfor[dataTableInfor[i].dataBase.toInt()].enable==true){
         if(dataTableInfor[i].enable==true && dataTableInfor[i].name!=""){
-            qDebug()<<100*time_count<<dataTableInfor[i].frequency.toLongLong();
            if(100*time_count%(dataTableInfor[i].frequency.toLongLong())==0){
-             emit saveDataToDB(i);
+               if(dataTableInfor[i].getValueEnable==true){
+                  dataTableInfor[i].getValueEnable==false;
+                  emit saveDataToDB(i);
+               }
            }
         }
     }
@@ -169,7 +163,7 @@ void ContainerManage::timeOut()
 void ContainerManage::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/mysql.ini";
+    QString fileName=path.path()+"/plugins/config/influxdb.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );

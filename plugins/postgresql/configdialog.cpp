@@ -453,7 +453,7 @@ void ConfigDialog::saveValueTest()
     }
      QString  fields="";
      QString  values="";
-     for (int i = 1; i < dataTableModel->rowCount(); i++)
+     for (int i = 0; i < dataTableModel->rowCount(); i++)
       {
          if(dataTableModel->data(dataTableModel->index(i,2)).toString()!=""){
              RequestMetaData_dialog request;

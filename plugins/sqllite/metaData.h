@@ -3,7 +3,7 @@
 #define  MaxDataBase       10
 #define  MaxDataTable      100
 #include <QString>
-#include <Transport.h>
+
 struct RequestMetaData_dialog
 {
     QString type;
@@ -23,10 +23,8 @@ struct  DATABASE
     bool       enable=true;  //使能
     QString    desc;         //备注
     QString    address;      //地址
-    QString    port;         //端口号
     QString    username;     //用户名
     QString    password;     //密码
-
  };
 /*数据表信息*/
 struct  DATATABLE

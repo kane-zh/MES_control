@@ -14,10 +14,12 @@ class mainForm : public QWidget,public DebugControlInterface
 public:
     explicit mainForm(QWidget *parent = nullptr);
     ~mainForm();
+    void showEvent(QShowEvent *);
 signals:
     virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
 public:
     virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE;
+
 private:
     Ui::mainForm *ui;
 };

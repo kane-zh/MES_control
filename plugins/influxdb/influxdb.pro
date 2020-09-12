@@ -42,3 +42,6 @@ LIBS += -L$$PWD/lib/ -lcurldll
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include
+
+RESOURCES += \
+    image.qrc

@@ -14,11 +14,11 @@
    <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
-   <string>MYSQL数据库配置界面</string>
+   <string>SQLLITE数据库配置界面</string>
   </property>
   <property name="windowIcon">
    <iconset resource="image.qrc">
-    <normaloff>:/mysql.png</normaloff>:/mysql.png</iconset>
+    <normaloff>:/sqllite.png</normaloff>:/sqllite.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -37,12 +37,29 @@
        <item row="0" column="0">
         <widget class="QWidget" name="widget_2" native="true">
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="6" column="1">
+           <widget class="QLineEdit" name="address">
+            <property name="placeholderText">
+             <string>例如:   127.0.0.1</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="Label">
             <property name="text">
              <string>索引:</string>
             </property>
            </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="database">
+            <property name="placeholderText">
+             <string>要连接的共享文件名称</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="password"/>
           </item>
           <item row="0" column="1">
            <widget class="QSpinBox" name="index1">
@@ -51,31 +68,20 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="Label_2">
-            <property name="text">
-             <string>数据库名:</string>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="enable1">
+            <property name="checked">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="database">
-            <property name="placeholderText">
-             <string>要连接的数据库名称</string>
-            </property>
-           </widget>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="username"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="Label_3">
             <property name="text">
              <string>使能:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="enable1">
-            <property name="checked">
-             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -100,8 +106,12 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="username"/>
+          <item row="1" column="0">
+           <widget class="QLabel" name="Label_2">
+            <property name="text">
+             <string>数据库名:</string>
+            </property>
+           </widget>
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="Label_6">
@@ -110,37 +120,10 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="password"/>
-          </item>
           <item row="6" column="0">
            <widget class="QLabel" name="Label_7">
             <property name="text">
              <string>地址:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <widget class="QLineEdit" name="address">
-            <property name="placeholderText">
-             <string>例如:   127.0.0.1</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="Label_8">
-            <property name="text">
-             <string>端口号:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QLineEdit" name="port">
-            <property name="text">
-             <string>3306</string>
-            </property>
-            <property name="placeholderText">
-             <string>默认:3306</string>
             </property>
            </widget>
           </item>

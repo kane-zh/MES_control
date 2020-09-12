@@ -1,10 +1,6 @@
 #include "configdialog.h"
 #include "ui_configdialog.h"
-#include <iostream>
-#include "QDesktopWidget"
-#include "InfluxDBFactory.h"
-#include "Point.h"
-#include "configdialog.h"
+#include <QtMqtt/qmqttclient.h>
 ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConfigDialog)
@@ -13,16 +9,20 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     QDesktopWidget* desktopWidget = QApplication::desktop();
     QRect deskRect = desktopWidget->availableGeometry();  //可用区域
     this->resize(deskRect.width()/2,deskRect.height()/1.2);
-    loadConfig();        //加载配置信息
-    connect(ui->connectTest,SIGNAL(clicked()),this,SLOT(connectTest()));
-    connect(ui->clearDataBase,SIGNAL(clicked()),this,SLOT(clearDataBase()));
-    connect(ui->saveDataBase,SIGNAL(clicked()),this,SLOT(setDataBase()));
-    connect(ui->getDataTest,SIGNAL(clicked()),this,SLOT(saveValueTest()));
-    connect(ui->clearDataTable,SIGNAL(clicked()),this,SLOT(clearDataTable()));
-    connect(ui->saveDataTable,SIGNAL(clicked()),this,SLOT(setDataTable()));
+    loadConfig();          //加载配置
     connect(ui->index1,SIGNAL(valueChanged(int)),this,SLOT(fillDataBaseForm()));
     connect(ui->index2,SIGNAL(valueChanged(int)),this,SLOT(fillDataTableForm()));
-    connect(ui->name2,SIGNAL(currentTextChanged(QString)),this,SLOT(showRules()));
+    connect(ui->dataBase,SIGNAL(currentIndexChanged(int)),this,SLOT(fillDataTableBox()));
+    connect(ui->datatable,SIGNAL(currentIndexChanged(int)),this,SLOT(showRules()));
+    connect(ui->clearDataBase,SIGNAL(clicked()),this,SLOT(clearDataBaseConfig()));
+    connect(ui->saveDataBase,SIGNAL(clicked()),this,SLOT(setDataBase()));
+    connect(ui->saveDataTest,SIGNAL(clicked()),this,SLOT(saveValueTest()));
+    connect(ui->clearDataTable,SIGNAL(clicked()),this,SLOT(clearDataTableConfig()));
+    connect(ui->saveDataTable,SIGNAL(clicked()),this,SLOT(setDataTable()));
+    connect(ui->connectTest,SIGNAL(clicked()),this,SLOT(connectTest()));
+    QMqttClient *m_client = new QMqttClient(this);
+
+
 }
 
 ConfigDialog::~ConfigDialog()
@@ -33,25 +33,26 @@ ConfigDialog::~ConfigDialog()
 /*窗体显示事件*/
 void ConfigDialog::showEvent(QShowEvent *)
 {
-    RequestMetaData_dialog request;
-    request.type="getDrivesInfor";
-    emit SendMsgToContainerManage(request);
-    m_delegate=new ItemDelegate(this);
     dataBaseModel=new QStandardItemModel(this);  //建立数据库显示model实例
-    dataTableModel=new QStandardItemModel(this);     //建立数据表显示model实例
-    ui->tableView1->setModel(dataBaseModel);
+    dataTableModel=new QStandardItemModel(this); //建立数据表显示model实例
+    m_delegate=new ItemDelegate(this);           //建立model 代理实例
+    ui->tableView1->setModel(dataBaseModel);     //为显示设置模型
     ui->tableView2->setModel(dataTableModel);
     ui->tableView2->setItemDelegateForColumn(1,m_delegate);
     ui->tableView2->setItemDelegateForColumn(2,m_delegate);
     ui->index1->setMaximum(MaxDataBase-1);
     ui->index2->setMaximum(MaxDataTable-1);
-     showDataBase();        //显示数据库信息
-     fillDataBaseForm();    //填充数据库表单
-     fillDataBaseBox();     //填充数据库下拉框
-     createActions();
-     fillDataTableForm();   //填充数据表表单
+    showDataBaseConfig();  //显示数据库配置信息
+    fillDataBaseForm();    //填充数据库表单信息(配置信息回填到表单)
+    fillDataBaseBox();     //填充数据库下拉框
+    fillDataTableBox();    //填充数据表下拉框
+    fillDataTableForm();   //填充数据表表单(配置信息回填到表单)
+    /*以下为获取驱动插件的信息*/
+    RequestMetaData_dialog request;
+    request.type="getDrivesInfor";
+    emit SendMsgToContainerManage(request);      //获取驱动信息
     while(driveInfor==""){
-
+     QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
     }
     QJsonDocument document = QJsonDocument::fromJson(driveInfor.toUtf8());
     QJsonObject json = document.object();
@@ -60,22 +61,23 @@ void ConfigDialog::showEvent(QShowEvent *)
     for(QJsonObject::Iterator it=json.begin();it!=json.end();it++)
     {
       list.append(it.key());
+    }
+    driveInfor="";
+    QJsonObject json_all;
+    for(int i = 0; i< list.size();++i)
+    {
+        request.type="getDataSetInfor";
+        request.drive=list.at(i);
+        emit SendMsgToContainerManage(request);
+        while(dateSetInfor==""){
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
         }
-        m_delegate->setDriveInfor(list);
-        driveInfor="";
-        QJsonObject json_all;
-        for(int i = 0; i< list.size();++i)
-        {
-            request.type="getDataSetInfor";
-            request.drive=list.at(i);
-            emit SendMsgToContainerManage(request);
-            while(dateSetInfor==""){
-            }
-            document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
-            QJsonArray array= document.array();
-            json_all.insert(list.at(i),array);
-        }
-        m_delegate->setDataSetInfor(json_all);
+        document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
+        QJsonArray array= document.array();
+        json_all.insert(list.at(i),array);
+    }
+      m_delegate->setDriveInfor(list);//将驱动插件的信息传递到代理
+      m_delegate->setDataSetInfor(json_all);
 }
 /*从容器管理器接收消息(曹)*/
 void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog response)
@@ -90,70 +92,44 @@ void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog respons
         dataTableInfor[ui->index2->text().toInt()].getValueResult=response.value;
     }
 }
-void ConfigDialog::contextMenuEvent(QContextMenuEvent *e)
-{
-    menu->exec (QCursor::pos ());
-}
-void ConfigDialog::createActions()
-{
-    dataTableModel->clear();
-    QStringList list;
-    list<<tr("字段名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引");
-    dataTableModel->setHorizontalHeaderLabels(list);
-    dataTableModel->insertRow(0);
-    menu=new QMenu(this);
-    add_row=new QAction(tr("添加行"),this);
-    del_row=new QAction(tr("删除行"),this);
-    menu->addAction(add_row);
-    menu->addAction(del_row);
-    connect (add_row,SIGNAL(triggered(bool)),this,SLOT(AddRow()));
-    connect (del_row,SIGNAL(triggered(bool)),this,SLOT(RemoveRow()));
-}
 
-void ConfigDialog::RemoveRow()
-{
-    dataTableModel->removeRow(ui->tableView2->currentIndex().row());
-}
-
-void ConfigDialog::AddRow()
-{
-    dataTableModel->insertRow(ui->tableView2->currentIndex().row());
-}
-
-/*显示数据库信息*/
-void ConfigDialog::showDataBase()
+/*显示数据库配置信息*/
+void ConfigDialog::showDataBaseConfig()
 {
     dataBaseModel->clear();
     QStringList list;
-    list<<tr("名称")<<tr("使能")<<tr("说明")<<tr("用户名")
-        <<tr("密码")<<tr("地址")<<tr("端口号");
+    list<<tr("名称")<<tr("使能")<<tr("说明")<<tr("用户名")<<tr("密码")<<tr("地址");
     dataBaseModel->setHorizontalHeaderLabels(list);
     for(int index=0;index<MaxDataBase;index++  ){
-       QList<QStandardItem *>  list;
-       QString enable="True";
-       if(dataBaseInfor[index].enable==false){
-          enable="False";
-       }
-       list<<new QStandardItem(dataBaseInfor[index].name)<<
-             new QStandardItem(enable)<<
-             new QStandardItem(dataBaseInfor[index].desc)<<
-             new QStandardItem(dataBaseInfor[index].username)<<
-             new QStandardItem(dataBaseInfor[index].password)<<
-             new QStandardItem(dataBaseInfor[index].address)<<
-             new QStandardItem(dataBaseInfor[index].port);
-        dataBaseModel->appendRow(list);
+        if(dataBaseInfor[index].name!=""){
+           QList<QStandardItem *>  list;
+           QString enable="True";
+           if(dataBaseInfor[index].enable==false){
+              enable="False";
+           }
+           list<<new QStandardItem(dataBaseInfor[index].name)<<
+                 new QStandardItem(dataBaseInfor[index].enable)<<
+                 new QStandardItem(dataBaseInfor[index].desc)<<
+                 new QStandardItem(dataBaseInfor[index].username)<<
+                 new QStandardItem(dataBaseInfor[index].password)<<
+                 new QStandardItem(dataBaseInfor[index].address);
+            dataBaseModel->appendRow(list);
+        }
     }
 }
 /*显示匹配规则*/
 void ConfigDialog::showRules()
 {
-       QString dataTable=ui->name2->currentText();
-       dataTableModel->clear();
-       QStringList list;
-       list<<tr("字段名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引");
-       dataTableModel->setHorizontalHeaderLabels(list);
-       /*如果当前索引下配置的数据表为数据下拉框当前项 且 当前索引下的匹配规则存在*/
+       QString dataTable=ui->datatable->currentText();
+       if(dataTable==""){
+           return;
+       }
+       /*如果当前索引下配置的数据表为数据下拉框当前项且当前索引下的匹配规则存在*/
        if(dataTableInfor[ui->index2->value()].name==dataTable and dataTableInfor[ui->index2->value()].rules!=""){
+           dataTableModel->clear();
+           QStringList list;
+           list<<tr("字段名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引");
+           dataTableModel->setHorizontalHeaderLabels(list);
            QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[ui->index2->value()].rules.toUtf8());
            QJsonArray array= document.array();
            for (int i = 0; i < array.count(); i++)
@@ -168,7 +144,40 @@ void ConfigDialog::showRules()
             }
        }
        else{
-              dataTableModel->insertRow(0);
+           /*连接服务器，获取指定信息*/
+           int database=ui->dataBase->currentData().toInt();
+           QSqlDatabase db=QSqlDatabase::database(dataBaseInfor[database].name);
+           if(!db.isValid()){
+               db.close();
+               QSqlDatabase::removeDatabase(dataBaseInfor[database].name);
+               db= QSqlDatabase::addDatabase("QSQLITE",dataBaseInfor[database].name);
+               db.setHostName(dataBaseInfor[database].address);
+               db.setDatabaseName(dataBaseInfor[database].name);
+               db.setUserName(dataBaseInfor[database].username);
+               db.setPassword(dataBaseInfor[database].password);
+               db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=3");
+               if(!db.open())
+               {
+                  db.close();
+                  QSqlDatabase::removeDatabase(dataBaseInfor[database].name);
+                  QMessageBox::warning(this,tr("提示"),tr("连接数据库失败!!!"),QMessageBox::Yes);
+                  return;
+               }
+           }
+           dataTableModel->clear();
+           QStringList list;
+           list<<tr("字段名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引");
+           dataTableModel->setHorizontalHeaderLabels(list);
+           QString cmd = "describe "+ui->datatable->currentText()+" ;";
+           QSqlQuery query(cmd,db);
+           while (query.next()) {
+               QList<QStandardItem *>  list;
+               list<<new QStandardItem(query.value(0).toString())<<
+                     new QStandardItem("")<<
+                     new QStandardItem("")<<
+                     new QStandardItem("");
+               dataTableModel->appendRow(list);
+           }
        }
 }
 /*设置数据库信息*/
@@ -182,8 +191,8 @@ void ConfigDialog::setDataBase()
           return;
         }
     }
-    if(ui->name1->text()==""){
-      QMessageBox::warning(this,tr("提示"),tr("名称不能为空!!!"),QMessageBox::Yes);
+    if(ui->database->text()==""){
+      QMessageBox::warning(this,tr("提示"),tr("数据库名称不能为空!!!"),QMessageBox::Yes);
       return;
        }
     if(ui->username->text()==""){
@@ -198,17 +207,16 @@ void ConfigDialog::setDataBase()
       QMessageBox::warning(this,tr("提示"),tr("地址不能为空!!!"),QMessageBox::Yes);
       return;
        }
-    dataBaseInfor[index].name=ui->name1->text();
+    dataBaseInfor[index].name=ui->database->text();
     dataBaseInfor[index].enable=ui->enable1->isChecked();
     dataBaseInfor[index].desc=ui->desc1->text();
     dataBaseInfor[index].username=ui->username->text();
     dataBaseInfor[index].password=ui->password->text();
     dataBaseInfor[index].address=ui->address->text();
-    dataBaseInfor[index].port=ui->port->text();
     QMessageBox::information(this,tr("提示"),tr("设置数据库成功"),QMessageBox::Yes);
-    saveConfig();  //保存配置信息
-    showDataBase();
-    fillDataBaseBox();
+    saveConfig();           //保存配置信息
+    showDataBaseConfig();   //显示数据库配置信息
+    fillDataBaseBox();      //填充数据库下拉框
 }
 /*设置数据表信息*/
 void ConfigDialog::setDataTable()
@@ -221,6 +229,14 @@ void ConfigDialog::setDataTable()
           return;
         }
     }
+    if(ui->dataBase->currentText()==""){
+      QMessageBox::warning(this,tr("提示"),tr("数据库不能为空!!!"),QMessageBox::Yes);
+      return;
+       }
+    if(ui->datatable->currentText()==""){
+      QMessageBox::warning(this,tr("提示"),tr("数据表不能为空!!!"),QMessageBox::Yes);
+      return;
+       }
     QJsonArray array;
     for(int index=0;index<dataTableModel->rowCount();index++){
             QJsonObject json;
@@ -232,19 +248,18 @@ void ConfigDialog::setDataTable()
     }
     QJsonDocument document;
     document.setArray(array);
-    QByteArray byte_array = document.toJson(QJsonDocument::Compact);
-    QString json_str(byte_array);
+    QString json_str(document.toJson(QJsonDocument::Compact));
     dataTableInfor[index].dataBase=ui->dataBase->currentData().toString();
-    dataTableInfor[index].name=ui->name2->currentText();
+    dataTableInfor[index].name=ui->datatable->currentText();
     dataTableInfor[index].enable=ui->enable2->isChecked();
     dataTableInfor[index].frequency=QString::number(ui->frequency->value(),10);
     dataTableInfor[index].desc=ui->desc2->text();
     dataTableInfor[index].rules=json_str;
     QMessageBox::information(this,tr("提示"),tr("设置数据表成功"),QMessageBox::Yes);
-    saveConfig();  //保存配置信息
+    saveConfig();   //保存配置信息
 }
-
-void ConfigDialog::clearDataBase()
+/*清空数据库配置*/
+void ConfigDialog::clearDataBaseConfig()
 {
     int index=ui->index1->value();
     if(dataBaseInfor[index].name!=""){
@@ -258,22 +273,20 @@ void ConfigDialog::clearDataBase()
     dataBaseInfor[index].enable=true;
     dataBaseInfor[index].desc="";
     dataBaseInfor[index].address="";
-    dataBaseInfor[index].port="";
     dataBaseInfor[index].username="";
     dataBaseInfor[index].password="";
-    ui->name1->setText("");
+    ui->database->setText("");
     ui->desc1->setText("");
     ui->address->setText("");
-    ui->port->setText("");
     ui->username->setText("");
     ui->password->setText("");
     QMessageBox::information(this,tr("提示"),tr("清除数据库信息成功"),QMessageBox::Yes);
     saveConfig();
-    showDataBase();
+    showDataBaseConfig();
     fillDataBaseBox();
 }
-
-void ConfigDialog::clearDataTable()
+/*清空数据表配置*/
+void ConfigDialog::clearDataTableConfig()
 {
     int index=ui->index2->value();
     if(dataBaseInfor[index].name!=""){
@@ -290,30 +303,31 @@ void ConfigDialog::clearDataTable()
     dataTableInfor[index].desc="";
     dataTableInfor[index].rules="";
     ui->dataBase->setCurrentIndex(0);
-    ui->name2->setCurrentText("");
+    ui->datatable->setCurrentIndex(0);
     ui->enable2->setCheckState(Qt::Unchecked);
     ui->frequency->setValue(0);
     ui->desc2->setText("");
     dataTableModel->clear();
-    QStringList list;
-    list<<tr("字段名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引");
-    dataTableModel->setHorizontalHeaderLabels(list);
-    dataTableModel->insertRow(0);
     QMessageBox::information(this,tr("提示"),tr("清除数据库信息成功"),QMessageBox::Yes);
     saveConfig();
+
 }
 /*填充数据库表单*/
 void ConfigDialog::fillDataBaseForm()
 {
     int index=ui->index1->value();
     if(dataBaseInfor[index].name!=""){      //如果已经有配置信息，则填充回表单
-        ui->name1->setText(dataBaseInfor[index].name);
+        ui->database->setText(dataBaseInfor[index].name);
         ui->enable1->setChecked(dataBaseInfor[index].enable);
         ui->desc1->setText(dataBaseInfor[index].desc);
         ui->username->setText(dataBaseInfor[index].username);
         ui->password->setText(dataBaseInfor[index].password);
         ui->address->setText(dataBaseInfor[index].address);
-        ui->port->setText(dataBaseInfor[index].port);
+       }
+    else{
+        ui->database->setText(dataBaseInfor[index].name);
+        ui->enable1->setChecked(dataBaseInfor[index].enable);
+        ui->desc1->setText(dataBaseInfor[index].desc);
        }
 }
 /*填充数据表表单*/
@@ -321,7 +335,7 @@ void ConfigDialog::fillDataTableForm()
 {
     int index=ui->index2->value();
     ui->dataBase->setCurrentIndex(ui->dataBase->findData(dataTableInfor[index].dataBase));
-    ui->name2->setCurrentText(dataTableInfor[index].name);
+    ui->datatable->setCurrentText(dataTableInfor[index].name);
     ui->enable2->setChecked(dataTableInfor[index].enable);
     ui->frequency->setValue(dataTableInfor[index].frequency.toInt());
     ui->desc2->setText(dataTableInfor[index].desc);
@@ -339,91 +353,132 @@ void ConfigDialog::fillDataBaseBox()
       }
     }
 }
-
+/*填充数据表下拉框*/
+void ConfigDialog::fillDataTableBox()
+{
+    ui->datatable->clear();
+    /*连接服务器，获取指定信息*/
+    int index=ui->dataBase->currentData().toInt();
+    if(dataBaseInfor[index].name==""){
+        return;
+    }
+    QSqlDatabase db=QSqlDatabase::database(dataBaseInfor[index].name);
+    if(!db.isValid()){
+        db.close();
+        QSqlDatabase::removeDatabase(dataBaseInfor[index].name);
+        db= QSqlDatabase::addDatabase("QSQLITE",dataBaseInfor[index].name);
+        db.setHostName(dataBaseInfor[index].address);
+        db.setDatabaseName(dataBaseInfor[index].name);
+        db.setUserName(dataBaseInfor[index].username);
+        db.setPassword(dataBaseInfor[index].password);
+        db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=3");
+        if(!db.open())
+        {
+           db.close();
+           QSqlDatabase::removeDatabase(dataBaseInfor[index].name);
+           QMessageBox::warning(this,tr("提示"),tr("连接数据库失败!!!"),QMessageBox::Yes);
+           return;
+        }
+    }
+    QString cmd = "show tables;";
+    QSqlQuery query(cmd,db);
+    while (query.next()) {
+        ui->datatable->addItem(query.value(0).toString());
+    }
+}
 /*连接数据库测试*/
 void ConfigDialog::connectTest()
 {
-    if(ui->name1->text()==""){
-      QMessageBox::warning(this,tr("提示"),tr("名称不能为空!!!"),QMessageBox::Yes);
+    if(ui->database->text()==""){
+      QMessageBox::warning(this,tr("提示"),tr("数据库名称不能为空!!!"),QMessageBox::Yes);
+      return;
+       }
+    if(ui->username->text()==""){
+      QMessageBox::warning(this,tr("提示"),tr("用户名不能为空!!!"),QMessageBox::Yes);
+      return;
+       }
+    if(ui->password->text()==""){
+      QMessageBox::warning(this,tr("提示"),tr("密码不能为空!!!"),QMessageBox::Yes);
       return;
        }
     if(ui->address->text()==""){
       QMessageBox::warning(this,tr("提示"),tr("地址不能为空!!!"),QMessageBox::Yes);
       return;
        }
-    QString url="http://"+ui->address->text()+":"+ui->port->text()+"/?db=";
-    try {
-         auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
-         try {
-             auto points = influxdb->query("show databases");
-             for(int i=0;i<points.size();i++){
-                 if(",name="+ui->name1->text()==points.at(i).getTags().data())
-                 {
-                   QMessageBox::information(this,tr("提示"),tr("连接数据库成功!!!"),QMessageBox::Yes);
-                   return;
-                 }
-             }
-             QMessageBox::warning(this,tr("提示"),tr("连接服务器成功,但数据库不存在!!!"),QMessageBox::Yes);
-         } catch (...) {
-              QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-         }
-    } catch (...) {
-         QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
+    /*连接服务器*/
+    QSqlDatabase db= QSqlDatabase::addDatabase("QSQLITE",ui->database->text());
+    db.setHostName(ui->address->text());
+    db.setDatabaseName(ui->database->text());
+    db.setUserName(ui->username->text());
+    db.setPassword(ui->password->text());
+    db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=3");
+    if(!db.open())
+    {
+        db.close();
+        QSqlDatabase::removeDatabase(ui->database->text());
+        QMessageBox::warning(this,tr("提示"),tr("连接数据库失败!!!"),QMessageBox::Yes);
+        return;
     }
+    QMessageBox::information(this,tr("提示"),tr("连接数据库成功!!!"),QMessageBox::Yes);
+
 }
+/*保存数据测试*/
 void ConfigDialog::saveValueTest()
 {
-    QString url="http://"+dataBaseInfor[ui->dataBase->currentData().toInt()].address+":"+dataBaseInfor[ui->dataBase->currentData().toInt()].port+"/?db="+
-            ui->dataBase->currentText();
-
-    for (int i = 0; i < dataTableModel->rowCount(); i++)
-     {
-
-             if(dataTableModel->data(dataTableModel->index(i,2)).toString()!=""){
-                 RequestMetaData_dialog request;
-                 request.type="getValue";
-                 request.drive=dataTableModel->data(dataTableModel->index(i,1)).toString();
-                 request.index=dataTableModel->data(dataTableModel->index(i,3)).toString();
-                 emit SendMsgToContainerManage(request);
-                 while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
-                      QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-                 }
-                 std::string value=dataTableInfor  [ui->index2->text().toInt()].getValueResult.toStdString();
-                 dataTableInfor[ui->index2->text().toInt()].getValueResult="";
-                 int index = 0;
-                 while( (index = value.find(' ',index)) != std::string::npos)
-                    {
-                      value.erase(index,1);
-                    }
-                 try {
-                    auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
-                    influxdb->write(influxdb::Point{ ui->name2->currentText().toStdString() }
-                    .addTag("index",QString::number(ui->index2->value()).toStdString())
-                    .addField(dataTableModel->data(dataTableModel->index(i,0)).toString().toStdString(),value));
-                 }
-                catch (...) {
-                    QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-                    return;
-                }
-              }
-    //         try {
-    //             auto points = influxdb->query("show databases");
-    //             for(int i=0;i<points.size();i++){
-    //                 if(",name="+ui->name1->text()==points.at(i).getTags().data())
-    //                 {
-    //                   break;
-    //                 }
-    //                 else if(i==(points.size()-1)){
-    //                  QMessageBox::warning(this,tr("提示"),tr("连接服务器成功,但数据库不存在!!!"),QMessageBox::Yes);
-    //                 }
-    //             }
-    //         } catch (...) {
-    //              QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-    //         }
-
+    QSqlDatabase db=QSqlDatabase::database(ui->dataBase->currentText());
+    int dataBase=ui->dataBase->currentData().toInt();
+    if(!db.isValid()){
+        db.close();
+        QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
+        db= QSqlDatabase::addDatabase("QSQLITE",dataBaseInfor[dataBase].name);
+        db.setHostName(dataBaseInfor[dataBase].address);
+        db.setDatabaseName(dataBaseInfor[dataBase].name);
+        db.setUserName(dataBaseInfor[dataBase].username);
+        db.setPassword(dataBaseInfor[dataBase].password);
+        db.setConnectOptions("QSQLITE_BUSY_TIMEOUT=3");
+        if(!db.open())
+        {
+           db.close();
+           QMessageBox::warning(this,tr("提示"),tr("连接数据库失败!!!"),QMessageBox::Yes);
+           QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
+           return;
+        }
+    }
+     QString  fields="";
+     QString  values="";
+     for (int i = 0; i < dataTableModel->rowCount(); i++)
+      {
+         if(dataTableModel->data(dataTableModel->index(i,2)).toString()!=""){
+             RequestMetaData_dialog request;
+             request.type="getValue";
+             request.drive=dataTableModel->data(dataTableModel->index(i,1)).toString();
+             request.index=dataTableModel->data(dataTableModel->index(i,3)).toString();
+             emit SendMsgToContainerManage(request);
+             while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+             }
+            fields.append(dataTableModel->data(dataTableModel->index(i,0)).toString());
+            fields.append(",");
+            values.append("'");
+            values.append(dataTableInfor[ui->index2->text().toInt()].getValueResult);
+            values.append("'");
+            values.append(",");
+            dataTableInfor[ui->index2->text().toInt()].getValueResult="";
+          }
+      }
+     fields.remove(fields.length()-1,1);
+     values.remove(values.length()-1,1);
+     QString cmd="insert into "+ui->datatable->currentText()+ "("+fields+") " +"values ("+values+");";
+     QSqlQuery  query(db);
+     query.exec(cmd);
+     if(!query.lastError().isValid()){
+       QMessageBox::information(this,tr("提示"),tr("保存数据成功"),QMessageBox::Yes);
      }
-    QMessageBox::information(this,tr("提示"),tr("保存数据成功!!!"),QMessageBox::Yes);
- }
+     else {
+      QMessageBox::warning(this,tr("提示"),tr("保存数据失败!!!")+ query.lastError().text(),QMessageBox::Yes);
+     }
+
+}
 /*保存信息*/
 void ConfigDialog::saveConfig()
 {
@@ -437,7 +492,6 @@ void ConfigDialog::saveConfig()
             json.insert("desc",dataBaseInfor[index].desc);
             json.insert("password",dataBaseInfor[index].password);
             json.insert("address",dataBaseInfor[index].address);
-            json.insert("port",dataBaseInfor[index].port);
             dataBaseArray.push_back(json);
     }
     QJsonArray dataTableArray;
@@ -458,7 +512,7 @@ void ConfigDialog::saveConfig()
     document.setObject(object);
     QByteArray data=document.toJson();
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/influxdb.ini";
+    QString fileName=path.path()+"/plugins/config/mysql.ini";
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly|QIODevice::Text)) { //如果文件不存在则新建文件
         file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -470,7 +524,7 @@ void ConfigDialog::saveConfig()
 void ConfigDialog::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/influxdb.ini";
+    QString fileName=path.path()+"/plugins/config/mysql.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -489,7 +543,6 @@ void ConfigDialog::loadConfig()
     dataBaseInfor[index].username=json.value("username").toString();
     dataBaseInfor[index].password=json.value("password").toString();
     dataBaseInfor[index].address=json.value("address").toString();
-    dataBaseInfor[index].port=json.value("port").toString();
    }
    QJsonValue dataTable=object.value("dataTable");
    QJsonArray dataTableArray=dataTable.toArray();
@@ -503,4 +556,3 @@ void ConfigDialog::loadConfig()
     dataTableInfor[index].rules=json.value("rules").toString();
    }
 }
-

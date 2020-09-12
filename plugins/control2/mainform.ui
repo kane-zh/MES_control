@@ -10,35 +10,42 @@
     <height>547</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <family>Arial</family>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1" rowspan="2">
-    <widget class="QListWidget" name="listWidget">
-     <item>
-      <property name="text">
-       <string>测试2</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QPushButton" name="pushButton">
-     <property name="text">
-      <string>PushButton</string>
+   <item row="1" column="1">
+    <widget class="QQuickWidget" name="quickWidget">
+     <property name="font">
+      <font>
+       <family>Arial</family>
+      </font>
      </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QPushButton" name="pushButton_2">
-     <property name="text">
-      <string>PushButton</string>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(0, 0, 255);</string>
+     </property>
+     <property name="resizeMode">
+      <enum>QQuickWidget::SizeRootObjectToView</enum>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

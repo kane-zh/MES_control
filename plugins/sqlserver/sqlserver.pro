@@ -23,3 +23,6 @@ SOURCES += \
 
 DISTFILES += \
     programmer.json
+
+RESOURCES += \
+    image.qrc
