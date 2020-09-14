@@ -20,10 +20,7 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     connect(ui->clearDataTable,SIGNAL(clicked()),this,SLOT(clearDataTableConfig()));
     connect(ui->saveDataTable,SIGNAL(clicked()),this,SLOT(setDataTable()));
     connect(ui->connectTest,SIGNAL(clicked()),this,SLOT(connectTest()));
-    QMqttClient *m_client = new QMqttClient(this);
-
-
-}
+ }
 
 ConfigDialog::~ConfigDialog()
 {

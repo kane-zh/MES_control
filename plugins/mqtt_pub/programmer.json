@@ -1,10 +1,10 @@
 {
     "author" : "kane",
     "date" : "2020/05/20",
-    "name" : "mqtt",
+    "name" : "mqtt_pub",
     "version" : "1.0.0",
-    "type" : "dataSource",
-     "title":"mqtt",
+    "type" : "container",
+    "title":"mqtt消息发布",
     "des" : "mqtt通讯插件",
     "dependencies" : []
 }

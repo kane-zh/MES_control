@@ -29,5 +29,6 @@ struct ResponseMetaData
     TYPE    type;
     QString value;
 };
+
 Q_DECLARE_METATYPE(RequestMetaData);
 Q_DECLARE_METATYPE(ResponseMetaData);

@@ -5,7 +5,6 @@ ContainerManage::ContainerManage(QWidget *parent)
     loadConfig();        //加载配置信息
     m_time=new QTimer();
     connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
-    connect(this,SIGNAL(saveDataToDB(int)),this,SLOT(autoSave(int)));
     m_time->start(100);
 }
 
@@ -142,14 +141,12 @@ void ContainerManage::autoSave(int id)
             dataTableInfor[index].getValueResult="";
           }
       }
-     dataTableInfor[index].getValueEnable=true;
      fields.remove(fields.length()-1,1);
      values.remove(values.length()-1,1);
      QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
      QSqlQuery  query(db);
      query.exec(cmd);
-     count++;
-     qDebug()<<count;
+     dataTableInfor[index].getValueEnable=true;
 }
 /*时间定时器超时(槽)*/
 void ContainerManage::timeOut()
@@ -162,7 +159,7 @@ void ContainerManage::timeOut()
            if(100*time_count%(dataTableInfor[i].frequency.toLongLong())==0){
                if(dataTableInfor[i].getValueEnable==true){
                   dataTableInfor[i].getValueEnable==false;
-                  emit saveDataToDB(i);
+                  QtConcurrent::run(this,&ContainerManage::autoSave,i);
                }
            }
         }

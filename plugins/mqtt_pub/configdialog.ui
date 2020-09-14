@@ -17,7 +17,7 @@
    <string>INFLUXDB数据库配置界面</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="image.qrc">
+   <iconset resource="../influxdb/image.qrc">
     <normaloff>:/influxDb.png</normaloff>:/influxDb.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -31,7 +31,7 @@
      </property>
      <widget class="QWidget" name="Tab1">
       <attribute name="title">
-       <string>数据库配置</string>
+       <string>服务器配置</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_7" rowstretch="9,1" columnstretch="3,7">
        <item row="0" column="0">
@@ -165,14 +165,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="clearDataBase">
+           <widget class="QPushButton" name="clearService">
             <property name="text">
              <string>清除数据</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="saveDataBase">
+           <widget class="QPushButton" name="saveService">
             <property name="text">
              <string>保存</string>
             </property>
@@ -185,7 +185,7 @@
      </widget>
      <widget class="QWidget" name="Tab2">
       <attribute name="title">
-       <string>数据表配置</string>
+       <string>主题配置</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6" rowstretch="9,1" columnstretch="3,7">
        <item row="0" column="0">
@@ -205,52 +205,21 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>数据库:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="dataBase"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="Label_16">
-            <property name="text">
-             <string>数据表:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QComboBox" name="name2">
-            <property name="editable">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="Label_17">
-            <property name="text">
-             <string>使能:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
+          <item row="5" column="1">
            <widget class="QCheckBox" name="enable2">
             <property name="checked">
              <bool>true</bool>
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label">
+          <item row="7" column="0">
+           <widget class="QLabel" name="Label_18">
             <property name="text">
-             <string>采样频率:</string>
+             <string>备注:</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="6" column="1">
            <widget class="QSpinBox" name="frequency">
             <property name="minimum">
              <number>1000</number>
@@ -263,15 +232,42 @@
             </property>
            </widget>
           </item>
+          <item row="7" column="1">
+           <widget class="QLineEdit" name="desc2"/>
+          </item>
           <item row="5" column="0">
-           <widget class="QLabel" name="Label_18">
+           <widget class="QLabel" name="Label_17">
             <property name="text">
-             <string>备注:</string>
+             <string>使能:</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="desc2"/>
+          <item row="2" column="0">
+           <widget class="QLabel" name="Label_16">
+            <property name="text">
+             <string>名称:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>采样频率:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>服务器:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QComboBox" name="service"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="name2"/>
           </item>
          </layout>
         </widget>
@@ -287,14 +283,14 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="clearDataTable">
+           <widget class="QPushButton" name="clearTopic">
             <property name="text">
              <string>清除数据</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="saveDataTable">
+           <widget class="QPushButton" name="saveTopic">
             <property name="text">
              <string>保存</string>
             </property>
@@ -319,7 +315,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="image.qrc"/>
+  <include location="../influxdb/image.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -1,7 +1,5 @@
 #pragma once
 #include <QtPlugin>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -9,7 +7,6 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
-#include <QTime>
 #include <QtConcurrent>
 #include <QCoreApplication>
 #include "../../mainApp/pluginManage/containerinterface.h"
@@ -40,8 +37,8 @@ public slots:
     void autoSave(int id);                      //自动保存
     void timeOut();
 private:
-    DATABASE  dataBaseInfor[MaxDataBase];
-    DATATABLE dataTableInfor[MaxDataTable];
+    SERVICE  serviceInfor[MaxService];
+    TOPIC dataTableInfor[MaxTopic];
     QString   driveInfor="";
     QString   dateSetInfor="";
     QTimer *m_time;

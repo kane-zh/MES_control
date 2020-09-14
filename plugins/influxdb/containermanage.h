@@ -9,6 +9,7 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
+#include <QtConcurrent>
 #include <QCoreApplication>
 #include "InfluxDBFactory.h"
 #include "Point.h"
@@ -31,14 +32,13 @@ public:
 signals:
     virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
     void sendMsgToDialog(ResponseMetaData_dialog response);
-    void saveDataToDB(int i);
 public:
     virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE;
     virtual void showForm(QWidget *parent = nullptr) Q_DECL_OVERRIDE;
 public slots:
     void receiveMsgFromDialog(RequestMetaData_dialog request) ;
     void loadConfig();                         //加载配置信息
-    void autoSave(int id);                             //自动保存
+    void autoSave(int id);                      //自动保存
     void timeOut();
 private:
     DATABASE  dataBaseInfor[MaxDataBase];
@@ -47,6 +47,4 @@ private:
     QString   dateSetInfor="";
     QTimer *m_time;
     qlonglong  time_count=0;
-    qlonglong count=0;
 };
-

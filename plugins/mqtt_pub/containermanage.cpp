@@ -87,9 +87,9 @@ void ContainerManage::showForm(QWidget *parent)
 void ContainerManage::timeOut()
 {
   time_count++;
-  for(int i=0;i<MaxDataTable;i++)
+  for(int i=0;i<MaxTopic;i++)
   {
-    if(dataBaseInfor[dataTableInfor[i].dataBase.toInt()].enable==true){
+    if(serviceInfor[dataTableInfor[i].service.toInt()].enable==true){
         if(dataTableInfor[i].enable==true && dataTableInfor[i].name!=""){
            if(100*time_count%(dataTableInfor[i].frequency.toLongLong())==0){
                if(dataTableInfor[i].getValueEnable==true){
@@ -104,48 +104,48 @@ void ContainerManage::timeOut()
 void ContainerManage::autoSave(int id)
 {
     int index=id;
-    int dataBase=dataTableInfor[index].dataBase.toInt();
+    int service=dataTableInfor[index].service.toInt();
     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
     QJsonArray array= document.array();
-    try {
-        QString url="http://"+dataBaseInfor[dataBase].address+":"+dataBaseInfor[dataBase].port+"/?db="+
-                dataBaseInfor[dataBase].name;
-         auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
-         for (int i = 0; i < array.count(); i++)
-          {
-             QJsonObject value = array.at(i).toObject();
-             if(value["dataIndex"].toString()!=""){
-                 RequestMetaData data;
-                 data.type=getValue;
-                 data.from=QString::number(index);
-                 data.target="manage";
-                 data.drive=value["drive"].toString();
-                 data.index=value["dataIndex"].toString();
-                 emit sendMsgToManager(data);
-                 while(dataTableInfor[index].getValueResult==""){
-                      QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-                 }
-                 std::string value1=dataTableInfor[index].getValueResult.toStdString();
-                 dataTableInfor[index].getValueResult="";
-                 int i = 0;
-                 while( (i = value1.find(' ',i)) != std::string::npos)
-                    {
-                      value1.erase(i,1);
-                    }
-                 try {
-                    influxdb->write(influxdb::Point{dataTableInfor[index].name.toStdString()}
-                    .addTag("index",QString::number(index).toStdString())
-                    .addField(value["field"].toString().toStdString(),value1));
-                 }
-                catch (...) {
-                    qDebug()<<"写数据失败!!!";
-                }
-             }
-           }
-       }
-    catch (...) {
-           qDebug()<<"连接服务器失败!!!";
-    }
+//    try {
+//        QString url="http://"+serviceInfor[service].address+":"+serviceInfor[service].port+"/?db="+
+//                serviceInfor[service].name;
+//         auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
+//         for (int i = 0; i < array.count(); i++)
+//          {
+//             QJsonObject value = array.at(i).toObject();
+//             if(value["dataIndex"].toString()!=""){
+//                 RequestMetaData data;
+//                 data.type=getValue;
+//                 data.from=QString::number(index);
+//                 data.target="manage";
+//                 data.drive=value["drive"].toString();
+//                 data.index=value["dataIndex"].toString();
+//                 emit sendMsgToManager(data);
+//                 while(dataTableInfor[index].getValueResult==""){
+//                      QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+//                 }
+//                 std::string value1=dataTableInfor[index].getValueResult.toStdString();
+//                 dataTableInfor[index].getValueResult="";
+//                 int i = 0;
+//                 while( (i = value1.find(' ',i)) != std::string::npos)
+//                    {
+//                      value1.erase(i,1);
+//                    }
+//                 try {
+//                    influxdb->write(influxdb::Point{dataTableInfor[index].name.toStdString()}
+//                    .addTag("index",QString::number(index).toStdString())
+//                    .addField(value["field"].toString().toStdString(),value1));
+//                 }
+//                catch (...) {
+//                    qDebug()<<"写数据失败!!!";
+//                }
+//             }
+//           }
+//       }
+//    catch (...) {
+//           qDebug()<<"连接服务器失败!!!";
+//    }
     dataTableInfor[index].getValueEnable=true;
 
 }
@@ -154,7 +154,7 @@ void ContainerManage::autoSave(int id)
 void ContainerManage::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/influxdb.ini";
+    QString fileName=path.path()+"/plugins/config/mqtt_pub.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -163,24 +163,24 @@ void ContainerManage::loadConfig()
    file.close();
    QJsonDocument doc=QJsonDocument::fromJson(data);
    QJsonObject object=doc.object();
-   QJsonValue dataBase=object.value("dataBase");
-   QJsonArray dataBaseArray=dataBase.toArray();
-   for(int index=0;index<MaxDataBase;index++){
-    QJsonObject json=dataBaseArray.at(index).toObject();
-    dataBaseInfor[index].name=json.value("name").toString();
-    dataBaseInfor[index].enable=json.value("enable").toBool();
-    dataBaseInfor[index].desc=json.value("desc").toString();
-    dataBaseInfor[index].username=json.value("username").toString();
-    dataBaseInfor[index].password=json.value("password").toString();
-    dataBaseInfor[index].address=json.value("address").toString();
-    dataBaseInfor[index].port=json.value("port").toString();
+   QJsonValue service=object.value("service");
+   QJsonArray serviceArray=service.toArray();
+   for(int index=0;index<MaxService;index++){
+    QJsonObject json=serviceArray.at(index).toObject();
+    serviceInfor[index].name=json.value("name").toString();
+    serviceInfor[index].enable=json.value("enable").toBool();
+    serviceInfor[index].desc=json.value("desc").toString();
+    serviceInfor[index].username=json.value("username").toString();
+    serviceInfor[index].password=json.value("password").toString();
+    serviceInfor[index].address=json.value("address").toString();
+    serviceInfor[index].port=json.value("port").toString();
    }
-   QJsonValue dataTable=object.value("dataTable");
-   QJsonArray dataTableArray=dataTable.toArray();
-   for(int index=0;index<MaxDataTable;index++){
-    QJsonObject json=dataTableArray.at(index).toObject();
+   QJsonValue topic=object.value("topic");
+   QJsonArray topicArray=topic.toArray();
+   for(int index=0;index<MaxTopic;index++){
+    QJsonObject json=topicArray.at(index).toObject();
     dataTableInfor[index].name=json.value("name").toString();
-    dataTableInfor[index].dataBase=json.value("dataBase").toString();
+    dataTableInfor[index].service=json.value("service").toString();
     dataTableInfor[index].enable=json.value("enable").toBool();
     dataTableInfor[index].frequency=json.value("frequency").toString();
     dataTableInfor[index].desc=json.value("desc").toString();

@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
     //注册MessageHandler
 //    qInstallMessageHandler(outputMessage); //注册MessageHandler
 //    g_OutputDebug.open(qPrintable(QString(QString(QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss").append("-log.txt")))), std::ios::out | std::ios::trunc);
-
+    qRegisterMetaType<RequestMetaData>("RequestMetaData");
+    qRegisterMetaType<ResponseMetaData>("ResponseMetaData");
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

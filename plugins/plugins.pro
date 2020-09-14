@@ -4,7 +4,6 @@ SUBDIRS += \
     keyence \
     modbus\
     modbustcp\
-    mqtt\
     mysql\
     sqlserver\
     mes\
@@ -13,4 +12,5 @@ SUBDIRS += \
     control1\
     control2\
     postgresql\
-    sqllite
+    sqllite\
+    mqtt_pub

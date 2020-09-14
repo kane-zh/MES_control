@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QDir>
 #include <QTime>
+#include <QtConcurrent>
 #include <QCoreApplication>
 #include "../../mainApp/pluginManage/containerinterface.h"
 #include "metaData.h"
@@ -30,7 +31,6 @@ public:
 signals:
     virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
     void sendMsgToDialog(ResponseMetaData_dialog response);
-    void saveDataToDB(int i);
 public:
     virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE;
     virtual void showForm(QWidget *parent = nullptr) Q_DECL_OVERRIDE;
@@ -46,6 +46,5 @@ private:
     QString   dateSetInfor="";
     QTimer *m_time;
     qlonglong  time_count=0;
-    qlonglong count=0;
 };
 
