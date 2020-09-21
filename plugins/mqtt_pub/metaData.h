@@ -3,6 +3,7 @@
 #define  MaxService       10
 #define  MaxTopic     100
 #include <QString>
+#include <QtMqtt/qmqttclient.h>
 struct RequestMetaData_dialog
 {
     QString type;
@@ -25,7 +26,8 @@ struct  SERVICE
     QString    port;         //端口号
     QString    username;     //用户名
     QString    password;     //密码
-
+    QString    timeOut;      //超时时间
+    QMqttClient *client=nullptr;
  };
 /*主题信息*/
 struct  TOPIC
@@ -33,6 +35,7 @@ struct  TOPIC
     QString name;       //名称
     QString service;    //服务器索引
     bool    enable=false;     //使能
+    QString topic;  //主题
     QString frequency;  //采集频率
     QString desc;       //备注
     QString rules;      //数据源--主题对应规则(json字符串)

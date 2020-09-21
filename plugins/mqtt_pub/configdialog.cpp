@@ -3,6 +3,7 @@
 #include <iostream>
 #include "QDesktopWidget"
 #include "configdialog.h"
+#include <QThread>
 ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConfigDialog)
@@ -15,19 +16,17 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     connect(ui->connectTest,SIGNAL(clicked()),this,SLOT(connectTest()));
     connect(ui->clearService,SIGNAL(clicked()),this,SLOT(clearService()));
     connect(ui->saveService,SIGNAL(clicked()),this,SLOT(setService()));
-    connect(ui->getDataTest,SIGNAL(clicked()),this,SLOT(saveValueTest()));
+    connect(ui->publish,SIGNAL(clicked()),this,SLOT(publishTest()));
     connect(ui->clearTopic,SIGNAL(clicked()),this,SLOT(clearTopic()));
     connect(ui->saveTopic,SIGNAL(clicked()),this,SLOT(setTopic()));
     connect(ui->index1,SIGNAL(valueChanged(int)),this,SLOT(fillServiceForm()));
     connect(ui->index2,SIGNAL(valueChanged(int)),this,SLOT(fillTopicForm()));
-    connect(ui->name2,SIGNAL(currentTextChanged(QString)),this,SLOT(showRules()));
 }
 
 ConfigDialog::~ConfigDialog()
 {
     delete ui;
 }
-
 /*窗体显示事件*/
 void ConfigDialog::showEvent(QShowEvent *)
 {
@@ -124,7 +123,7 @@ void ConfigDialog::showService()
     serviceModel->clear();
     QStringList list;
     list<<tr("名称")<<tr("使能")<<tr("说明")<<tr("用户名")
-        <<tr("密码")<<tr("地址")<<tr("端口号");
+        <<tr("密码")<<tr("地址")<<tr("端口号")<<tr("超时时间");
     serviceModel->setHorizontalHeaderLabels(list);
     for(int index=0;index<MaxService;index++  ){
        QList<QStandardItem *>  list;
@@ -133,12 +132,13 @@ void ConfigDialog::showService()
           enable="False";
        }
        list<<new QStandardItem(serviceInfor[index].name)<<
-             new QStandardItem(enable)<<
-             new QStandardItem(serviceInfor[index].desc)<<
-             new QStandardItem(serviceInfor[index].username)<<
-             new QStandardItem(serviceInfor[index].password)<<
-             new QStandardItem(serviceInfor[index].address)<<
-             new QStandardItem(serviceInfor[index].port);
+            new QStandardItem(enable)<<
+            new QStandardItem(serviceInfor[index].desc)<<
+            new QStandardItem(serviceInfor[index].username)<<
+            new QStandardItem(serviceInfor[index].password)<<
+            new QStandardItem(serviceInfor[index].address)<<
+            new QStandardItem(serviceInfor[index].port)<<
+            new QStandardItem(serviceInfor[index].timeOut);
         serviceModel->appendRow(list);
     }
 }
@@ -203,6 +203,7 @@ void ConfigDialog::setService()
     serviceInfor[index].password=ui->password->text();
     serviceInfor[index].address=ui->address->text();
     serviceInfor[index].port=ui->port->text();
+    serviceInfor[index].timeOut=QString::number(ui->timeOut->value());
     QMessageBox::information(this,tr("提示"),tr("设置服务器成功"),QMessageBox::Yes);
     saveConfig();  //保存配置信息
     showService();
@@ -234,6 +235,7 @@ void ConfigDialog::setTopic()
     QString json_str(byte_array);
     topicInfor[index].service=ui->service->currentData().toString();
     topicInfor[index].name=ui->name2->text();
+    topicInfor[index].topic=ui->topic->text();
     topicInfor[index].enable=ui->enable2->isChecked();
     topicInfor[index].frequency=QString::number(ui->frequency->value(),10);
     topicInfor[index].desc=ui->desc2->text();
@@ -255,16 +257,18 @@ void ConfigDialog::clearService()
     serviceInfor[index].name="";
     serviceInfor[index].enable=true;
     serviceInfor[index].desc="";
-    serviceInfor[index].address="";
-    serviceInfor[index].port="";
     serviceInfor[index].username="";
     serviceInfor[index].password="";
+    serviceInfor[index].address="";
+    serviceInfor[index].port="";
+    serviceInfor[index].timeOut="";
     ui->name1->setText("");
     ui->desc1->setText("");
-    ui->address->setText("");
-    ui->port->setText("");
     ui->username->setText("");
     ui->password->setText("");
+    ui->address->setText("");
+    ui->port->setText("");
+    ui->timeOut->setValue(0);
     QMessageBox::information(this,tr("提示"),tr("清除服务器信息成功"),QMessageBox::Yes);
     saveConfig();
     showService();
@@ -283,12 +287,14 @@ void ConfigDialog::clearTopic()
     }
     topicInfor[index].service="";
     topicInfor[index].name="";
+    topicInfor[index].topic="";
     topicInfor[index].enable=false;
     topicInfor[index].frequency="";
     topicInfor[index].desc="";
     topicInfor[index].rules="";
     ui->service->setCurrentIndex(0);
     ui->name2->setText("");
+    ui->topic->setText("");
     ui->enable2->setCheckState(Qt::Unchecked);
     ui->frequency->setValue(0);
     ui->desc2->setText("");
@@ -312,6 +318,7 @@ void ConfigDialog::fillServiceForm()
         ui->password->setText(serviceInfor[index].password);
         ui->address->setText(serviceInfor[index].address);
         ui->port->setText(serviceInfor[index].port);
+        ui->timeOut->setValue(serviceInfor[index].timeOut.toUInt());
        }
 }
 /*填充主题表单*/
@@ -321,6 +328,7 @@ void ConfigDialog::fillTopicForm()
     ui->service->setCurrentIndex(ui->service->findData(topicInfor[index].service));
     ui->name2->setText(topicInfor[index].name);
     ui->enable2->setChecked(topicInfor[index].enable);
+    ui->topic->setText(topicInfor[index].topic);
     ui->frequency->setValue(topicInfor[index].frequency.toInt());
     ui->desc2->setText(topicInfor[index].desc);
     showRules();
@@ -341,86 +349,77 @@ void ConfigDialog::fillServiceBox()
 /*连接服务器测试*/
 void ConfigDialog::connectTest()
 {
-    if(ui->name1->text()==""){
-      QMessageBox::warning(this,tr("提示"),tr("名称不能为空!!!"),QMessageBox::Yes);
-      return;
-       }
     if(ui->address->text()==""){
       QMessageBox::warning(this,tr("提示"),tr("地址不能为空!!!"),QMessageBox::Yes);
       return;
        }
-    QString url="http://"+ui->address->text()+":"+ui->port->text()+"/?db=";
-//    try {
-//         auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
-//         try {
-//             auto points = influxdb->query("show Services");
-//             for(int i=0;i<points.size();i++){
-//                 if(",name="+ui->name1->text()==points.at(i).getTags().data())
-//                 {
-//                   QMessageBox::information(this,tr("提示"),tr("连接服务器成功!!!"),QMessageBox::Yes);
-//                   return;
-//                 }
-//             }
-//             QMessageBox::warning(this,tr("提示"),tr("连接服务器成功,但服务器不存在!!!"),QMessageBox::Yes);
-//         } catch (...) {
-//              QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-//         }
-//    } catch (...) {
-//         QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-//    }
+    QMqttClient *client = new QMqttClient(this);
+    client->setHostname(ui->address->text());
+    client->setPort(ui->port->text().toUInt());
+    client->setClientId(QString::number(ui->index1->value()));
+    client->setUsername(ui->username->text());
+    client->setPassword(ui->password->text());
+    client->connectToHost();
+    QTime dieTime = QTime::currentTime().addMSecs(ui->timeOut->value());
+    while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+    }
+    if(client->state()==QMqttClient::Connected){
+        QMessageBox::information(this,tr("提示"),tr("连接服务器成功"),QMessageBox::Yes);
+    }
+    else{
+        QMessageBox::warning(this,tr("提示"),tr("连接服务器失败"),QMessageBox::Yes);
+    }
+    client->disconnectFromHost();
 }
-void ConfigDialog::saveValueTest()
+/*发布主题测试*/
+void ConfigDialog::publishTest()
 {
-    QString url="http://"+serviceInfor[ui->service->currentData().toInt()].address+":"+serviceInfor[ui->service->currentData().toInt()].port+"/?db="+
-            ui->service->currentText();
-
-    for (int i = 0; i < topicModel->rowCount(); i++)
-     {
-
-             if(topicModel->data(topicModel->index(i,2)).toString()!=""){
-                 RequestMetaData_dialog request;
-                 request.type="getValue";
-                 request.drive=topicModel->data(topicModel->index(i,1)).toString();
-                 request.index=topicModel->data(topicModel->index(i,3)).toString();
-                 emit SendMsgToContainerManage(request);
-                 while(topicInfor[ui->index2->text().toInt()].getValueResult==""){
-                      QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-                 }
-                 std::string value=topicInfor[ui->index2->text().toInt()].getValueResult.toStdString();
-                 topicInfor[ui->index2->text().toInt()].getValueResult="";
-                 int index = 0;
-                 while( (index = value.find(' ',index)) != std::string::npos)
-                    {
-                      value.erase(index,1);
-                    }
-//                 try {
-//                    auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
-//                    influxdb->write(influxdb::Point{ ui->name2->currentText().toStdString() }
-//                    .addTag("index",QString::number(ui->index2->value()).toStdString())
-//                    .addField(topicModel->data(topicModel->index(i,0)).toString().toStdString(),value));
-//                 }
-//                catch (...) {
-//                    QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-//                    return;
-//                }
-              }
-    //         try {
-    //             auto points = influxdb->query("show Services");
-    //             for(int i=0;i<points.size();i++){
-    //                 if(",name="+ui->name1->text()==points.at(i).getTags().data())
-    //                 {
-    //                   break;
-    //                 }
-    //                 else if(i==(points.size()-1)){
-    //                  QMessageBox::warning(this,tr("提示"),tr("连接服务器成功,但服务器不存在!!!"),QMessageBox::Yes);
-    //                 }
-    //             }
-    //         } catch (...) {
-    //              QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
-    //         }
-
+    int server=ui->service->currentData().toInt();
+    QMqttClient *client = new QMqttClient(this);
+    client->setHostname(serviceInfor[server].address);
+    client->setPort(serviceInfor[server].port.toUInt());
+    client->setClientId(QString::number(server));
+    client->setUsername(serviceInfor[server].username);
+    client->setPassword(serviceInfor[server].password);
+    client->connectToHost();
+    QTime dieTime = QTime::currentTime().addMSecs(ui->timeOut->value());
+    while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+    }
+    if(!client->state()==QMqttClient::Connected){
+        QMessageBox::warning(this,tr("提示"),tr("连接服务器失败"),QMessageBox::Yes);
+        client->disconnectFromHost();
+        return;
+    }
+    QJsonObject json;
+     for (int i = 0; i < topicModel->rowCount(); i++)
+      {
+         if(topicModel->data(topicModel->index(i,2)).toString()!=""){
+             RequestMetaData_dialog request;
+             request.type="getValue";
+             request.drive=topicModel->data(topicModel->index(i,1)).toString();
+             request.index=topicModel->data(topicModel->index(i,3)).toString();
+             emit SendMsgToContainerManage(request);
+             while(topicInfor[ui->index2->text().toInt()].getValueResult==""){
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+             }
+            json.insert(topicModel->data(topicModel->index(i,0)).toString(),topicInfor[ui->index2->text().toInt()].getValueResult);
+            topicInfor[ui->index2->text().toInt()].getValueResult="";
+          }
+      }
+     QJsonDocument document;
+     document.setObject(json);
+     QByteArray byte_array = document.toJson(QJsonDocument::Compact);
+     QString json_str(byte_array);
+     if (client->publish(ui->topic->text(),json_str.toUtf8()) == -1){
+        QMessageBox::warning(this,tr("提示"),tr("发布主题失败!!!"),QMessageBox::Yes);
      }
-    QMessageBox::information(this,tr("提示"),tr("保存数据成功!!!"),QMessageBox::Yes);
+     else {
+        QMessageBox::information(this,tr("提示"),tr("发布主题成功"),QMessageBox::Yes);
+     }
+      client->disconnectFromHost();
+
  }
 /*保存信息*/
 void ConfigDialog::saveConfig()
@@ -436,6 +435,7 @@ void ConfigDialog::saveConfig()
             json.insert("password",serviceInfor[index].password);
             json.insert("address",serviceInfor[index].address);
             json.insert("port",serviceInfor[index].port);
+            json.insert("timeOut",serviceInfor[index].timeOut);
             serviceArray.push_back(json);
     }
     QJsonArray topicArray;
@@ -444,6 +444,7 @@ void ConfigDialog::saveConfig()
             json.insert("name",topicInfor[index].name);
             json.insert("service",topicInfor[index].service);
             json.insert("enable",topicInfor[index].enable);
+            json.insert("topic",topicInfor[index].topic);
             json.insert("frequency",topicInfor[index].frequency);
             json.insert("desc",topicInfor[index].desc);
             json.insert("rules",topicInfor[index].rules);
@@ -488,6 +489,7 @@ void ConfigDialog::loadConfig()
     serviceInfor[index].password=json.value("password").toString();
     serviceInfor[index].address=json.value("address").toString();
     serviceInfor[index].port=json.value("port").toString();
+    serviceInfor[index].timeOut=json.value("timeOut").toString();
    }
    QJsonValue topic=object.value("topic");
    QJsonArray topicArray=topic.toArray();
@@ -497,6 +499,7 @@ void ConfigDialog::loadConfig()
     topicInfor[index].service=json.value("service").toString();
     topicInfor[index].enable=json.value("enable").toBool();
     topicInfor[index].frequency=json.value("frequency").toString();
+    topicInfor[index].topic=json.value("topic").toString();
     topicInfor[index].desc=json.value("desc").toString();
     topicInfor[index].rules=json.value("rules").toString();
    }

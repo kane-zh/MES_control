@@ -1,5 +1,5 @@
 TEMPLATE        = lib           #表示这个makefile是一个lib的makefile
-CONFIG         += plugin        #应用程序是一个插件
+CONFIG         += plugin     c++17     #应用程序是一个插件
 QMAKE_CFLAGS   += -std=c99
 QT             += widgets
 QT             += core gui
@@ -14,13 +14,15 @@ FORMS += \
 HEADERS += \
     configdialog.h \
     metadata.h \
+    open62541.h \
     sourcemanage.h
 
 SOURCES += \
     configdialog.cpp \
+    open62541.c \
     sourcemanage.cpp
 
 DISTFILES += \
     programmer.json
-
+LIBS += -lpthread libwsock32 libws2_32
 

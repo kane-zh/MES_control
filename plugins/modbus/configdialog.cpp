@@ -386,10 +386,8 @@ void ConfigDialog::fillDataSetForm()
     ui->enable2->setChecked(dataSetInfor[index].enable);
     ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
-    ui->startAddr_read->setText(dataSetInfor[index].readData.startAddress);
-    ui->length_read->setText(dataSetInfor[index].readData.length);
-    ui->startAddr_write->setText(dataSetInfor[index].writeData.startAddress);
-    ui->length_write->setText(dataSetInfor[index].writeData.length);
+    ui->server_read->setText(dataSetInfor[index].readData.serverAddress);
+    ui->server_write->setText(dataSetInfor[index].writeData.serverAddress);
     }
 }
 /*填充数据源下拉框*/

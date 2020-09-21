@@ -14,6 +14,7 @@
 #include <QJsonArray>
 #include <QCoreApplication>
 #include <QMenu>
+#include <QtMqtt/qmqttclient.h>
 #include "ItemDelegate.h"
 #include "metaData.h"
 
@@ -46,7 +47,7 @@ private slots:
     void fillTopicForm();                        //填充主题表单
     void fillServiceBox();                       //填充服务器下拉框
     void connectTest();                          //连接测试
-    void saveValueTest();                        //保存数值测试
+    void publishTest();                          //发布主题测试
     void saveConfig();                           //保存配置信息
     void loadConfig();                           //加载配置信息
     void createActions();//创建右键菜单

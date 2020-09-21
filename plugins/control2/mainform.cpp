@@ -18,7 +18,7 @@ mainForm::~mainForm()
 void mainForm::showEvent(QShowEvent *)
 {
     ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView );
-    ui->quickWidget->setSource(QUrl("qrc:/main.qml"));
+    ui->quickWidget->setSource(QUrl("qrc:/PlanetsMain.qml"));
     ui->quickWidget->rootObject();
 }
 void mainForm::receiveMsgFromManager(ResponseMetaData response)

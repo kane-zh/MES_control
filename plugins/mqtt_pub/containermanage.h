@@ -38,7 +38,7 @@ public slots:
     void timeOut();
 private:
     SERVICE  serviceInfor[MaxService];
-    TOPIC dataTableInfor[MaxTopic];
+    TOPIC    topicInfor[MaxTopic];
     QString   driveInfor="";
     QString   dateSetInfor="";
     QTimer *m_time;
