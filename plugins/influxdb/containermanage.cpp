@@ -105,47 +105,55 @@ void ContainerManage::autoSave(int id)
 {
     int index=id;
     int dataBase=dataTableInfor[index].dataBase.toInt();
+    httpRequest  *myrequest=new httpRequest(this);
+    QString  value1=dataTableInfor[index].name+",index="+QString::number(index)+" ";
+    QString  value2="";
     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
     QJsonArray array= document.array();
-    try {
-        QString url="http://"+dataBaseInfor[dataBase].address+":"+dataBaseInfor[dataBase].port+"/?db="+
-                dataBaseInfor[dataBase].name;
-         auto influxdb = influxdb::InfluxDBFactory::Get(url.toStdString());
-         for (int i = 0; i < array.count(); i++)
-          {
-             QJsonObject value = array.at(i).toObject();
-             if(value["dataIndex"].toString()!=""){
-                 RequestMetaData data;
-                 data.type=getValue;
-                 data.from=QString::number(index);
-                 data.target="manage";
-                 data.drive=value["drive"].toString();
-                 data.index=value["dataIndex"].toString();
-                 emit sendMsgToManager(data);
-                 while(dataTableInfor[index].getValueResult==""){
-                      QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-                 }
-                 std::string value1=dataTableInfor[index].getValueResult.toStdString();
-                 dataTableInfor[index].getValueResult="";
-                 int i = 0;
-                 while( (i = value1.find(' ',i)) != std::string::npos)
-                    {
-                      value1.erase(i,1);
-                    }
-                 try {
-                    influxdb->write(influxdb::Point{dataTableInfor[index].name.toStdString()}
-                    .addTag("index",QString::number(index).toStdString())
-                    .addField(value["field"].toString().toStdString(),value1));
-                 }
-                catch (...) {
-                    qDebug()<<"写数据失败!!!";
-                }
+     for (int i = 0; i < array.count(); i++)
+      {
+         QJsonObject value = array.at(i).toObject();
+         if(value["dataIndex"].toString()!=""){
+             RequestMetaData data;
+             data.type=getValue;
+             data.from=QString::number(index);
+             data.target="manage";
+             data.drive=value["drive"].toString();
+             data.index=value["dataIndex"].toString();
+             emit sendMsgToManager(data);
+             while(dataTableInfor[index].getValueResult==""){
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+             }
+             QJsonDocument document1=QJsonDocument::fromJson(dataTableInfor[index].getValueResult.toUtf8());
+             dataTableInfor[index].getValueResult="";
+              if(document1.object().value("result").toString()=="err"){
+              qDebug()<<"获取数据"+value["field"].toString()+"失败："+document1.object().value("value").toString();
+             }
+             else{
+                value2.append(value["field"].toString()+"=");
+                value2.append("\"");
+                value2.append(document1.object().value("value").toString());
+                value2.append("\"");
+                value2.append(",");
              }
            }
        }
-    catch (...) {
-           qDebug()<<"连接服务器失败!!!";
-    }
+        if(value2!=""){
+             value2.remove(value2.length()-1,2);
+             QString result=myrequest->post(dataBaseInfor[dataBase].address,dataBaseInfor[dataBase].port,
+                                            dataBaseInfor[dataBase].username,dataBaseInfor[dataBase].password,
+                                            dataBaseInfor[dataBase].name,value1+value2);
+             if(result=="err"){
+               qDebug()<<"写数据失败!!!";
+               return;
+             }
+             else{
+               qDebug()<<"写数据成功!!!";
+             }
+        }
+        else{
+            qDebug()<<"未成功获取到有效可写数据!!!";
+        }
     dataTableInfor[index].getValueEnable=true;
 
 }

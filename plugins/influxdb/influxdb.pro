@@ -1,7 +1,7 @@
 TEMPLATE        = lib           #表示这个makefile是一个lib的makefile
 CONFIG         += plugin  c++17      #应用程序是一个插件
 QT             += widgets
-QT             += core gui sql concurrent
+QT             += core gui concurrent network
 TARGET          = influxdb      #生成插件的名称
 win32:CONFIG(release, debug|release): DESTDIR         = ../../mainApp/release/plugins/libs
 else:win32:CONFIG(debug, debug|release): DESTDIR         = ../../mainApp/debug/plugins/libs
@@ -19,26 +19,15 @@ HEADERS += \
     ItemDelegate.h \
     configdialog.h \
     containermanage.h \
+    httprequest.h \
     metaData.h \
-    include/HTTP.h \
-    include/UriParser.h \
-    include/InfluxDB.h \
-    include/InfluxDBFactory.h \
-    include/Point.h \
-    include/Transport.h
 
 
 SOURCES += \
     ItemDelegate.cpp \
     configdialog.cpp \
     containermanage.cpp \
-    src/HTTP.cxx \
-    src/InfluxDB.cxx \
-    src/InfluxDBFactory.cxx \
-    src/Point.cxx \
-
-LIBS += -L$$PWD/lib/ -lcurl
-LIBS += -L$$PWD/lib/ -lcurldll
+    httprequest.cpp \
 
 INCLUDEPATH += $$PWD/include
 DEPENDPATH += $$PWD/include

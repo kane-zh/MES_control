@@ -4,7 +4,7 @@ QT             += widgets network
 #include <QNetworkReply>
 #include <QNetworkAccessManager>
 
-QT             += core gui sql
+QT             += core gui concurrent
 TARGET          = mes      #生成插件的名称
 win32:CONFIG(release, debug|release): DESTDIR         = ../../mainApp/release/plugins/libs
 else:win32:CONFIG(debug, debug|release): DESTDIR         = ../../mainApp/debug/plugins/libs

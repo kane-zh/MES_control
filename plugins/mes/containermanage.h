@@ -6,9 +6,11 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
+#include <QtConcurrent>
 #include "../../mainApp/pluginManage/containerinterface.h"
 #include "metaData.h"
 #include "configdialog.h"
+#include "httprequest.h"
 namespace Ui {
 class ContainerManage;
 }

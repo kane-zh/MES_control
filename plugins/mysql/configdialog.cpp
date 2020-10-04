@@ -464,27 +464,39 @@ void ConfigDialog::saveValueTest()
              while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
                   QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
              }
-            fields.append(dataTableModel->data(dataTableModel->index(i,0)).toString());
-            fields.append(",");
-            values.append("'");
-            values.append(dataTableInfor[ui->index2->text().toInt()].getValueResult);
-            values.append("'");
-            values.append(",");
-            dataTableInfor[ui->index2->text().toInt()].getValueResult="";
+             QJsonDocument document=QJsonDocument::fromJson(dataTableInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
+             dataTableInfor[ui->index2->text().toInt()].getValueResult="";
+             QJsonObject object=document.object();
+              if(document.object().value("result").toString()=="err"){
+              QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataTableModel->data(dataTableModel->index(i,0)).toString()+"失败："
+                                   +document.object().value("value").toString(),QMessageBox::Yes);
+             }
+             else{
+                  fields.append(dataTableModel->data(dataTableModel->index(i,0)).toString());
+                  fields.append(",");
+                  values.append("'");
+                  values.append(dataTableInfor[ui->index2->text().toInt()].getValueResult);
+                  values.append("'");
+                  values.append(",");
+              }
           }
       }
-     fields.remove(fields.length()-1,1);
-     values.remove(values.length()-1,1);
-     QString cmd="insert into "+ui->datatable->currentText()+ "("+fields+") " +"values ("+values+");";
-     QSqlQuery  query(db);
-     query.exec(cmd);
-     if(!query.lastError().isValid()){
-       QMessageBox::information(this,tr("提示"),tr("保存数据成功"),QMessageBox::Yes);
+     if(values!=""){
+         fields.remove(fields.length()-1,1);
+         values.remove(values.length()-1,1);
+         QString cmd="insert into "+ui->datatable->currentText()+ "("+fields+") " +"values ("+values+");";
+         QSqlQuery  query(db);
+         query.exec(cmd);
+         if(!query.lastError().isValid()){
+           QMessageBox::information(this,tr("提示"),tr("保存数据成功"),QMessageBox::Yes);
+         }
+         else {
+          QMessageBox::warning(this,tr("提示"),tr("保存数据失败!!!")+ query.lastError().text(),QMessageBox::Yes);
+         }
      }
-     else {
-      QMessageBox::warning(this,tr("提示"),tr("保存数据失败!!!")+ query.lastError().text(),QMessageBox::Yes);
+     else{
+         QMessageBox::warning(this,tr("提示"),tr("未成功获取到有效可写数据!!!"),QMessageBox::Yes);
      }
-
 }
 /*保存信息*/
 void ConfigDialog::saveConfig()

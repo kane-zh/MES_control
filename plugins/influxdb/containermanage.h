@@ -1,7 +1,5 @@
 #pragma once
 #include <QtPlugin>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -9,11 +7,11 @@
 #include <QDebug>
 #include <QFile>
 #include <QDir>
-#include <QtConcurrent>
 #include <QCoreApplication>
-#include "InfluxDBFactory.h"
+#include <QtConcurrent>
 #include "Point.h"
 #include "../../mainApp/pluginManage/containerinterface.h"
+#include "httprequest.h"
 #include "metaData.h"
 #include "configdialog.h"
 namespace Ui {

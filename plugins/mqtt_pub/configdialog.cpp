@@ -114,7 +114,7 @@ void ConfigDialog::RemoveRow()
 
 void ConfigDialog::AddRow()
 {
-    topicModel->insertRow(ui->tableView2->currentIndex().row());
+    topicModel->insertRow(ui->tableView2->currentIndex().row()+1);
 }
 
 /*显示服务器信息*/
@@ -320,6 +320,12 @@ void ConfigDialog::fillServiceForm()
         ui->port->setText(serviceInfor[index].port);
         ui->timeOut->setValue(serviceInfor[index].timeOut.toUInt());
        }
+    else{      //如果已经有配置信息，则填充回表单
+        ui->name1->setText(serviceInfor[index].name);
+        ui->enable1->setChecked(serviceInfor[index].enable);
+        ui->desc1->setText(serviceInfor[index].desc);
+        ui->timeOut->setValue(serviceInfor[index].timeOut.toUInt());
+       }
 }
 /*填充主题表单*/
 void ConfigDialog::fillTopicForm()
@@ -404,22 +410,35 @@ void ConfigDialog::publishTest()
              while(topicInfor[ui->index2->text().toInt()].getValueResult==""){
                   QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
              }
-            json.insert(topicModel->data(topicModel->index(i,0)).toString(),topicInfor[ui->index2->text().toInt()].getValueResult);
-            topicInfor[ui->index2->text().toInt()].getValueResult="";
+             QJsonDocument document=QJsonDocument::fromJson(topicInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
+             topicInfor[ui->index2->text().toInt()].getValueResult="";
+             QJsonObject object=document.object();
+              if(document.object().value("result").toString()=="err"){
+              QMessageBox::warning(this,tr("提示"),tr("获取数据")+topicModel->data(topicModel->index(i,0)).toString()+"失败："
+                                   +document.object().value("value").toString(),QMessageBox::Yes);
+             }
+             else{
+              json.insert(topicModel->data(topicModel->index(i,0)).toString(),document.object().value("value").toString());
+              }
           }
       }
-     QJsonDocument document;
-     document.setObject(json);
-     QByteArray byte_array = document.toJson(QJsonDocument::Compact);
-     QString json_str(byte_array);
-     if (client->publish(ui->topic->text(),json_str.toUtf8()) == -1){
-        QMessageBox::warning(this,tr("提示"),tr("发布主题失败!!!"),QMessageBox::Yes);
+     if(json.isEmpty()){
+       QMessageBox::warning(this,tr("提示"),tr("未成功获取到有效可发布数据!!!"),QMessageBox::Yes);
      }
-     else {
-        QMessageBox::information(this,tr("提示"),tr("发布主题成功"),QMessageBox::Yes);
+     else{
+         QJsonDocument document1;
+         document1.setObject(json);
+         QByteArray byte_array = document1.toJson(QJsonDocument::Compact);
+         QString json_str(byte_array);
+         if (client->publish(ui->topic->text(),json_str.toUtf8()) == -1){
+            QMessageBox::warning(this,tr("提示"),tr("发布主题失败!!!"),QMessageBox::Yes);
+         }
+         else {
+            QMessageBox::information(this,tr("提示"),tr("发布主题成功"),QMessageBox::Yes);
+         }
      }
-      client->disconnectFromHost();
 
+      client->disconnectFromHost();
  }
 /*保存信息*/
 void ConfigDialog::saveConfig()

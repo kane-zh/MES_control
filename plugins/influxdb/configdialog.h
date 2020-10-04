@@ -4,9 +4,6 @@
 #include <QDialog>
 #include <QtPlugin>
 #include <QStandardItemModel>
-#include <QSqlTableModel>
-#include <QSqlQuery>
-#include <QSqlError>
 #include <QDebug>
 #include <QMessageBox>
 #include <QFile>
@@ -17,6 +14,7 @@
 #include <QJsonArray>
 #include <QCoreApplication>
 #include <QMenu>
+#include "httprequest.h"
 #include "ItemDelegate.h"
 #include "metaData.h"
 
