@@ -183,12 +183,14 @@ QString SourceManage::getValue(QString id)
        return json_str;
    }
    //添加事件循环机制，返回后再运行后面的
-//    QEventLoop eventLoop;
-//    connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
-//    eventLoop.exec();       //block until finish
+    QEventLoop eventLoop;
+    connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
+    eventLoop.exec();       //block until finish
     while (dataSetInfor[id.toInt()].readData.value=="") {
          QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
     }
+    delete reply;
+    dataSetInfor[id.toInt()].readData.reply=nullptr;
     return  dataSetInfor[id.toInt()].readData.value;
 }
 /*设置数据集值*/

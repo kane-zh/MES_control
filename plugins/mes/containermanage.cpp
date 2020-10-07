@@ -85,7 +85,24 @@ void ContainerManage::showForm(QWidget *parent)
   m_config->exec();
   loadConfig();        //加载配置信息
 }
-
+/*时间定时器超时(槽)*/
+void ContainerManage::timeOut()
+{
+  time_count++;
+  for(int i=0;i<MaxRecord;i++)
+  {
+    if(serverInfor[recordInfor[i].server.toInt()].enable==true){
+        if(recordInfor[i].enable==true && recordInfor[i].name!=""){
+           if(100*time_count%(recordInfor[i].frequency.toLongLong())==0){
+               if(recordInfor[i].getValueEnable==true){
+                  recordInfor[i].getValueEnable=false;
+                QtConcurrent::run(this,&ContainerManage::autoUpdate,i);
+               }
+           }
+        }
+    }
+  }
+}
 void ContainerManage::autoUpdate(int id)
 {
     int index=id;
@@ -120,44 +137,34 @@ void ContainerManage::autoUpdate(int id)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
             }
            QJsonDocument document_result = QJsonDocument::fromJson(recordInfor[index].getValueResult.toUtf8());
-           QJsonObject value_result = document_result.object();
-           json.insert(value["field"].toString(),value_result["value"]);
            recordInfor[index].getValueResult="";
+           if(document_result.object().value("result").toString()=="err"){
+           qDebug()<<"获取数据"+value["field"].toString()+"失败："+document_result.object().value("value").toString();
+          }
+          else{
+              json.insert(value["field"].toString(),document_result.object().value("value").toString());
+           }
          }
      }
-   recordInfor[index].getValueEnable=true;
-    document.setObject(json);
-    QByteArray byte_array = document.toJson(QJsonDocument::Compact);
-    result=myrequest->update(serverInfor[serverIndex].address+"/equipment/equipmentState/"+recordInfor[index].serverid+"/",
-                             serverInfor[serverIndex].token,byte_array);
-    if(result=="err"){
-      serverInfor[serverIndex].token="";
-      qDebug()<<"更新记录失败!!!";
+    if(json.isEmpty()){
+     qDebug()<<"未成功获取到有效可写数据!!!";
     }
-    else {
-      qDebug()<<"更新记录成功!!!"<<QTime::currentTime();
-
+    else{
+     document.setObject(json);
+     QByteArray byte_array = document.toJson(QJsonDocument::Compact);
+     result=myrequest->update(serverInfor[serverIndex].address+"/equipment/equipmentState/"+recordInfor[index].serverid+"/",
+                              serverInfor[serverIndex].token,byte_array);
+     if(result=="err"){
+       serverInfor[serverIndex].token="";
+       qDebug()<<"更新记录失败!!!";
+     }
+     else {
+       qDebug()<<"更新记录成功!!!";
+     }
     }
+     recordInfor[index].getValueEnable=true;
 }
-/*时间定时器超时(槽)*/
-void ContainerManage::timeOut()
-{
-  time_count++;
-  for(int i=0;i<MaxRecord;i++)
-  {
-    if(serverInfor[recordInfor[i].server.toInt()].enable==true){
-        if(recordInfor[i].enable==true && recordInfor[i].name!=""){
-           if(100*time_count%(recordInfor[i].frequency.toLongLong())==0){
-               if(recordInfor[i].getValueEnable==true){
-                  recordInfor[i].getValueEnable==false;
-                  emit updateToServer(i);
-               }
 
-           }
-        }
-    }
-  }
-}
 /*加载信息*/
 void ContainerManage::loadConfig()
 {

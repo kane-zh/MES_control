@@ -12,59 +12,58 @@ QString axisInfor::getValue(DATASET dataSetInfor)
        return CNC_actf(dataSetInfor);
     }
     if(dataSetInfor.function=="读取主轴转速"){
-
+       return CNC_acts(dataSetInfor);
     }
-    if(dataSetInfor.function=="读取恒定表面速度"){
-
+    if(dataSetInfor.function=="读取主轴速度"){
+       return CNC_speed(dataSetInfor);
     }
-    if(dataSetInfor.function=="读取轴负载"){
-
+    if(dataSetInfor.function=="读取主轴齿轮比"){
+         return CNC_rdspgear(dataSetInfor);
     }
+    if(dataSetInfor.function=="读取主轴负载"){
+        return CNC_rdspload(dataSetInfor);
+    }
+    if(dataSetInfor.function=="读取主轴负载表"){
+         return  CNC_rdspmeter(dataSetInfor);
+    }
+
     if(dataSetInfor.function=="读取伺服负载表"){
 
     }
-    if(dataSetInfor.function=="读取轴负载表"){
-
-    }
-    if(dataSetInfor.function=="读取轴最大rpm率"){
-
-    }
-    if(dataSetInfor.function=="读取轴转速"){
-    }
-    if(dataSetInfor.function=="读取轴速度"){
-
-    }
-    if(dataSetInfor.function=="读取轴齿轮比"){
+    if(dataSetInfor.function=="读取主轴最大rpm率"){
 
     }
     if(dataSetInfor.function=="读取轴相对位置"){
-
+         return CNC_relative(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴绝对位置"){
-
+         return CNC_absolute(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴机器位置"){
-
+         return CNC_machine(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴剩余移动量"){
-
+         return CNC_distance(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴避让位置"){
-
+         return CNC_skip(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴伺服延时值"){
-
+         return CNC_srvdelay(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴加减速延时值"){
+         return CNC_accdecdly(dataSetInfor);
     }
-    if(dataSetInfor.function=="读取显示的点动或空运行进给率"){
+    if(dataSetInfor.function=="读取点动或空运行进给率"){
 
     }
-    if(dataSetInfor.function=="读取轴刀具位置信息"){
+    if(dataSetInfor.function=="读取轴位置信息"){
 
     }
     if(dataSetInfor.function=="读取手动重叠运动值"){
 
+    }
+    if(dataSetInfor.function=="读取恒定表面速度"){
     }
     if(dataSetInfor.function=="显示手轮中断的输入与输出值"){
 
@@ -73,12 +72,6 @@ QString axisInfor::getValue(DATASET dataSetInfor)
 
     }
     if(dataSetInfor.function=="读取轴加工汇总数据"){
-
-    }
-    if(dataSetInfor.function=="读取轴所有动态数据"){
-
-    }
-    if(dataSetInfor.function=="读取轴所有数据"){
 
     }
     else{
@@ -91,6 +84,7 @@ QString axisInfor::getValue(DATASET dataSetInfor)
         return json_str;
     }
 }
+
 /*读取主轴进给率*/
 QString axisInfor::CNC_actf(DATASET dataSetInfor)
 {
@@ -139,7 +133,7 @@ QString axisInfor::CNC_acts(DATASET dataSetInfor)
         return json_str;
     }
 }
-/*读取主轴转速及进给率*/
+/*读取主轴速度*/
 QString axisInfor::CNC_speed(DATASET dataSetInfor)
 {
     ODBSPEED  result;
@@ -210,11 +204,11 @@ QString axisInfor::CNC_speed(DATASET dataSetInfor)
         return json_str;
     }
 }
-/*读取主轴位置数据*/
-QString axisInfor::CNC_rdposition(DATASET dataSetInfor)
+/*读取主轴齿轮比*/
+QString axisInfor::CNC_rdspgear(DATASET dataSetInfor)
 {
-    ODBPOS   result;    short data_num = 3;
-    short ret=cnc_rdposition(dataSetInfor.flibhndl.toUInt(),-1,&data_num,&result);
+    ODBSPN  result;
+    short ret=cnc_rdspgear(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
     if(ret!=EW_OK){
         QJsonDocument document;
         QJsonObject json;
@@ -225,39 +219,48 @@ QString axisInfor::CNC_rdposition(DATASET dataSetInfor)
         return json_str;
     }
     else{
-        QString name(result.abs.name);           /* result.p1.abs.name.ToString();*/
-        QString suf(result.abs.suff);
-        QString unit="";
-        switch (result.abs.unit)
-        {
-            case 0:
-              unit = "mm";
-              break;
-            case 1:
-              unit = "inch";
-              break;
-            case 2:
-              unit = "degree";
-              break;
-        }
         QJsonDocument document;
         QJsonObject json;
-        QJsonObject json1;
-        json1.insert("name",name);
-        json1.insert("suf",suf);
-        json1.insert("unit",unit);
-        json1.insert("abs_val",result.abs.data *qPow(10, -result.abs.dec));
-        json1.insert("mach_val",result.mach.data *qPow(10, -result.mach.dec));
-        json1.insert("rel_val",result.rel.data *qPow(10, -result.rel.dec));
-        json1.insert("dist_val",result.dist.data *qPow(10, -result.dist.dec));
         json.insert("result","ok");
-        json.insert("value",json1);
+        QStringList value;
+        for(int i=0;i<MAX_SPINDLE;i++){
+            value.append(QString::number(result.data[i]));
+        }
+        json.insert("value", value.join(";"));
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+ }
+/*读取主轴负载*/
+QString axisInfor::CNC_rdspload(DATASET dataSetInfor)
+{
+    ODBSPN  result;
+    short ret=cnc_rdspload(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
+    if(ret!=EW_OK){
+        QJsonDocument document;
+        QJsonObject json;
+        json.insert("result","err");
+        json.insert("value","读取数值失败"+QString::number(ret));
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    else{
+        QJsonDocument document;
+        QJsonObject json;
+        json.insert("result","ok");
+        QStringList value;
+        for(int i=0;i<MAX_SPINDLE;i++){
+            value.append(QString::number(result.data[i]));
+        }
+        json.insert("value", value.join(";"));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
     }
 }
-/*读取指定轴负载表*/
+/*读取主轴负载表*/
 QString axisInfor::CNC_rdspmeter(DATASET dataSetInfor)
 {
     ODBSPLOAD   result;
@@ -308,7 +311,7 @@ QString axisInfor::CNC_rdspmeter(DATASET dataSetInfor)
         return json_str;
     }
 }
-/*读取指定轴伺服负载表*/
+/*读取伺服负载表*/
 QString axisInfor::CNC_rdsvmeter(DATASET dataSetInfor)
 {
     ODBSVLOAD  result;
@@ -359,96 +362,11 @@ QString axisInfor::CNC_rdsvmeter(DATASET dataSetInfor)
         return json_str;
     }
 }
-/*读取所有轴负载*/
-QString axisInfor::CNC_rdspload(DATASET dataSetInfor)
+/*读取所轴最大rpm比例*/
+QString axisInfor::CNC_rdspmaxrpm(DATASET dataSetInfor)
 {
     ODBSPN  result;
-    short ret=cnc_rdspload(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-    else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList  value;
-        value.clear();
-        for(int i=0;i<MAX_SPINDLE;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-}
-/*读取所有轴齿轮比*/
-QString axisInfor::CNC_rdspgear(DATASET dataSetInfor)
-{
-    ODBSPN  result;
-    short ret=cnc_rdspgear(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-    else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_SPINDLE;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-}
-/*读取所有轴转速*/
-QString axisInfor::CNC_acts2(DATASET dataSetInfor)
-{
-    ODBACT2  result;
-    short ret=cnc_acts2(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-    else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_SPINDLE;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-}
-/*读取所有轴绝对位置*/
-QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-{
-    ODBAXIS  result;
-    short ret=cnc_absolute2(dataSetInfor.flibhndl.toUInt(),ALL_AXES,4+4*MAX_AXIS,&result);
+    short ret=cnc_rdspmaxrpm(dataSetInfor.flibhndl.toUInt(),MAX_AXIS,&result);
     if(ret!=EW_OK){
         QJsonDocument document;
         QJsonObject json;
@@ -472,175 +390,439 @@ QString axisInfor::CNC_absolute(DATASET dataSetInfor)
         return json_str;
     }
 }
-/*读取所有轴机器位置*/
+/*读取轴相对位置*/
+QString axisInfor::CNC_relative(DATASET dataSetInfor)
+{
+    ODBAXIS   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_relative2(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+    }
+    else{
+        short ret=cnc_relative2(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+    }
+}
+/*读取轴绝对位置*/
+QString axisInfor::CNC_absolute(DATASET dataSetInfor)
+{
+    ODBAXIS   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_absolute2(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+    }
+    else{
+        short ret=cnc_absolute2(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+    }
+}
+/*读取轴机器位置*/
 QString axisInfor::CNC_machine(DATASET dataSetInfor)
 {
     ODBAXIS   result;
-    short ret=cnc_machine(dataSetInfor.flibhndl.toUInt(),ALL_AXES,4+4*MAX_AXIS,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_machine(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
     else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
+        short ret=cnc_machine(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
         }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
 }
-/*读取所有轴相对位置*/
-QString axisInfor::CNC_relative(DATASET dataSetInfor)
-{
-    ODBAXIS  result;
-    short ret=cnc_relative2(dataSetInfor.flibhndl.toUInt(),ALL_AXES,4+4*MAX_AXIS,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-    else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-}
-/*读取所有轴剩余移动量*/
+/*读取轴剩余移动量*/
 QString axisInfor::CNC_distance(DATASET dataSetInfor)
 {
-    ODBAXIS  result;
-    short ret=cnc_distance2(dataSetInfor.flibhndl.toUInt(),ALL_AXES,4+4*MAX_AXIS,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+    ODBAXIS   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_distance(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
     else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
+        short ret=cnc_distance(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
         }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
 }
-/*读取所有轴避让位置*/
+/*读取轴避让位置*/
 QString axisInfor::CNC_skip(DATASET dataSetInfor)
 {
-    ODBAXIS  result;
-    short ret=cnc_skip(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+    ODBAXIS   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_skip(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
     else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
+        short ret=cnc_skip(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
         }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
 }
-/*读取所有伺服延迟值*/
+/*读取伺服延迟值*/
 QString axisInfor::CNC_srvdelay(DATASET dataSetInfor)
 {
-    ODBAXIS  result;
-    short ret=cnc_srvdelay(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+    ODBAXIS   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_srvdelay(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
     else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
+        short ret=cnc_srvdelay(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
         }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
 }
-/*读取所有加减速延迟值*/
+/*读取轴加减速延迟值*/
 QString axisInfor::CNC_accdecdly(DATASET dataSetInfor)
 {
-    ODBAXIS  result;
-    short ret=cnc_accdecdly(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+    ODBAXIS   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_accdecdly(dataSetInfor.flibhndl.toUInt(),ALL_AXES,256,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.data[i]));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
     else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
+        short ret=cnc_accdecdly(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),8,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
         }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.data[0]));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*读取轴位置数据*/
+QString axisInfor::CNC_rdposition(DATASET dataSetInfor)
+{
+    ODBPOS   result;    short data_num = 3;
+    short ret=cnc_rdposition(dataSetInfor.flibhndl.toUInt(),-1,&data_num,&result);
+    if(ret!=EW_OK){
+        QJsonDocument document;
+        QJsonObject json;
+        json.insert("result","err");
+        json.insert("value","读取数值失败");
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    else{
+        QString name(result.abs.name);           /* result.p1.abs.name.ToString();*/
+        QString suf(result.abs.suff);
+        QString unit="";
+        switch (result.abs.unit)
+        {
+            case 0:
+              unit = "mm";
+              break;
+            case 1:
+              unit = "inch";
+              break;
+            case 2:
+              unit = "degree";
+              break;
+        }
+        QJsonDocument document;
+        QJsonObject json;
+        QJsonObject json1;
+        json1.insert("name",name);
+        json1.insert("suf",suf);
+        json1.insert("unit",unit);
+        json1.insert("abs_val",result.abs.data *qPow(10, -result.abs.dec));
+        json1.insert("mach_val",result.mach.data *qPow(10, -result.mach.dec));
+        json1.insert("rel_val",result.rel.data *qPow(10, -result.rel.dec));
+        json1.insert("dist_val",result.dist.data *qPow(10, -result.dist.dec));
+        json.insert("result","ok");
+        json.insert("value",json1);
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+}
 
 /*读取所有轴手动重叠运动值*/
 QString axisInfor::CNC_rdmovrlapm(DATASET dataSetInfor)
@@ -671,3083 +853,8 @@ QString axisInfor::CNC_rdmovrlapm(DATASET dataSetInfor)
     }
 }
 
-/*读取所有主轴最大rpm比例*/
-QString axisInfor::CNC_rdspmaxrpm(DATASET dataSetInfor)
-{
-    ODBSPN  result;
-    short ret=cnc_rdspmaxrpm(dataSetInfor.flibhndl.toUInt(),MAX_AXIS,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-    else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-}
 
 
 
 
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
-///*读取绝对轴位置*/
-//QString axisInfor::CNC_absolute(DATASET dataSetInfor)
-//{
-//    ODBAXIS  result;
-//    short ret=cnc_absolute(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toUInt(),8,&result);
-//    if(ret!=EW_OK){
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","err");
-//        json.insert("value","读取数值失败");
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//    else{
-//        QJsonDocument document;
-//        QJsonObject json;
-//        json.insert("result","ok");
-//        json.insert("value",QString::number(result.data[0]));
-//        document.setObject(json);
-//        QString json_str(document.toJson(QJsonDocument::Compact));
-//        return json_str;
-//    }
-//}
+

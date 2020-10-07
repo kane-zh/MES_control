@@ -94,7 +94,7 @@ void ContainerManage::timeOut()
         if(topicInfor[i].enable==true && topicInfor[i].name!=""){
            if(100*time_count%(topicInfor[i].frequency.toLongLong())==0){
                if(topicInfor[i].getValueEnable==true){
-                  topicInfor[i].getValueEnable==false;
+                  topicInfor[i].getValueEnable=false;
                 QtConcurrent::run(this,&ContainerManage::autoSave,i);
                }
            }
@@ -129,6 +129,7 @@ void ContainerManage::autoSave(int id)
             client->disconnectFromHost();
             delete  client;
             qDebug()<<"连接服务器失败";
+            topicInfor[id].getValueEnable=true;
             return;
            }
            else{
@@ -152,19 +153,33 @@ void ContainerManage::autoSave(int id)
            while(topicInfor[id].getValueResult==""){
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
            }
-          values.insert(value["field"].toString(), topicInfor[id].getValueResult);
-          topicInfor[id].getValueResult="";
+           QJsonDocument document1=QJsonDocument::fromJson(topicInfor[id].getValueResult.toUtf8());
+           topicInfor[id].getValueResult="";
+            if(document1.object().value("result").toString()=="err"){
+            qDebug()<<"获取数据"+value["field"].toString()+"失败："+document1.object().value("value").toString();
+           }
+           else{
+            values.insert(value["field"].toString(),document1.object().value("value").toString());
+            }
         }
     }
-     QJsonDocument document1;
-     document1.setObject(values);
-     QByteArray byte_array = document1.toJson(QJsonDocument::Compact);
-     QString json_str(byte_array);
-     if (serviceInfor[server].client->publish(topicInfor[id].topic,json_str.toUtf8()) == -1){
-        qDebug()<<"发布主题失败!!!";
-     }
-    topicInfor[id].getValueEnable=true;
+    if(values.isEmpty()){
+       qDebug()<<"未成功获取到有效可发布数据!!!";
+    }
+    else{
+        QJsonDocument document2;
+        document2.setObject(values);
+        QByteArray byte_array = document2.toJson(QJsonDocument::Compact);
+        QString json_str(byte_array);
+        if (serviceInfor[server].client->publish(topicInfor[id].topic,json_str.toUtf8()) == -1){
+           qDebug()<<"发布主题失败!!!";
+        }
+        else{
+          qDebug()<<"发布主题成功!!!";
+        }
 
+    }
+    topicInfor[id].getValueEnable=true;
 }
 
 /*加载信息*/

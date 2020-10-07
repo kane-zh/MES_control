@@ -2,8 +2,6 @@
 #include "ui_configdialog.h"
 #include <iostream>
 #include "QDesktopWidget"
-#include "InfluxDBFactory.h"
-#include "Point.h"
 #include "configdialog.h"
 ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),

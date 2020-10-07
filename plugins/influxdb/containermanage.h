@@ -9,7 +9,6 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QtConcurrent>
-#include "Point.h"
 #include "../../mainApp/pluginManage/containerinterface.h"
 #include "httprequest.h"
 #include "metaData.h"

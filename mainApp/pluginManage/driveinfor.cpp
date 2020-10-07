@@ -8,6 +8,7 @@ DriveInfor::DriveInfor(QObject *parent) : QObject(parent)
     m_drives.insert("MODBUSTCP", "modbusTCP");
 //    m_drives.insert("MQTT", "mqtt");
     m_drives.insert("KEYENCE", "keyence");
+    m_drives.insert("FNAUC", "fanuc");
 }
 
 /*获取驱动信息*/

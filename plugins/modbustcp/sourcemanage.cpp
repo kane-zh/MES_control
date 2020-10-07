@@ -188,6 +188,8 @@ QString SourceManage::getValue(QString id)
     while (dataSetInfor[id.toInt()].readData.value=="") {
          QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
     }
+    delete reply;
+    dataSetInfor[id.toInt()].readData.reply=nullptr;
     return  dataSetInfor[id.toInt()].readData.value;
 }
 

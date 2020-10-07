@@ -93,7 +93,7 @@ void ContainerManage::timeOut()
         if(dataTableInfor[i].enable==true && dataTableInfor[i].name!=""){
            if(100*time_count%(dataTableInfor[i].frequency.toLongLong())==0){
                if(dataTableInfor[i].getValueEnable==true){
-                  dataTableInfor[i].getValueEnable==false;
+                  dataTableInfor[i].getValueEnable=false;
                 QtConcurrent::run(this,&ContainerManage::autoSave,i);
                }
            }
@@ -145,7 +145,6 @@ void ContainerManage::autoSave(int id)
                                             dataBaseInfor[dataBase].name,value1+value2);
              if(result=="err"){
                qDebug()<<"写数据失败!!!";
-               return;
              }
              else{
                qDebug()<<"写数据成功!!!";

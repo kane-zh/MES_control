@@ -456,7 +456,6 @@ void ConfigDialog::saveValueTest()
             }
             QJsonDocument document=QJsonDocument::fromJson(dataTableInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
             dataTableInfor[ui->index2->text().toInt()].getValueResult="";
-            QJsonObject object=document.object();
              if(document.object().value("result").toString()=="err"){
              QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataTableModel->data(dataTableModel->index(i,0)).toString()+"失败："
                                   +document.object().value("value").toString(),QMessageBox::Yes);

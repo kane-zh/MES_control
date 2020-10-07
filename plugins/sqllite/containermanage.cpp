@@ -113,39 +113,50 @@ void ContainerManage::autoSave(int id)
            return;
         }
     }
-     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
-     QJsonArray array= document.array();
-     QString  fields="";
-     QString  values="";
-     for (int i = 0; i < array.count(); i++)
-      {
-         QJsonObject value = array.at(i).toObject();
-         if(value["dataIndex"].toString()!=""){
-             RequestMetaData data;
-             data.type=getValue;
-             data.from=QString::number(index);
-             data.target="manage";
-             data.drive=value["drive"].toString();
-             data.index=value["dataIndex"].toString();
-             emit sendMsgToManager(data);
-             while(dataTableInfor[index].getValueResult==""){
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-             }
-            fields.append(value["field"].toString());
-            fields.append(",");
-            values.append("'");
-            values.append(dataTableInfor[index].getValueResult);
-            values.append("'");
-            values.append(",");
+    QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
+    QJsonArray array= document.array();
+    QString  fields="";
+    QString  values="";
+    for (int i = 0; i < array.count(); i++)
+     {
+        QJsonObject value = array.at(i).toObject();
+        if(value["dataIndex"].toString()!=""){
+            RequestMetaData data;
+            data.type=getValue;
+            data.from=QString::number(index);
+            data.target="manage";
+            data.drive=value["drive"].toString();
+            data.index=value["dataIndex"].toString();
+            emit sendMsgToManager(data);
+            while(dataTableInfor[index].getValueResult==""){
+                 QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+            }
+            QJsonDocument document1=QJsonDocument::fromJson(dataTableInfor[index].getValueResult.toUtf8());
             dataTableInfor[index].getValueResult="";
-          }
-      }
-     fields.remove(fields.length()-1,1);
-     values.remove(values.length()-1,1);
-     QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
-     QSqlQuery  query(db);
-     query.exec(cmd);
-     dataTableInfor[index].getValueEnable=true;
+             if(document1.object().value("result").toString()=="err"){
+             qDebug()<<"获取数据"+value["field"].toString()+"失败："+document1.object().value("value").toString();
+            }
+            else{
+                 fields.append(value["field"].toString());
+                 fields.append(",");
+                 values.append("'");
+                 values.append(document1.object().value("value").toString());
+                 values.append("'");
+                 values.append(",");
+             }
+         }
+     }
+    if(values.isEmpty()){
+        qDebug()<<"未成功获取到有效可写数据!!!";
+    }
+    else{
+        fields.remove(fields.length()-1,1);
+        values.remove(values.length()-1,1);
+        QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
+        QSqlQuery  query(db);
+        query.exec(cmd);
+    }
+    dataTableInfor[index].getValueEnable=true;
 }
 /*时间定时器超时(槽)*/
 void ContainerManage::timeOut()
@@ -157,7 +168,7 @@ void ContainerManage::timeOut()
         if(dataTableInfor[i].enable==true && dataTableInfor[i].name!=""){
            if(100*time_count%(dataTableInfor[i].frequency.toLongLong())==0){
                if(dataTableInfor[i].getValueEnable==true){
-                  dataTableInfor[i].getValueEnable==false;
+                  dataTableInfor[i].getValueEnable=false;
                   QtConcurrent::run(this,&ContainerManage::autoSave,i);
                }
            }

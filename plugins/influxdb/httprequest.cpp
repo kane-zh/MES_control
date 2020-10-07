@@ -56,8 +56,7 @@ QString httpRequest::post(QString address, QString port, QString name, QString p
     //添加事件循环机制，返回后再运行后面的
     QEventLoop eventLoop;
     connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
-    eventLoop.exec();       //block until finish
-    qDebug()<<reply->errorString();
+    eventLoop.exec();       //block until finish;
     //错误处理
     if (reply->error() != QNetworkReply::NoError)
     {

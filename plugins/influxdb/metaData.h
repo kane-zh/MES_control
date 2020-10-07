@@ -3,7 +3,6 @@
 #define  MaxDataBase       10
 #define  MaxDataTable      100
 #include <QString>
-#include <Transport.h>
 struct RequestMetaData_dialog
 {
     QString type;

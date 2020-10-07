@@ -399,23 +399,33 @@ void ConfigDialog::saveValueTest()
             while(getValueResult==""){
             }
            QJsonDocument document_result = QJsonDocument::fromJson(getValueResult.toUtf8());
-           QJsonObject value_result = document_result.object();
-           json.insert(value["field"].toString(),value_result["value"]);
+           if(document_result.object().value("result").toString()=="err"){
+           QMessageBox::warning(this,tr("提示"),tr("获取数据")+recordModel->data(recordModel->index(i,0)).toString()+"失败："
+                                +document_result.object().value("value").toString(),QMessageBox::Yes);
+          }
+          else{
+              json.insert(value["field"].toString(),document_result.object().value("value").toString());
+           }
+
            getValueResult="";
          }
      }
-    document.setObject(json);
-    QByteArray byte_array = document.toJson(QJsonDocument::Compact);
-    result=myrequest->update(ui->address->text()+"/equipment/equipmentState/"+ui->serverId->text()+"/",serverInfor[serverIndex].token,byte_array);
-    if(result=="err"){
-      serverInfor[serverIndex].token="";
-      QMessageBox::warning(this,tr("提示"),tr("更新记录失败!!!"),QMessageBox::Yes);
+    if(json.isEmpty()){
+        QMessageBox::warning(this,tr("提示"),tr("未成功获取到有效可写数据!!!"),QMessageBox::Yes);
     }
-    else {
-      QMessageBox::information(this,tr("提示"),tr("更新记录成功!!!"),QMessageBox::Yes);
+    else{
+        document.setObject(json);
+        QByteArray byte_array = document.toJson(QJsonDocument::Compact);
+        result=myrequest->update(ui->address->text()+"/equipment/equipmentState/"+ui->serverId->text()+"/",serverInfor[serverIndex].token,byte_array);
+        if(result=="err"){
+          serverInfor[serverIndex].token="";
+          QMessageBox::warning(this,tr("提示"),tr("更新记录失败!!!"),QMessageBox::Yes);
+        }
+        else {
+          QMessageBox::information(this,tr("提示"),tr("更新记录成功!!!"),QMessageBox::Yes);
+        }
     }
-
- }
+}
 
 /*保存信息*/
 void ConfigDialog::saveConfig()

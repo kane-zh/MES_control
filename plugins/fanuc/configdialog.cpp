@@ -18,13 +18,13 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     connect(ui->clearDataSet,SIGNAL(clicked()),this,SLOT(clearDataSet()));
     connect(ui->saveDataSet,SIGNAL(clicked()),this,SLOT(setDataSet()));
     connect(ui->connectTest,SIGNAL(clicked()),this,SLOT(connectTest()));
-    connect(ui->group,SIGNAL(currentIndexChanged(int)),this,SLOT(fillFunctionBox()));
+    connect(ui->group,SIGNAL(currentTextChanged(QString)),this,SLOT(fillFunctionBox()));
 }
 void ConfigDialog::constructList()
-{
-    functionList.insert("控制轴主轴相关","读取主轴进给率;读取主轴转速;读取恒定表面速度;读取轴负载;读取伺服负载表;读取轴负载表;读取轴最大rpm率;读取轴转速;读取轴速度;"
-                        "读取轴齿轮比;读取轴相对位置;读取轴绝对位置;读取轴机器位置;读取轴剩余移动量;读取轴避让位置;读取轴伺服延时值;读取轴加减速延时值;读取显示的点动或空运行进给率;"
-                        "读取轴刀具位置信息;读取手动重叠运动值;显示手轮中断的输入与输出值;读取用于5轴加工的手动进给的机床轴移动量;读取轴加工汇总数据;读取轴所有动态数据;读取轴所有数据");
+{                      
+    functionList.insert("控制轴主轴相关","读取主轴进给率;读取主轴转速;读取主轴速度;读取主轴齿轮比;读取主轴负载;读取主轴负载表;读取伺服负载表;读取主轴最大rpm率;"
+                        "读取轴相对位置;读取轴绝对位置;读取轴机器位置;读取轴剩余移动量;读取轴避让位置;读取轴伺服延时值;读取轴加减速延时值;读取点动或空运行进给率;"
+                        "读取轴位置信息;读取手动重叠运动值;读取恒定表面速度;显示手轮中断的输入与输出值;读取用于5轴加工的手动进给的机床轴移动量;读取轴加工汇总数据");
     functionList.insert("程序相关","name2");
     functionList.insert("NC文件数据相关","name3");
     functionList.insert("刀具寿命管理数据相关","name4");
@@ -282,6 +282,7 @@ void ConfigDialog::fillDataSetForm()
     ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->group->setCurrentText(dataSetInfor[index].group);
+    fillFunctionBox();
     ui->function->setCurrentText(dataSetInfor[index].function);
     ui->parameter1->setText(dataSetInfor[index].parameter1);
     ui->parameter2->setText(dataSetInfor[index].parameter2);
