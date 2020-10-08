@@ -32,6 +32,7 @@ private:
     QString CNC_acts2(DATASET dataSetInfor);
     QString CNC_rdspmeter(DATASET dataSetInfor);
     QString CNC_rdmovrlapm(DATASET dataSetInfor);
+    QString CNC_rdjogdrun(DATASET dataSetInfor);
 };
 
 #endif // AXISINFOR_H

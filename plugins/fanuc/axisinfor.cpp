@@ -28,10 +28,10 @@ QString axisInfor::getValue(DATASET dataSetInfor)
     }
 
     if(dataSetInfor.function=="读取伺服负载表"){
-
+        return CNC_rdsvmeter(dataSetInfor);
     }
     if(dataSetInfor.function=="读取主轴最大rpm率"){
-
+        return CNC_rdspmaxrpm(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴相对位置"){
          return CNC_relative(dataSetInfor);
@@ -55,10 +55,10 @@ QString axisInfor::getValue(DATASET dataSetInfor)
          return CNC_accdecdly(dataSetInfor);
     }
     if(dataSetInfor.function=="读取点动或空运行进给率"){
-
+         return CNC_rdjogdrun(dataSetInfor);
     }
     if(dataSetInfor.function=="读取轴位置信息"){
-
+         return CNC_rdposition(dataSetInfor);
     }
     if(dataSetInfor.function=="读取手动重叠运动值"){
 
@@ -94,7 +94,7 @@ QString axisInfor::CNC_actf(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -118,7 +118,7 @@ QString axisInfor::CNC_acts(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -142,7 +142,7 @@ QString axisInfor::CNC_speed(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -208,35 +208,8 @@ QString axisInfor::CNC_speed(DATASET dataSetInfor)
 QString axisInfor::CNC_rdspgear(DATASET dataSetInfor)
 {
     ODBSPN  result;
-    short ret=cnc_rdspgear(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
-    if(ret!=EW_OK){
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","err");
-        json.insert("value","读取数值失败");
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
-    else{
-        QJsonDocument document;
-        QJsonObject json;
-        json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_SPINDLE;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
-        document.setObject(json);
-        QString json_str(document.toJson(QJsonDocument::Compact));
-        return json_str;
-    }
- }
-/*读取主轴负载*/
-QString axisInfor::CNC_rdspload(DATASET dataSetInfor)
-{
-    ODBSPN  result;
-    short ret=cnc_rdspload(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
+    short ret=cnc_rdspgear(dataSetInfor.flibhndl.toUInt(),1,&result);
+//    short ret=cnc_rdspgear(dataSetInfor.flibhndl.toUInt(),ALL_SPINDLES,&result);
     if(ret!=EW_OK){
         QJsonDocument document;
         QJsonObject json;
@@ -250,11 +223,38 @@ QString axisInfor::CNC_rdspload(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_SPINDLE;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
+        json.insert("value", QString::number(result.data[0]));
+        document.setObject(json);
+
+//        QStringList value;
+//        for(int i=0;i<MAX_SPINDLE;i++){
+//            value.append(QString::number(result.data[i]));
+//        }
+//        json.insert("value", value.join(";"));
+//        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+ }
+/*读取主轴负载*/
+QString axisInfor::CNC_rdspload(DATASET dataSetInfor)
+{
+    ODBSPN  result;
+    short ret=cnc_rdspload(dataSetInfor.flibhndl.toUInt(),1,&result);
+    if(ret!=EW_OK){
+        QJsonDocument document;
+        QJsonObject json;
+        json.insert("result","err");
+        json.insert("value","读取数值失败"+QString::number(ret));
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    else{
+        QJsonDocument document;
+        QJsonObject json;
+        json.insert("result","ok");
+        json.insert("value", QString::number(result.data[0]));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -264,13 +264,13 @@ QString axisInfor::CNC_rdspload(DATASET dataSetInfor)
 QString axisInfor::CNC_rdspmeter(DATASET dataSetInfor)
 {
     ODBSPLOAD   result;
-    short num=dataSetInfor.parameter1.toInt();
-    short ret=cnc_rdspmeter(dataSetInfor.flibhndl.toUInt(), 1,&num,&result);
+    short num=1;
+    short ret=cnc_rdspmeter(dataSetInfor.flibhndl.toUInt(),0,&num,&result);
     if(ret!=EW_OK){
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -321,7 +321,7 @@ QString axisInfor::CNC_rdsvmeter(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -362,16 +362,16 @@ QString axisInfor::CNC_rdsvmeter(DATASET dataSetInfor)
         return json_str;
     }
 }
-/*读取所轴最大rpm比例*/
+/*读取主轴最大rpm比例*/
 QString axisInfor::CNC_rdspmaxrpm(DATASET dataSetInfor)
 {
     ODBSPN  result;
-    short ret=cnc_rdspmaxrpm(dataSetInfor.flibhndl.toUInt(),MAX_AXIS,&result);
+    short ret=cnc_rdspmaxrpm(dataSetInfor.flibhndl.toUInt(),1,&result);
     if(ret!=EW_OK){
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -380,11 +380,7 @@ QString axisInfor::CNC_rdspmaxrpm(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","ok");
-        QStringList value;
-        for(int i=0;i<MAX_AXIS;i++){
-            value.append(QString::number(result.data[i]));
-        }
-        json.insert("value", value.join(";"));
+        json.insert("value", QString::number(result.data[0]));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -748,44 +744,68 @@ QString axisInfor::CNC_accdecdly(DATASET dataSetInfor)
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*读取轴位置数据*/
+/*读取点动或空运行进给率*/
+QString axisInfor::CNC_rdjogdrun(DATASET dataSetInfor)
+{
+    ODBJOGDRUN   result;
+    if(dataSetInfor.parameter1.isEmpty()||dataSetInfor.parameter1=="-1"){
+        short ret=cnc_rdjogdrun(dataSetInfor.flibhndl.toUInt(),ALL_AXES,&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            QStringList value;
+            for(int i=0;i<MAX_AXIS;i++){
+                value.append(QString::number(result.jogdrun.data));
+            }
+            json.insert("value", value.join(";"));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+    }
+    else{
+        short ret=cnc_rdjogdrun(dataSetInfor.flibhndl.toUInt(),dataSetInfor.parameter1.toInt(),&result);
+        if(ret!=EW_OK){
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","err");
+            json.insert("value","读取数值失败"+QString::number(ret));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+        else{
+            QJsonDocument document;
+            QJsonObject json;
+            json.insert("result","ok");
+            json.insert("value", QString::number(result.jogdrun.data));
+            document.setObject(json);
+            QString json_str(document.toJson(QJsonDocument::Compact));
+            return json_str;
+        }
+    }
+}
+/*读取轴位置信息*/
 QString axisInfor::CNC_rdposition(DATASET dataSetInfor)
 {
-    ODBPOS   result;    short data_num = 3;
+    ODBPOS   result;
+    short data_num = dataSetInfor.parameter1.toInt();
     short ret=cnc_rdposition(dataSetInfor.flibhndl.toUInt(),-1,&data_num,&result);
     if(ret!=EW_OK){
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
@@ -833,7 +853,7 @@ QString axisInfor::CNC_rdmovrlapm(DATASET dataSetInfor)
         QJsonDocument document;
         QJsonObject json;
         json.insert("result","err");
-        json.insert("value","读取数值失败");
+        json.insert("value","读取数值失败"+QString::number(ret));
         document.setObject(json);
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;

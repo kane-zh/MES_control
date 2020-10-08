@@ -15,12 +15,14 @@ HEADERS += \
     axisinfor.h \
     configdialog.h \
     metadata.h \
-    sourcemanage.h
+    sourcemanage.h \
+    toollifemanagement.h
 
 SOURCES += \
     axisinfor.cpp \
     configdialog.cpp \
-    sourcemanage.cpp
+    sourcemanage.cpp \
+    toollifemanagement.cpp
 
 DISTFILES += \
     programmer.json

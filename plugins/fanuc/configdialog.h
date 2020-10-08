@@ -13,6 +13,7 @@
 #include <QDir>
 #include "metadata.h"
 #include "axisinfor.h"
+#include "toollifemanagement.h"
 namespace Ui {
 class ConfigDialog;
 }

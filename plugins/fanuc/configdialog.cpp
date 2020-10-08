@@ -27,7 +27,8 @@ void ConfigDialog::constructList()
                         "读取轴位置信息;读取手动重叠运动值;读取恒定表面速度;显示手轮中断的输入与输出值;读取用于5轴加工的手动进给的机床轴移动量;读取轴加工汇总数据");
     functionList.insert("程序相关","name2");
     functionList.insert("NC文件数据相关","name3");
-    functionList.insert("刀具寿命管理数据相关","name4");
+    functionList.insert("刀具寿命管理数据相关","读取刀具寿命管理数据;读取最大刀具组数;读取刀具组数;读取刀具组号;读取使用的刀具组号;读取刀具组信息;读取刀具组寿命;读取刀具组升降计数;读取组内最大刀具数量;"
+                                     "读取刀具数量;读取组内使用的刀具号;读取刀具数据;读取刀具长度;读取刀具补偿;读取刀具信息;读取刀具编号;读取组内所有数据");
     functionList.insert("刀具管理数据相关","name5");
     functionList.insert("操作历史数据相关","name6");
     functionList.insert("3D干涉检查","name7");
@@ -373,6 +374,10 @@ void ConfigDialog::getValueTest()
     if(ui->group->currentText()=="NC文件数据相关"){
     }
     if(ui->group->currentText()=="刀具寿命管理数据相关"){
+        toolLifeManagement m_toolLifeManagement=toolLifeManagement();
+        result=m_toolLifeManagement.getValue(dataSetInfor);
+        QMessageBox::information(this,tr("提示"),tr("读取结果为")+result,QMessageBox::Yes);
+        return;
     }
     if(ui->group->currentText()=="刀具管理数据相关"){
     }
