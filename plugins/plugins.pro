@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
 #    keyence \
-#    modbus\
+    modbus\
 #    modbustcp\
 #    mysql\
 #    sqlserver\

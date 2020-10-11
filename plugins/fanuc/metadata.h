@@ -34,6 +34,9 @@ struct  DATASET
     QString parameter2;        //参数2
     QString parameter3;        //参数3
     QString parameter4;        //参数4
+    QString writeData1;        //参数4
+    QString writeData2;        //参数4
+    QString writeData3;        //参数4
     QString flibhndl= "";
 
  };

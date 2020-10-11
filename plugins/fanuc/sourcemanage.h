@@ -11,6 +11,9 @@
 #include "metadata.h"
 #include "../../mainApp/pluginManage/driverinterface.h"
 #include "configdialog.h"
+#include "axisinfor.h"
+#include "toollifemanagement.h"
+#include "otherinfor.h"
 
 class SourceManage:public QObject, public DriveInterface
 {

@@ -17,7 +17,7 @@
    <string>INFLUXDB数据库配置界面</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../influxdb/image.qrc">
+   <iconset>
     <normaloff>:/influxDb.png</normaloff>:/influxDb.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -220,7 +220,7 @@
           <item row="7" column="1">
            <widget class="QSpinBox" name="frequency">
             <property name="minimum">
-             <number>1000</number>
+             <number>1</number>
             </property>
             <property name="maximum">
              <number>999999999</number>
@@ -344,8 +344,6 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../influxdb/image.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

@@ -50,6 +50,116 @@ QString SourceManage::getDataSetInfor()
 /*获取指定数据集数据*/
 QString SourceManage::getValue(QString id)
 {
+    QJsonDocument document;
+    QJsonObject json;
+    int sourceId=dataSetInfor[id.toInt()].sourceIndex.toInt();
+    /*判断索引范围*/
+    if(id>MaxDataSet){
+        json.insert("result","err");
+        json.insert("value","数据集索引超出了最大值");
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    /*判断数据集配置情况*/
+    if(dataSetInfor[id.toInt()].name==""){
+        json.insert("result","err");
+        json.insert("value","指定数据集信息未被配置");
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    /*判断数据集使能情况*/
+    if(dataSetInfor[id.toInt()].enable!=true){
+        json.insert("result","err");
+        json.insert("value","指定数据集未使能");
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+     /*判断数据源配置情况*/
+    if(dataSourceInfor[sourceId].name==""){
+        json.insert("result","err");
+        json.insert("value","指定数据集的数据源未配置");
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    /*判断数据源使能情况*/
+    if(dataSourceInfor[sourceId].enable!=true){
+        json.insert("result","err");
+        json.insert("value","指定数据集的数据源未使能");
+        document.setObject(json);
+        QString json_str(document.toJson(QJsonDocument::Compact));
+        return json_str;
+    }
+    /*判断数据源连接状态(如果已经连接)*/
+   if(dataSourceInfor[sourceId].flibhndl==nullptr){
+       ushort Flibhndl = 0;
+       short ret = cnc_allclibhndl3(dataSourceInfor[sourceId].host.toUtf8().data(),dataSourceInfor[sourceId].port.toUInt(), dataSourceInfor[sourceId].timeout.toInt(), &Flibhndl);
+       if (ret != EW_OK)
+       {
+           json.insert("result","err");
+           json.insert("value","连接服务器失败");
+           document.setObject(json);
+           QString json_str(document.toJson(QJsonDocument::Compact));
+           return json_str;
+       }
+       else{
+           dataSourceInfor[sourceId].flibhndl=QString::number(Flibhndl);
+       }
+   }
+    dataSetInfor[id.toInt()].flibhndl=dataSourceInfor[sourceId].flibhndl;
+    QString result;
+    if(dataSetInfor[id.toInt()].group=="控制轴主轴相关"){
+        axisInfor m_axiInfor=axisInfor();
+        result=m_axiInfor.getValue(dataSetInfor[id.toInt()]);
+        return result;
+    }
+    if(dataSetInfor[id.toInt()].group=="程序相关"){
+    }
+    if(dataSetInfor[id.toInt()].group=="NC文件数据相关"){
+    }
+    if(dataSetInfor[id.toInt()].group=="刀具寿命管理数据相关"){
+        toolLifeManagement m_toolLifeManagement=toolLifeManagement();
+        result=m_toolLifeManagement.getValue(dataSetInfor[id.toInt()]);
+        return result;
+    }
+    if(dataSetInfor[id.toInt()].group=="刀具管理数据相关"){
+    }
+    if(dataSetInfor[id.toInt()].group=="操作历史数据相关"){
+    }
+    if(dataSetInfor[id.toInt()].group=="3D干涉检查"){
+    }
+    if(dataSetInfor[id.toInt()].group=="故障诊断"){
+    }
+    if(dataSetInfor[id.toInt()].group=="其他"){
+        otherInfor m_otherInfor=otherInfor();
+        result=m_otherInfor.getValue(dataSetInfor[id.toInt()]);
+        return result;
+    }
+    if(dataSetInfor[id.toInt()].group=="图形指令数据"){
+    }
+    if(dataSetInfor[id.toInt()].group=="伺服学习数据"){
+    }
+    if(dataSetInfor[id.toInt()].group=="NC显示功能"){
+    }
+    if(dataSetInfor[id.toInt()].group=="远程诊断功能"){
+    }
+    if(dataSetInfor[id.toInt()].group=="双重检查安全功能"){
+    }
+    if(dataSetInfor[id.toInt()].group=="连续位置数据输出功能"){
+    }
+    if(dataSetInfor[id.toInt()].group=="程序重新启动"){
+    }
+    if(dataSetInfor[id.toInt()].group=="辅助状态"){
+    }
+    if(dataSetInfor[id.toInt()].group=="安全IO信号历史"){
+    }
+    if(dataSetInfor[id.toInt()].group=="机器状态监控器_记录器"){
+    }
+    if(dataSetInfor[id.toInt()].group=="环保模式"){
+    }
 }
 
 QString SourceManage::setValue(QString id, QString value)

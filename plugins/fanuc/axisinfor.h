@@ -26,13 +26,24 @@ private:
     QString CNC_rdspmaxrpm(DATASET dataSetInfor);
     QString CNC_rdspgear(DATASET dataSetInfor);
     QString CNC_rdposition(DATASET dataSetInfor);
-    QString CNC_speed(DATASET dataSetInfor);
     QString CNC_feedrate(DATASET dataSetInfor);
     QString CNC_rdsvmeter(DATASET dataSetInfor);
     QString CNC_acts2(DATASET dataSetInfor);
     QString CNC_rdspmeter(DATASET dataSetInfor);
     QString CNC_rdmovrlapm(DATASET dataSetInfor);
     QString CNC_rdjogdrun(DATASET dataSetInfor);
+    QString CNC_rdaxisname(DATASET dataSetInfor);
+    QString CNC_rdhndintrpt(DATASET dataSetInfor);
+    QString CNC_rdnspdl(DATASET dataSetInfor);
+    QString CNC_rdloopgain(DATASET dataSetInfor);
+    QString CNC_rdcurrent(DATASET dataSetInfor);
+    QString CNC_rdsrvspeed(DATASET dataSetInfor);
+    QString CNC_rdmovestate(DATASET dataSetInfor);
+    QString CNC_rdspcss(DATASET dataSetInfor);
+    QString CNC_rdspdlname(DATASET dataSetInfor);
+    QString CNC_rdspdlalm(DATASET dataSetInfor);
+    QString CNC_axisnum(DATASET dataSetInfor);
+    QString CNC_rdsspeed(DATASET dataSetInfor);
 };
 
 #endif // AXISINFOR_H

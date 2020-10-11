@@ -175,7 +175,7 @@ void ContainerManage::autoSave(int id)
            qDebug()<<"发布主题失败!!!";
         }
         else{
-          qDebug()<<"发布主题成功!!!";
+          qDebug()<<"发布主题成功!!!"<<QTime::currentTime();
         }
 
     }

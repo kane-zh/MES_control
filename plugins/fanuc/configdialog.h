@@ -14,6 +14,8 @@
 #include "metadata.h"
 #include "axisinfor.h"
 #include "toollifemanagement.h"
+#include "otherinfor.h"
+#include "operationhistroydata.h"
 namespace Ui {
 class ConfigDialog;
 }

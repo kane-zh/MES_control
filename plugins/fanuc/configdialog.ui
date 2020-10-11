@@ -17,7 +17,7 @@
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -366,82 +366,12 @@
             </item>
             <item>
              <property name="text">
-              <string>刀具管理数据相关</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
               <string>操作历史数据相关</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>3D干涉检查</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>故障诊断</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
               <string>其他</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>图形指令数据</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>伺服学习数据</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>NC显示功能</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>远程诊断功能</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>双重检查安全功能</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>连续位置数据输出功能</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>程序重新启动</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>辅助状态</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>安全IO信号历史</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>机器状态监控器_记录器</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>环保模式</string>
              </property>
             </item>
            </widget>

@@ -6,7 +6,7 @@ toolLifeManagement::toolLifeManagement()
 }
 QString toolLifeManagement::getValue(DATASET dataSetInfor)
 {
-    if(dataSetInfor.function=="读取刀具寿命管理数据"){
+    if(dataSetInfor.function=="读取刀具寿命管理元数据"){
        return CNC_rdtlinfo(dataSetInfor);
     }
     if(dataSetInfor.function=="读取最大刀具组数"){

@@ -15,12 +15,16 @@ HEADERS += \
     axisinfor.h \
     configdialog.h \
     metadata.h \
+    operationhistroydata.h \
+    otherinfor.h \
     sourcemanage.h \
     toollifemanagement.h
 
 SOURCES += \
     axisinfor.cpp \
     configdialog.cpp \
+    operationhistroydata.cpp \
+    otherinfor.cpp \
     sourcemanage.cpp \
     toollifemanagement.cpp
 

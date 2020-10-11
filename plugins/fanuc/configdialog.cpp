@@ -21,31 +21,20 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     connect(ui->group,SIGNAL(currentTextChanged(QString)),this,SLOT(fillFunctionBox()));
 }
 void ConfigDialog::constructList()
-{                      
-    functionList.insert("控制轴主轴相关","读取主轴进给率;读取主轴转速;读取主轴速度;读取主轴齿轮比;读取主轴负载;读取主轴负载表;读取伺服负载表;读取主轴最大rpm率;"
-                        "读取轴相对位置;读取轴绝对位置;读取轴机器位置;读取轴剩余移动量;读取轴避让位置;读取轴伺服延时值;读取轴加减速延时值;读取点动或空运行进给率;"
-                        "读取轴位置信息;读取手动重叠运动值;读取恒定表面速度;显示手轮中断的输入与输出值;读取用于5轴加工的手动进给的机床轴移动量;读取轴加工汇总数据");
+{    
+    functionList.insert("控制轴主轴相关","读取主轴名称;读取受控主轴号;读取主轴进给率;读取主轴转速;读取主轴速度;读取主轴齿轮比;读取主轴负载;读取主轴负载表;读取主轴最大rpm率;读取主轴报警;读取轴名称;"
+                                  "读取轴相对位置;读取轴绝对位置;读取轴机器位置;读取轴待走移动量;读取轴避让位置;读取轴位置信息;读取伺服负载表;读取轴伺服延时值;读取轴加减速延时值;"
+                                  "读取点动或空运行进给率;读取轴的回路增益;读取轴的实际电流;读取轴的实际速度;读取轴状态信息;读取恒定表面速度;读取手轮中断的输入与输出值");
     functionList.insert("程序相关","name2");
-    functionList.insert("NC文件数据相关","name3");
-    functionList.insert("刀具寿命管理数据相关","读取刀具寿命管理数据;读取最大刀具组数;读取刀具组数;读取刀具组号;读取使用的刀具组号;读取刀具组信息;读取刀具组寿命;读取刀具组升降计数;读取组内最大刀具数量;"
+    functionList.insert("文件数据相关","name3");
+    functionList.insert("刀具寿命管理数据相关","读取刀具寿命管理元数据;读取最大刀具组数;读取刀具组数;读取刀具组号;读取使用的刀具组号;读取刀具组信息;读取刀具组寿命;读取刀具组升降计数;读取组内最大刀具数量;"
                                      "读取刀具数量;读取组内使用的刀具号;读取刀具数据;读取刀具长度;读取刀具补偿;读取刀具信息;读取刀具编号;读取组内所有数据");
-    functionList.insert("刀具管理数据相关","name5");
-    functionList.insert("操作历史数据相关","name6");
-    functionList.insert("3D干涉检查","name7");
-    functionList.insert("故障诊断","name8");
-    functionList.insert("其他","name9");
-    functionList.insert("图形指令数据","name10");
-    functionList.insert("伺服学习数据","name11");
-    functionList.insert("NC显示功能","name12");
-    functionList.insert("远程诊断功能","name13");
-    functionList.insert("双重检查安全功能","name14");
-    functionList.insert("连续位置数据输出功能","name15");
-    functionList.insert("程序重新启动","name16");
-    functionList.insert("辅助状态","name17");
-    functionList.insert("安全IO信号历史","name18");
-    functionList.insert("机器状态监控器_记录器","name19");
-    functionList.insert("环保模式","name20");
+    functionList.insert("操作历史数据相关","读取操作历史数据;读取报警历史记录数据;读取信号相关的操作历史;读取操作员历史记录数据");
+    functionList.insert("其他","读取CNC系统信息;读取CNC系统硬件信息;读取CNC状态信息;读取操作员消息;读取模态数据;读取诊断数据;读取警报消息;读取警报状态;清除CNC警报;清除报警;获取详细错误信息;"
+                         "读取CNC参数的信息;读取CNC参数的最大值最小值和总数;读取CNC配置信息;读取CNC设定数据的信息;读取CNC设置数据的最大最小和总数;读取CNC诊断数据的信息;读取CNC诊断数据的最大最小和总数;"
+                         "读取DMG Netservice状态信息;读取G代码;读取程序重新启动信息;读取命令值;获得最大有效数字和小数位数;获取屏幕状态;更改屏幕模式;读取AD转换数据;读取块状态;;");
 }
+
 
 
 ConfigDialog::~ConfigDialog()
@@ -280,7 +269,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
     ui->group->setCurrentText(dataSetInfor[index].group);
     fillFunctionBox();
@@ -294,7 +283,7 @@ void ConfigDialog::fillDataSetForm()
     ui->name2->setText(dataSetInfor[index].name);
     ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
-    ui->writeEnable->setCheckable(dataSetInfor[index].writeEnable);
+    ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
    }
 }
@@ -379,37 +368,17 @@ void ConfigDialog::getValueTest()
         QMessageBox::information(this,tr("提示"),tr("读取结果为")+result,QMessageBox::Yes);
         return;
     }
-    if(ui->group->currentText()=="刀具管理数据相关"){
-    }
     if(ui->group->currentText()=="操作历史数据相关"){
-    }
-    if(ui->group->currentText()=="3D干涉检查"){
-    }
-    if(ui->group->currentText()=="故障诊断"){
+        operationHistroyData m_operationHistroyData=operationHistroyData();
+        result=m_operationHistroyData.getValue(dataSetInfor);
+        QMessageBox::information(this,tr("提示"),tr("读取结果为")+result,QMessageBox::Yes);
+        return;
     }
     if(ui->group->currentText()=="其他"){
-    }
-    if(ui->group->currentText()=="图形指令数据"){
-    }
-    if(ui->group->currentText()=="伺服学习数据"){
-    }
-    if(ui->group->currentText()=="NC显示功能"){
-    }
-    if(ui->group->currentText()=="远程诊断功能"){
-    }
-    if(ui->group->currentText()=="双重检查安全功能"){
-    }
-    if(ui->group->currentText()=="连续位置数据输出功能"){
-    }
-    if(ui->group->currentText()=="程序重新启动"){
-    }
-    if(ui->group->currentText()=="辅助状态"){
-    }
-    if(ui->group->currentText()=="安全IO信号历史"){
-    }
-    if(ui->group->currentText()=="机器状态监控器_记录器"){
-    }
-    if(ui->group->currentText()=="环保模式"){
+        otherInfor m_otherInfor=otherInfor();
+        result=m_otherInfor.getValue(dataSetInfor);
+        QMessageBox::information(this,tr("提示"),tr("读取结果为")+result,QMessageBox::Yes);
+        return;
     }
 
 }
