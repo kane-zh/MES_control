@@ -14,6 +14,7 @@
 #include "axisinfor.h"
 #include "toollifemanagement.h"
 #include "otherinfor.h"
+#include "programinfor.h"
 
 class SourceManage:public QObject, public DriveInterface
 {

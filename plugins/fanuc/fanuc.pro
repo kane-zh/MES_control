@@ -17,6 +17,7 @@ HEADERS += \
     metadata.h \
     operationhistroydata.h \
     otherinfor.h \
+    programinfor.h \
     sourcemanage.h \
     toollifemanagement.h
 
@@ -25,6 +26,7 @@ SOURCES += \
     configdialog.cpp \
     operationhistroydata.cpp \
     otherinfor.cpp \
+    programinfor.cpp \
     sourcemanage.cpp \
     toollifemanagement.cpp
 

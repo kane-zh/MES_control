@@ -2,6 +2,8 @@
 #include "ui_configdialog.h"
 #include <iostream>
 #include "QDesktopWidget"
+#include "InfluxDBFactory.h"
+#include "Point.h"
 #include "configdialog.h"
 ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),
@@ -115,7 +117,7 @@ void ConfigDialog::RemoveRow()
 
 void ConfigDialog::AddRow()
 {
-    dataTableModel->insertRow(ui->tableView2->currentIndex().row()+1);
+    dataTableModel->insertRow(ui->tableView2->currentIndex().row());
 }
 
 /*显示数据库信息*/
@@ -313,11 +315,6 @@ void ConfigDialog::fillDataBaseForm()
         ui->address->setText(dataBaseInfor[index].address);
         ui->port->setText(dataBaseInfor[index].port);
        }
-    else{
-        ui->name1->setText(dataBaseInfor[index].name);
-        ui->enable1->setChecked(dataBaseInfor[index].enable);
-        ui->desc1->setText(dataBaseInfor[index].desc);
-       }
 }
 /*填充数据表表单*/
 void ConfigDialog::fillDataTableForm()
@@ -376,8 +373,7 @@ void ConfigDialog::saveValueTest()
 {
     httpRequest  *myrequest=new httpRequest(this);
     int serverIndex=ui->dataBase->currentData().toInt();
-    QString  value1=ui->name2->currentText()+",index="+QString::number(ui->index2->value())+" ";
-    QString  value2="";
+    QString  values=ui->name2->currentText()+",index="+QString::number(ui->index2->value())+",";
     for (int i = 0; i < dataTableModel->rowCount(); i++)
      {
          if(dataTableModel->data(dataTableModel->index(i,2)).toString()!=""){
@@ -389,36 +385,21 @@ void ConfigDialog::saveValueTest()
              while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
                   QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
              }
-             QJsonDocument document=QJsonDocument::fromJson(dataTableInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
-             dataTableInfor[ui->index2->text().toInt()].getValueResult="";
-             QJsonObject object=document.object();
-              if(document.object().value("result").toString()=="err"){
-              QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataTableModel->data(dataTableModel->index(i,0)).toString()+"失败："
-                                   +document.object().value("value").toString(),QMessageBox::Yes);
-             }
-             else{
-                value2.append(dataTableModel->data(dataTableModel->index(i,0)).toString()+"=");
-                value2.append("\"");
-                value2.append(document.object().value("value").toString());
-                value2.append("\"");
-                value2.append(",");
-             }
-           }
+            values.append(dataTableModel->data(dataTableModel->index(i,2)).toString()+"=");
+            values.append(dataTableInfor[ui->index2->text().toInt()].getValueResult);
+            values.append(" ");
+            dataTableInfor[ui->index2->text().toInt()].getValueResult;
+              }
        }
-        if(value2!=""){
-             value2.remove(value2.length()-1,2);
-             QString result=myrequest->post(ui->address->text(),ui->port->text(),ui->username->text(),ui->password->text(),ui->name1->text(),value1+value2);
-             if(result=="err"){
-               QMessageBox::warning(this,tr("提示"),tr("写数据失败!!!"),QMessageBox::Yes);
-               return;
-             }
-             else{
-               QMessageBox::warning(this,tr("提示"),tr("写数据成功!!!"),QMessageBox::Yes);
-             }
-        }
-        else{
-            QMessageBox::warning(this,tr("提示"),tr("未成功获取到有效可写数据!!!"),QMessageBox::Yes);
-        }
+         values.remove(values.length()-1,1);
+         QString result=myrequest->post(ui->address->text(),ui->port->text(),ui->username->text(),ui->password->text(),ui->name1->text(),values);
+
+//         if(!query.lastError().isValid()){
+//           QMessageBox::information(this,tr("提示"),tr("保存数据成功"),QMessageBox::Yes);
+//         }
+//         else {
+//          QMessageBox::warning(this,tr("提示"),tr("保存数据失败!!!")+ query.lastError().text(),QMessageBox::Yes);
+//         }
 
 }
 /*保存信息*/

@@ -25,7 +25,7 @@ void ConfigDialog::constructList()
     functionList.insert("控制轴主轴相关","读取主轴名称;读取受控主轴号;读取主轴进给率;读取主轴转速;读取主轴速度;读取主轴齿轮比;读取主轴负载;读取主轴负载表;读取主轴最大rpm率;读取主轴报警;读取轴名称;"
                                   "读取轴相对位置;读取轴绝对位置;读取轴机器位置;读取轴待走移动量;读取轴避让位置;读取轴位置信息;读取伺服负载表;读取轴伺服延时值;读取轴加减速延时值;"
                                   "读取点动或空运行进给率;读取轴的回路增益;读取轴的实际电流;读取轴的实际速度;读取轴状态信息;读取恒定表面速度;读取手轮中断的输入与输出值");
-    functionList.insert("程序相关","name2");
+    functionList.insert("程序相关","读取程序号;读取程序名称");
     functionList.insert("文件数据相关","name3");
     functionList.insert("刀具寿命管理数据相关","读取刀具寿命管理元数据;读取最大刀具组数;读取刀具组数;读取刀具组号;读取使用的刀具组号;读取刀具组信息;读取刀具组寿命;读取刀具组升降计数;读取组内最大刀具数量;"
                                      "读取刀具数量;读取组内使用的刀具号;读取刀具数据;读取刀具长度;读取刀具补偿;读取刀具信息;读取刀具编号;读取组内所有数据");
@@ -359,6 +359,10 @@ void ConfigDialog::getValueTest()
         return;
     }
     if(ui->group->currentText()=="程序相关"){
+        programInfor m_programInfor=programInfor();
+        result=m_programInfor.getValue(dataSetInfor);
+        QMessageBox::information(this,tr("提示"),tr("读取结果为")+result,QMessageBox::Yes);
+        return;
     }
     if(ui->group->currentText()=="NC文件数据相关"){
     }

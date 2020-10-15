@@ -410,14 +410,21 @@ void ConfigDialog::publishTest()
              while(topicInfor[ui->index2->text().toInt()].getValueResult==""){
                   QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
              }
-             QJsonDocument document=QJsonDocument::fromJson(topicInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
+             QJsonDocument document=QJsonDocument::fromJson(topicInfor[ui->index2->text().toInt()].getValueResult.toLocal8Bit().data());
              topicInfor[ui->index2->text().toInt()].getValueResult="";
               if(document.object().value("result").toString()=="err"){
               QMessageBox::warning(this,tr("提示"),tr("获取数据")+topicModel->data(topicModel->index(i,0)).toString()+"失败："
                                    +document.object().value("value").toString(),QMessageBox::Yes);
              }
              else{
-              json.insert(topicModel->data(topicModel->index(i,0)).toString(),document.object().value("value").toString());
+              if(document.object().value("value").isObject()){
+                  document.setObject(document.object().value("value").toObject());
+                  QString json_str(document.toJson(QJsonDocument::Compact));
+                  json.insert(topicModel->data(topicModel->index(i,0)).toString(),json_str);
+              }
+              else{
+                 json.insert(topicModel->data(topicModel->index(i,0)).toString(),document.object().value("value").toString());
+              }
               }
           }
       }

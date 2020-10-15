@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "influxdb",
+    "version" : "1.0.0",
+    "title":"influxdb数据库",
+    "type" : "container",
+    "des" : "",
+    "dependencies" : []
+}

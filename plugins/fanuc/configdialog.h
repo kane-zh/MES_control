@@ -16,6 +16,7 @@
 #include "toollifemanagement.h"
 #include "otherinfor.h"
 #include "operationhistroydata.h"
+#include "programinfor.h"
 namespace Ui {
 class ConfigDialog;
 }

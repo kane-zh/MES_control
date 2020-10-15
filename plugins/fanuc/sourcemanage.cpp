@@ -114,15 +114,30 @@ QString SourceManage::getValue(QString id)
     if(dataSetInfor[id.toInt()].group=="控制轴主轴相关"){
         axisInfor m_axiInfor=axisInfor();
         result=m_axiInfor.getValue(dataSetInfor[id.toInt()]);
+        QJsonDocument document1=QJsonDocument::fromJson(result.toUtf8());
+         if(document1.object().value("result").toString()=="err"){
+         dataSourceInfor[sourceId].flibhndl="";
+        }
         return result;
     }
     if(dataSetInfor[id.toInt()].group=="程序相关"){
+        programInfor m_programInfor=programInfor();
+        result=m_programInfor.getValue(dataSetInfor[id.toInt()]);
+        QJsonDocument document1=QJsonDocument::fromJson(result.toUtf8());
+         if(document1.object().value("result").toString()=="err"){
+         dataSourceInfor[sourceId].flibhndl="";
+        }
+        return result;
     }
     if(dataSetInfor[id.toInt()].group=="NC文件数据相关"){
     }
     if(dataSetInfor[id.toInt()].group=="刀具寿命管理数据相关"){
         toolLifeManagement m_toolLifeManagement=toolLifeManagement();
         result=m_toolLifeManagement.getValue(dataSetInfor[id.toInt()]);
+        QJsonDocument document1=QJsonDocument::fromJson(result.toUtf8());
+         if(document1.object().value("result").toString()=="err"){
+         dataSourceInfor[sourceId].flibhndl="";
+        }
         return result;
     }
     if(dataSetInfor[id.toInt()].group=="刀具管理数据相关"){
@@ -136,6 +151,10 @@ QString SourceManage::getValue(QString id)
     if(dataSetInfor[id.toInt()].group=="其他"){
         otherInfor m_otherInfor=otherInfor();
         result=m_otherInfor.getValue(dataSetInfor[id.toInt()]);
+        QJsonDocument document1=QJsonDocument::fromJson(result.toUtf8());
+         if(document1.object().value("result").toString()=="err"){
+         dataSourceInfor[sourceId].flibhndl="";
+        }
         return result;
     }
     if(dataSetInfor[id.toInt()].group=="图形指令数据"){

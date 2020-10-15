@@ -159,7 +159,15 @@ void ContainerManage::autoSave(int id)
             qDebug()<<"获取数据"+value["field"].toString()+"失败："+document1.object().value("value").toString();
            }
            else{
-            values.insert(value["field"].toString(),document1.object().value("value").toString());
+                 if(document1.object().value("value").isObject()){
+                     QJsonDocument docment3;
+                     docment3.setObject(document1.object().value("value").toObject());
+                     QString json_str(docment3.toJson(QJsonDocument::Compact));
+                     values.insert(value["field"].toString(),json_str);
+                 }
+                 else{
+                    values.insert(value["field"].toString(),document1.object().value("value").toString());
+                 }
             }
         }
     }
