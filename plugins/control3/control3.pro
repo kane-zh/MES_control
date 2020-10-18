@@ -1,7 +1,7 @@
 TEMPLATE        = lib           #表示这个makefile是一个lib的makefile
 CONFIG         += plugin        #应用程序是一个插件
-QT             += widgets
-QT             += core gui
+QT             += widgets network
+QT             += core gui concurrent
 TARGET          = control3      #生成插件的名称
 win32:CONFIG(release, debug|release): DESTDIR         = ../../mainApp/release/plugins/libs
 else:win32:CONFIG(debug, debug|release): DESTDIR         = ../../mainApp/debug/plugins/libs
@@ -12,10 +12,19 @@ DISTFILES += \
     programmer.json
 
 FORMS += \
+    configdialog.ui \
     mainform.ui
 
 HEADERS += \
-    mainform.h
+    configdialog.h \
+    httprequest.h \
+    mainform.h \
+    metaData.h
 
 SOURCES += \
+    configdialog.cpp \
+    httprequest.cpp \
     mainform.cpp
+
+
+

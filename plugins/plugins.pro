@@ -4,14 +4,14 @@ SUBDIRS += \
 #    keyence \
 #    modbus\
 #    modbustcp\
-#    mysql\
+#     mysql\
 #    sqlserver\
 #    mes\
     fanuc\
-    influxdb\
+#    influxdb\
 #    control1\
 #    control2\
     control3\
 #    postgresql\
 #    sqllite\
-    mqtt_pub
+#    mqtt_pub

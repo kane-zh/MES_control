@@ -4,7 +4,7 @@
     "name" : "control3",
     "version" : "1.0.0",
     "type" : "debugControl",
-    "title":"控制测试3",
-    "des" : "控制测试插件",
+    "title":"发那科自动报工",
+    "des" : "丰光精密发那科加工中心设备,自动报工",
     "dependencies" : []
 }
