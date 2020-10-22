@@ -14,10 +14,6 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     connect(ui->clearServerInfor,SIGNAL(clicked()),this,SLOT(clearServerInfor()));
     connect(ui->saveServerInfor,SIGNAL(clicked()),this,SLOT(setServerInfor()));
     connect(ui->connectTest,SIGNAL(clicked()),this,SLOT(connectTest()));
-    connect(ui->clearRecordInfor,SIGNAL(clicked()),this,SLOT(clearRecordInfor()));
-    connect(ui->saveRecordInfor,SIGNAL(clicked()),this,SLOT(setRecordInfor()));
-    connect(ui->getDataTest,SIGNAL(clicked()),this,SLOT(saveValueTest()));
-
 }
 
 ConfigDialog::~ConfigDialog()
@@ -32,7 +28,6 @@ void ConfigDialog::showEvent(QShowEvent *)
     request.type="getDrivesInfor";
     emit SendMsgToContainerManage(request);
     fillServerInforForm();    //填充服务器表单
-    fillRecordInforForm();    //填充记录信息表单
     while(driveInfor==""){
 
     }
@@ -108,31 +103,6 @@ void ConfigDialog::setServerInfor()
     QMessageBox::information(this,tr("提示"),tr("设置服务器成功"),QMessageBox::Yes);
     saveConfig();     //保存配置信息
 }
-/*设置记录信息信息*/
-void ConfigDialog::setRecordInfor()
-{
-    if(recordInfor.name!=""){
-        int ok=QMessageBox::warning(this,tr("提示"),tr("当前编号记录信息已有配置信息，是否更新??"),QMessageBox::Yes,QMessageBox::No);
-        if(ok==QMessageBox::No)
-        {
-          return;
-        }
-    }
-    if(ui->name2->text()==""){
-      QMessageBox::warning(this,tr("提示"),tr("名称不能为空!!!"),QMessageBox::Yes);
-      return;
-       }
-    QJsonArray array;
-    QJsonDocument document;
-    document.setArray(array);
-    QByteArray byte_array = document.toJson(QJsonDocument::Compact);
-    QString json_str(byte_array);
-    recordInfor.name=ui->name2->text();
-    recordInfor.enable=ui->enable2->isChecked();
-    recordInfor.desc=ui->desc2->text();
-    QMessageBox::information(this,tr("提示"),tr("设置记录信息成功"),QMessageBox::Yes);
-    saveConfig();     //保存配置信息
-}
 /*清除服务器信息*/
 void ConfigDialog::clearServerInfor()
 {
@@ -157,27 +127,6 @@ void ConfigDialog::clearServerInfor()
     QMessageBox::information(this,tr("提示"),tr("清除服务器信息成功"),QMessageBox::Yes);
     saveConfig();     //保存配置信息
 }
-
-void ConfigDialog::clearRecordInfor()
-{
-    if(recordInfor.name!=""){
-        int ok=QMessageBox::warning(this,tr("提示"),tr("当前编号数据表已有配置信息，是否清除??"),QMessageBox::Yes,QMessageBox::No);
-        if(ok==QMessageBox::No)
-        {
-          return;
-        }
-    }
-    recordInfor.name="";
-    recordInfor.enable=false;
-    recordInfor.server="";
-    recordInfor.desc="";
-    ui->name2->setText("");
-    ui->enable2->setCheckState(Qt::Unchecked);
-    ui->desc2->setText("");
-    QMessageBox::information(this,tr("提示"),tr("清除信息成功"),QMessageBox::Yes);
-    saveConfig();
-
-}
 /*填充服务器表单*/
 void ConfigDialog::fillServerInforForm()
 {
@@ -194,13 +143,6 @@ void ConfigDialog::fillServerInforForm()
         ui->enable1->setChecked(serverInfor.enable);
         ui->desc1->setText(serverInfor.desc);
        }
-}
-/*填充记录信息表单*/
-void ConfigDialog::fillRecordInforForm()
-{
-    ui->name2->setText(recordInfor.name);
-    ui->enable2->setChecked(recordInfor.enable);
-    ui->desc2->setText(recordInfor.desc);
 }
 /*连接服务器测试*/
 void ConfigDialog::connectTest()
@@ -245,17 +187,6 @@ void ConfigDialog::saveConfig()
     server.insert("desc",serverInfor.desc);
     server.insert("password",serverInfor.password);
     server.insert("address",serverInfor.address);
-    record.insert("name",recordInfor.name);
-    record.insert("server",recordInfor.server);
-    record.insert("enable",QString::number(recordInfor.enable));
-    record.insert("desc",recordInfor.desc);
-    record.insert("task",recordInfor.task);
-    record.insert("taskItem",recordInfor.taskItem);
-    record.insert("product",recordInfor.product);
-    record.insert("batch",recordInfor.batch);
-    record.insert("station",recordInfor.station);
-    record.insert("station_num",recordInfor.station_num);
-    record.insert("driver",recordInfor.driver);
     QJsonObject object;
     object.insert("server",server);
     object.insert("record",record);
@@ -291,14 +222,4 @@ void ConfigDialog::loadConfig()
     serverInfor.username=server.value("username").toString();
     serverInfor.password=server.value("password").toString();
     serverInfor.address=server.value("address").toString();
-    recordInfor.name=record.value("name").toString();
-    recordInfor.enable=record.value("enable").toBool();
-    recordInfor.desc=record.value("desc").toString();
-    recordInfor.task=record.value("task").toString();
-    recordInfor.taskItem=record.value("taskItem").toString();
-    recordInfor.product=record.value("product").toString();
-    recordInfor.batch=record.value("batch").toString();
-    recordInfor.station=record.value("station").toString();
-    recordInfor.station_num=record.value("station_num").toString();
-    recordInfor.driver=record.value("driver").toString();
 }

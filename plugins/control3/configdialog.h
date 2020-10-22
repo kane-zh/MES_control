@@ -32,11 +32,8 @@ public slots:
     void receiveMsgFromContainerManage(ResponseMetaData_dialog response); //从ContainerManage接收信号
 private slots:
     void setServerInfor();                          //设置指定的服务器配置
-    void setRecordInfor();                         //设置指定的记录信息配置
     void clearServerInfor();                        //清除指定的服务器配置
-    void clearRecordInfor();                       //清除指定的记录信息配置
     void fillServerInforForm();                     //填充服务器表单
-    void fillRecordInforForm();                    //填充记录信息表单
     void connectTest();                          //连接测试
     void saveValueTest();                        //保存数值测试
     void saveConfig();                             //保存配置信息

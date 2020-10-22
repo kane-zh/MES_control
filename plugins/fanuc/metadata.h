@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QMutex>
 #include "Fwlib32.h"
 /*数据源信息*/
 struct  DATASOURCE
@@ -17,6 +18,7 @@ struct  DATASOURCE
     QString    port;          //端口号
     QString    timeout = "";
     QString    flibhndl= "";
+    QMutex     m_mutex;
  };
 
 /*数据集信息*/

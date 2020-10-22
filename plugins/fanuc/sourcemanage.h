@@ -16,6 +16,7 @@
 #include "otherinfor.h"
 #include "programinfor.h"
 
+
 class SourceManage:public QObject, public DriveInterface
 {
     Q_OBJECT

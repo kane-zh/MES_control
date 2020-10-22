@@ -111,6 +111,7 @@ QString SourceManage::getValue(QString id)
    }
     dataSetInfor[id.toInt()].flibhndl=dataSourceInfor[sourceId].flibhndl;
     QString result;
+    dataSourceInfor[sourceId].m_mutex.lock();
     if(dataSetInfor[id.toInt()].group=="控制轴主轴相关"){
         axisInfor m_axiInfor=axisInfor();
         result=m_axiInfor.getValue(dataSetInfor[id.toInt()]);
@@ -118,7 +119,6 @@ QString SourceManage::getValue(QString id)
          if(document1.object().value("result").toString()=="err"){
          dataSourceInfor[sourceId].flibhndl="";
         }
-        return result;
     }
     if(dataSetInfor[id.toInt()].group=="程序相关"){
         programInfor m_programInfor=programInfor();
@@ -127,7 +127,6 @@ QString SourceManage::getValue(QString id)
          if(document1.object().value("result").toString()=="err"){
          dataSourceInfor[sourceId].flibhndl="";
         }
-        return result;
     }
     if(dataSetInfor[id.toInt()].group=="NC文件数据相关"){
     }
@@ -138,7 +137,6 @@ QString SourceManage::getValue(QString id)
          if(document1.object().value("result").toString()=="err"){
          dataSourceInfor[sourceId].flibhndl="";
         }
-        return result;
     }
     if(dataSetInfor[id.toInt()].group=="刀具管理数据相关"){
     }
@@ -155,7 +153,6 @@ QString SourceManage::getValue(QString id)
          if(document1.object().value("result").toString()=="err"){
          dataSourceInfor[sourceId].flibhndl="";
         }
-        return result;
     }
     if(dataSetInfor[id.toInt()].group=="图形指令数据"){
     }
@@ -179,6 +176,8 @@ QString SourceManage::getValue(QString id)
     }
     if(dataSetInfor[id.toInt()].group=="环保模式"){
     }
+    dataSourceInfor[sourceId].m_mutex.unlock();
+    return result;
 }
 
 QString SourceManage::setValue(QString id, QString value)

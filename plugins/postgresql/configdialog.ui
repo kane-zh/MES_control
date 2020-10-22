@@ -14,7 +14,7 @@
    <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>POSTGRESQL数据库配置界面</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

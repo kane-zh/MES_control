@@ -152,8 +152,10 @@ void ContainerManage::autoUpdate(int id)
     else{
      document.setObject(json);
      QByteArray byte_array = document.toJson(QJsonDocument::Compact);
+     serverInfor[serverIndex].m_mutex.lock();
      result=myrequest->update(serverInfor[serverIndex].address+"/equipment/equipmentState/"+recordInfor[index].serverid+"/",
                               serverInfor[serverIndex].token,byte_array);
+     serverInfor[serverIndex].m_mutex.unlock();
      if(result=="err"){
        serverInfor[serverIndex].token="";
        qDebug()<<"更新记录失败!!!";

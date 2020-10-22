@@ -176,6 +176,7 @@ QString SourceManage::getValue(QString id)
          return json_str;
         }
     }
+    dataSetInfor[dataSet].m_mutex.lock();
     QString RD = "RD "+dataSetInfor[dataSet].type+dataSetInfor[dataSet].number+"\r";
     dataSetInfor[dataSet].value="";
     dataSetInfor[dataSet].socket->write(RD.toUtf8().data());
@@ -188,9 +189,12 @@ QString SourceManage::getValue(QString id)
        json.insert("value","读取节点值超时");
        document.setObject(json);
        QString json_str(document.toJson(QJsonDocument::Compact));
+       dataSetInfor[dataSet].socket->abort();
+       dataSetInfor[dataSet].socket=nullptr;
        return json_str;
 
     }
+    dataSetInfor[dataSet].m_mutex.unlock();
     return  dataSetInfor[dataSet].value;
 }
 
@@ -290,6 +294,7 @@ QString SourceManage::setValue(QString id, QString value)
          return json_str;
         }
     }
+    dataSetInfor[dataSet].m_mutex.lock();
     QString WR = "WR "+dataSetInfor[dataSet].type+dataSetInfor[dataSet].number+" "+value+"\r";
     dataSetInfor[dataSet].value="";
     dataSetInfor[dataSet].socket->write(WR.toUtf8().data());
@@ -302,9 +307,11 @@ QString SourceManage::setValue(QString id, QString value)
        json.insert("value","设置节点值超时");
        document.setObject(json);
        QString json_str(document.toJson(QJsonDocument::Compact));
+       dataSetInfor[dataSet].socket->abort();
+       dataSetInfor[dataSet].socket=nullptr;
        return json_str;
-
     }
+    dataSetInfor[dataSet].m_mutex.unlock();
     return  dataSetInfor[dataSet].value;
 }
 

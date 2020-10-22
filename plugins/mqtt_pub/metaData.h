@@ -4,6 +4,7 @@
 #define  MaxTopic     100
 #include <QString>
 #include <QtMqtt/qmqttclient.h>
+#include <QMutex>
 struct RequestMetaData_dialog
 {
     QString type;
@@ -28,6 +29,7 @@ struct  SERVICE
     QString    password;     //密码
     QString    timeOut;      //超时时间
     QMqttClient *client=nullptr;
+    QMutex     m_mutex;
  };
 /*主题信息*/
 struct  TOPIC

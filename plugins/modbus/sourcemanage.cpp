@@ -156,6 +156,7 @@ QString SourceManage::getValue(QString id)
    QModbusDataUnit requestData=QModbusDataUnit(static_cast<QModbusDataUnit::RegisterType>(dataSetInfor[id.toInt()].readData.code),
                      dataSetInfor[id.toInt()].readData.startAddress.toInt(),
                      dataSetInfor[id.toInt()].readData.length.toInt());
+   dataSourceInfor[sourceId].m_mutex.lock();
    QModbusReply *reply = dataSourceInfor[sourceId].modbusDevice->sendReadRequest(requestData,
                         dataSetInfor[id.toInt()].readData.serverAddress.toInt());
    if (reply){
@@ -170,6 +171,7 @@ QString SourceManage::getValue(QString id)
            QByteArray byte_array = document.toJson(QJsonDocument::Compact);
            QString json_str(byte_array);
            delete reply;
+           dataSourceInfor[sourceId].m_mutex.unlock();
            return json_str;
        }
    }
@@ -180,6 +182,7 @@ QString SourceManage::getValue(QString id)
        QByteArray byte_array = document.toJson(QJsonDocument::Compact);
        QString json_str(byte_array);
        delete reply;
+       dataSourceInfor[sourceId].m_mutex.unlock();
        return json_str;
    }
    //添加事件循环机制，返回后再运行后面的
@@ -190,6 +193,7 @@ QString SourceManage::getValue(QString id)
          QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
     }
     delete reply;
+    dataSourceInfor[sourceId].m_mutex.unlock();
     dataSetInfor[id.toInt()].readData.reply=nullptr;
     return  dataSetInfor[id.toInt()].readData.value;
 }

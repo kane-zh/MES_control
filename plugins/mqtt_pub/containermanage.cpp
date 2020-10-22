@@ -179,13 +179,14 @@ void ContainerManage::autoSave(int id)
         document2.setObject(values);
         QByteArray byte_array = document2.toJson(QJsonDocument::Compact);
         QString json_str(byte_array);
+        serviceInfor[server].m_mutex.lock();
         if (serviceInfor[server].client->publish(topicInfor[id].topic,json_str.toUtf8()) == -1){
            qDebug()<<"发布主题失败!!!";
         }
         else{
           qDebug()<<"发布主题成功!!!"<<QTime::currentTime();
         }
-
+        serviceInfor[server].m_mutex.unlock();
     }
     topicInfor[id].getValueEnable=true;
 }

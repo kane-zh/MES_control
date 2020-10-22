@@ -140,9 +140,11 @@ void ContainerManage::autoSave(int id)
        }
         if(value2!=""){
              value2.remove(value2.length()-1,2);
+             dataBaseInfor[dataBase].m_mutex.lock();
              QString result=myrequest->post(dataBaseInfor[dataBase].address,dataBaseInfor[dataBase].port,
                                             dataBaseInfor[dataBase].username,dataBaseInfor[dataBase].password,
                                             dataBaseInfor[dataBase].name,value1+value2);
+             dataBaseInfor[dataBase].m_mutex.unlock();
              if(result=="err"){
                qDebug()<<"写数据失败!!!";
              }

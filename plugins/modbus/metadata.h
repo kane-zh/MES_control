@@ -7,6 +7,7 @@
 #include <QModbusDataUnit>
 #include <QModbusRtuSerialMaster>
 #include <QString>
+#include <QMutex>
 /*数据源信息*/
 struct  DATARTU
 {
@@ -36,6 +37,7 @@ struct  DATASOURCE
     QString responseTime = "";
     QString numberOfRetries = "";
     QModbusClient *modbusDevice = nullptr;
+    QMutex  m_mutex;
  };
 /*数据集信息*/
 struct  DATASET

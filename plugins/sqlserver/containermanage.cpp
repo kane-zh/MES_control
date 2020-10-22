@@ -155,7 +155,9 @@ void ContainerManage::autoSave(int id)
         values.remove(values.length()-1,1);
         QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
         QSqlQuery  query(db);
+        dataBaseInfor[dataBase].m_mutex.lock();
         query.exec(cmd);
+        dataBaseInfor[dataBase].m_mutex.unlock();
     }
     dataTableInfor[index].getValueEnable=true;
 }

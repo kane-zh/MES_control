@@ -3,7 +3,7 @@
 #define  MaxServer         10
 #define  MaxRecord         100
 #include <QString>
-
+#include <QMutex>
 struct RequestMetaData_dialog
 {
     QString type;
@@ -26,6 +26,7 @@ struct  SERVERINFOR
     QString    username;     //用户名
     QString    password;     //密码
     QString    token;        //登录秘钥
+    QMutex     m_mutex;
  };
 /*记录信息*/
 struct  RECORDINFOR

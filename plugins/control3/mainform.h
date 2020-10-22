@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QWidget>
+#include <QStandardItemModel>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -22,6 +23,7 @@ class mainForm : public QWidget,public DebugControlInterface
 public:
     explicit mainForm(QWidget *parent = nullptr);
     ~mainForm();
+    void showEvent(QShowEvent *) ;
 signals:
     virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
     void sendMsgToDialog(ResponseMetaData_dialog response);
@@ -37,10 +39,14 @@ private slots:
     void autoReport();
     void test();
     void showMsg(QString message);
+    void fillTaskTypeBox();               //填充任务类型下拉框
+    void fillTaskBox();                   //填充任务下拉框
+    void showTaskItem();                  //显示订单项
 private:
     QString   driveInfor="";
     QString   dateSetInfor="";
     QString   getValueResult="";
+    QStandardItemModel    *taskModel;
     SERVERINFOR serverInfor;
     RECORDINFOR recordInfor;
     httpRequest *m_request;

@@ -68,7 +68,6 @@ QString httpRequest::get(QString address, QString token)
     QEventLoop eventLoop;
     connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
     eventLoop.exec();       //block until finish
-    qDebug()<<reply->errorString();
     //错误处理
     if (reply->error() != QNetworkReply::NoError)
     {
@@ -90,8 +89,7 @@ QString httpRequest::post(QString address, QString token, QByteArray value)
     requestInfo.setRawHeader("Accept","text/json,*/*;q=0.5");//服务器要求的数据头部
     requestInfo.setRawHeader("Authorization",token.toUtf8());//服务器要求的数据头部
     //发送数据
-    QBuffer    *qBuffer =new QBuffer(&value);
-    QNetworkReply *reply = m_pHttpMgr->sendCustomRequest (requestInfo,QByteArray("PATCH"),qBuffer);
+    QNetworkReply *reply = m_pHttpMgr->sendCustomRequest (requestInfo,QByteArray("POST"),value);
     //添加事件循环机制，返回后再运行后面的
     QEventLoop eventLoop;
     connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));

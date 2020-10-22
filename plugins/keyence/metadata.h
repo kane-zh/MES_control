@@ -4,6 +4,7 @@
 #define  MaxDataSet        1000
 #include <QString>
 #include <QTcpSocket>
+#include <QMutex>
 /*数据源信息*/
 struct  DATASOURCE
 {
@@ -27,5 +28,6 @@ struct  DATASET
     QString timeout;    //超时时间
     QString value;
     QTcpSocket *socket = nullptr;
+    QMutex m_mutex;
  };
 #endif // METADATA_H

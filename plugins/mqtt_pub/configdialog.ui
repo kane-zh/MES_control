@@ -14,17 +14,17 @@
    <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
-   <string>INFLUXDB数据库配置界面</string>
+   <string>MQTT消息发布配置界面</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="../influxdb/image.qrc">
     <normaloff>:/influxDb.png</normaloff>:/influxDb.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <property name="tabBarAutoHide">
       <bool>true</bool>
@@ -344,6 +344,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../influxdb/image.qrc"/>
+ </resources>
  <connections/>
 </ui>

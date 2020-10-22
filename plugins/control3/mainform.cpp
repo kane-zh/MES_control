@@ -11,12 +11,24 @@ mainForm::mainForm(QWidget *parent) :
     connect(ui->showForm,SIGNAL(clicked()),this,SLOT(showDebugForm()));
     connect(ui->test,SIGNAL(clicked()),this,SLOT(test()));
     connect(this,SIGNAL(errOccur(QString)),this,SLOT(showMsg(QString)));
+    connect(ui->taskType,SIGNAL(currentTextChanged(QString)),this,SLOT(fillTaskBox()));
+    connect(ui->task,SIGNAL(currentTextChanged(QString)),this,SLOT(showTaskItem()));
 }
 
 mainForm::~mainForm()
 {
     delete ui;
 
+}
+
+void mainForm::showEvent(QShowEvent *)
+{
+    taskModel=new QStandardItemModel(this);  //建立任务显示model实例
+    ui->tableView->setModel(taskModel);     //为显示设置模型
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);//设置选中模式为选中行
+    ui->tableView->setSelectionMode( QAbstractItemView::SingleSelection);//设置选中单个
+    fillTaskTypeBox();
 }
 
 /*从主程序框架接收消息*/
@@ -97,29 +109,29 @@ void mainForm::autoReport()
      QString startTime,stopTime,timeLong;
      QTime  time;
      while(recordInfor.runFlag){
-         qDebug()<<errCount;
          switch (step) {
          case 0: //获取设备状态,当设备状态变为运行中开始计时,并转入下一步
          {
-            result=readFromDrive(recordInfor.driver);
+            result=readFromDrive("17");
             if(result=="err"){  //如果获取失败连续超过3次,报警退出
                 errCount++;
                 if(errCount>3){
                   emit errOccur("读取设备状态累计3次失败,请检查原因！！！");
                   recordInfor.runFlag=false;
+                  break;
                 }
             }
             else{ //获取数值成功,则判断设备状态
               errCount=0;
               QJsonDocument document_result = QJsonDocument::fromJson(result.toUtf8());
-              if(document_result.object().value("aut")=="1")
+              if(document_result.object().value("run")=="3")
                  {
-                   startTime=QTime::currentTime().toString();
+                   startTime=QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
                    time.start();
                    step=1;
                  }
             }
-//           break;
+           break;
          }
          case 1: //登录MES并获取当前任务情况,判断无误后,进入下一步
          {
@@ -137,38 +149,41 @@ void mainForm::autoReport()
                 emit errOccur("读取计划失败!!!");
                 serverInfor.token="";
                 recordInfor.runFlag=false;
+                break;
              }
              QJsonDocument document_result = QJsonDocument::fromJson(result.toUtf8());
              if(document_result.object().value("state")!="加工中"){
                  emit errOccur("当前选择的生产任务非【加工中】状态,请检查设置是否正确!!!");
                  recordInfor.runFlag=false;
+                 break;
              }
              else{
                  step=2;
              }
-//             break;
+             break;
          }
          case 2: //获取设备状态,当设备状态变为暂停中结束计时,并转入下一步
          {
-            result=readFromDrive(recordInfor.driver);
+            result=readFromDrive("17");
             if(result=="err"){  //如果获取失败连续超过3次,报警退出
                 errCount++;
                 if(errCount>3){
                   emit errOccur("读取设备状态累计3次失败,请检查原因！！！");
                   recordInfor.runFlag=false;
+                  break;
                 }
             }
             else{ //获取数值成功,则判断设备状态
               errCount=0;
               QJsonDocument document_result = QJsonDocument::fromJson(result.toUtf8());
-              if(document_result.object().value("aut")=="1")
+              if(document_result.object().value("run")=="0")
                  {
-                   stopTime=QTime::currentTime().toString();
+                   stopTime=QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzz");
                    timeLong=QString::number(time.elapsed(),10);
                    step=3;
                  }
             }
-//           break;
+           break;
          }
          case 3: //获取任务子项信息,并更新任务子项数据
          {
@@ -183,15 +198,48 @@ void mainForm::autoReport()
              if(document_result.object().value("state")!="加工中"){
                  emit errOccur("当前选择的生产任务非【加工中】状态,请检查设置是否正确!!!");
                  recordInfor.runFlag=false;
+                 break;
              }
              else{
-                 step=2;
+                 step=4;
              }
+             break;
+         }
+         case 4: //自动报工
+         {
+             result=m_request->get("http://124.70.176.250:8000/plan/productTaskItemCreate/1/",serverInfor.token);
+             if(result=="err"){
+                emit errOccur("读取计划失败!!!");
+                serverInfor.token="";
+                recordInfor.runFlag=false;
+                break;
+             }
+             //发送数据
+            QJsonObject json;
+            json.insert("type",ui->taskType->currentData().toString());
+            json.insert("product_id","1");
+            json.insert("task_id","1");
+            json.insert("batch","name");
+            json.insert("dataTime",QDateTime::currentDateTime().toString("yyyy-MM-ddThh:mm:ss.zzz"));
+            json.insert("attribute1",startTime);
+            json.insert("attribute2",stopTime);
+            json.insert("attribute3",timeLong);
+             QJsonDocument document;
+             document.setObject(json);
+             QByteArray qByteHttpData = document.toJson(QJsonDocument::Compact);
+             result=m_request->post("http://124.70.176.250:8000/production/productData/",serverInfor.token,qByteHttpData);
+             if(result=="err"){
+                emit errOccur("写入产品生产记录数据失败!!!");
+                serverInfor.token="";
+                recordInfor.runFlag=false;
+                break;
+             }
+             recordInfor.runFlag=false;
              break;
          }
          }
          if(recordInfor.runFlag==true){
-           QThread::msleep(10000);
+           QThread::msleep(100);
          }
 
     }
@@ -207,7 +255,129 @@ void mainForm::test()
 
 void mainForm::showMsg(QString message)
 {
-  QMessageBox::warning(this,tr("提示"),message,QMessageBox::Yes);
+    QMessageBox::warning(this,tr("提示"),message,QMessageBox::Yes);
+}
+
+void mainForm::fillTaskTypeBox()
+{
+    if(serverInfor.address==""){
+        return;
+    }
+    QString result;
+    ui->taskType->clear();
+    if(serverInfor.token==""){
+         result=m_request->login(serverInfor.address,serverInfor.username,serverInfor.password);
+         if(result=="err"){
+            QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
+            recordInfor.runFlag=false;
+            return;
+         }
+         serverInfor.token=result;
+    }
+     result=m_request->get(serverInfor.address+"/plan/productTaskType/",serverInfor.token);
+     if(result=="err"){
+        QMessageBox::warning(this,tr("提示"),tr("读取任务类型失败!!!"),QMessageBox::Yes);
+        serverInfor.token="";
+     }
+     QJsonDocument document_result = QJsonDocument::fromJson(result.toUtf8());
+     QJsonArray result_array=document_result.object().value("results").toArray();
+     for(int i=0;i<result_array.size();i++) {
+         QString text=result_array.at(i).toObject().value("name").toString()+"("+result_array.at(i).toObject().value("code").toString()+")";
+         QString data=QString::number(result_array.at(i).toObject().value("id").toInt());
+         ui->taskType->addItem(text,data);
+      }
+
+}
+
+void mainForm::fillTaskBox()
+{
+    if(ui->taskType->currentText()==""){
+        return;
+    }
+
+    QString result;
+    ui->task->clear();
+    if(serverInfor.token==""){
+         result=m_request->login(serverInfor.address,serverInfor.username,serverInfor.password);
+         if(result=="err"){
+            QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
+            recordInfor.runFlag=false;
+            return;
+         }
+         serverInfor.token=result;
+    }
+     result=m_request->get(serverInfor.address+"/plan/productTaskCreate/?page_size=99999&ordering=-id&state=使用中&type="+ui->taskType->currentData().toString(),serverInfor.token);
+     if(result=="err"){
+        QMessageBox::warning(this,tr("提示"),tr("读取任务失败!!!"),QMessageBox::Yes);
+        serverInfor.token="";
+     }
+     QJsonDocument document_result = QJsonDocument::fromJson(result.toUtf8());
+     QJsonArray result_array=document_result.object().value("results").toArray();
+     for(int i=0;i<result_array.size();i++) {
+         QString text=result_array.at(i).toObject().value("name").toString()+"("+result_array.at(i).toObject().value("code").toString()+")";
+         QString data=QString::number(result_array.at(i).toObject().value("id").toInt());
+         ui->task->addItem(text,data);
+      }
+
+}
+
+void mainForm::showTaskItem()
+{
+    taskModel->clear();
+    QStringList list;
+    list<<tr("产品类型")<<tr("产品")<<tr("批次")<<tr("状态")<<tr("数量")<<tr("完成数")
+            <<tr("工位1")<<tr("工位1完成数")<<tr("工位2")<<tr("工位2完成数")<<tr("工位3")<<tr("工位3完成数")
+            <<tr("工位4")<<tr("工位4完成数")<<tr("工位5")<<tr("工位5完成数")<<tr("工位6")<<tr("工位6完成数");
+    taskModel->setHorizontalHeaderLabels(list);
+
+    QString result;
+    if(serverInfor.token==""){
+         result=m_request->login(serverInfor.address,serverInfor.username,serverInfor.password);
+         if(result=="err"){
+            QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
+            recordInfor.runFlag=false;
+            return;
+         }
+         serverInfor.token=result;
+    }
+     result=m_request->get(serverInfor.address+"/plan/productTaskCreate/"+ui->task->currentData().toString()+"/",serverInfor.token);
+     if(result=="err"){
+        QMessageBox::warning(this,tr("提示"),tr("读取任务失败!!!"),QMessageBox::Yes);
+        serverInfor.token="";
+     }
+     QJsonDocument document_result = QJsonDocument::fromJson(result.toUtf8());
+     QJsonArray result_array=document_result.object().value("child").toArray();
+     for(int i=0;i<result_array.size();i++) {
+         QString text=result_array.at(i).toObject().value("name").toString()+"("+result_array.at(i).toObject().value("code").toString()+")";
+         QString data=QString::number(result_array.at(i).toObject().value("id").toInt());
+         QList<QStandardItem *>  list;
+         list<<new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("productType_name").toString()+"("
+                                 +result_array.at(i).toObject().value("salesOrderItem").toObject().value("productType_code").toString()+")")<<
+               new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_name").toString()+"("
+                                 +result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_code").toString()+")")<<
+                new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("batch").toString())<<
+                new QStandardItem(result_array.at(i).toObject().value("state").toString())<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("sum").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("completed").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute1").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute2").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute3").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute4").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute5").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute6").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute7").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute8").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute9").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute10").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute11").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute12").toInt()))<<
+                new QStandardItem(QString::number(result_array.at(i).toObject().value("id").toInt()))<<
+               new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_id").toString());
+
+         taskModel->appendRow(list);
+      }
+
+
 }
 
 QString mainForm::readFromDrive(QString index){
@@ -279,16 +449,6 @@ void mainForm::loadConfig()
     serverInfor.username=server.value("username").toString();
     serverInfor.password=server.value("password").toString();
     serverInfor.address=server.value("address").toString();
-    recordInfor.name=record.value("name").toString();
-    recordInfor.enable=record.value("enable").toBool();
-    recordInfor.desc=record.value("desc").toString();
-    recordInfor.task=record.value("task").toString();
-    recordInfor.taskItem=record.value("taskItem").toString();
-    recordInfor.product=record.value("product").toString();
-    recordInfor.batch=record.value("batch").toString();
-    recordInfor.station=record.value("station").toString();
-    recordInfor.station_num=record.value("station_num").toString();
-    recordInfor.driver=record.value("driver").toString();
 
 }
 
