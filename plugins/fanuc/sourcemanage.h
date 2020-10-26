@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QtDebug>
+#include <QtConcurrent>
 #include "metadata.h"
 #include "../../mainApp/pluginManage/driverinterface.h"
 #include "configdialog.h"
@@ -15,7 +16,6 @@
 #include "toollifemanagement.h"
 #include "otherinfor.h"
 #include "programinfor.h"
-
 
 class SourceManage:public QObject, public DriveInterface
 {
@@ -32,6 +32,7 @@ public:
     virtual void showForm(QWidget *parent = nullptr)  Q_DECL_OVERRIDE;
 private:
     void  loadConfig();
+    void  connectToHost(int id);
 private:
     DATASOURCE  dataSourceInfor[MaxDataSource];
     DATASET     dataSetInfor[MaxDataSet];

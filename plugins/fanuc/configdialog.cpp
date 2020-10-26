@@ -63,7 +63,7 @@ void ConfigDialog::showDataSource()
     dataSourceModel->clear();
     QStringList list;
     list<<tr("索引")<<tr("名称")<<tr("使能") <<tr("说明")
-        <<tr("主机")<<tr("端口号")<<tr("超时时间");
+        <<tr("主机")<<tr("端口号")<<tr("超时时间")<<tr("重复次数");
     dataSourceModel->setHorizontalHeaderLabels(list);
     for(int index=0;index<MaxDataSource;index++  ){
         if(dataSourceInfor[index].name!=""){
@@ -78,7 +78,8 @@ void ConfigDialog::showDataSource()
                  new QStandardItem(dataSourceInfor[index].desc)<<
                  new QStandardItem(dataSourceInfor[index].host)<<
                  new QStandardItem(dataSourceInfor[index].port)<<
-                 new QStandardItem(dataSourceInfor[index].timeout);
+                 new QStandardItem(dataSourceInfor[index].timeout)<<
+                 new QStandardItem(dataSourceInfor[index].repeat);
             dataSourceModel->appendRow(list);
         }
     }
@@ -149,6 +150,7 @@ void ConfigDialog::setDataSource()
     dataSourceInfor[index].host=ui->host->text();
     dataSourceInfor[index].port=ui->port->text();
     dataSourceInfor[index].timeout=QString::number(ui->timeout->value());
+    dataSourceInfor[index].repeat=QString::number(ui->repeat->value());
     QMessageBox::information(this,tr("提示"),tr("设置数据源成功"),QMessageBox::Yes);
     saveConfig();      //保存配置信息
     showDataSource();  //显示数据源信息(更新显示)
@@ -206,6 +208,7 @@ void ConfigDialog::clearDataSource()
     dataSourceInfor[index].host="";
     dataSourceInfor[index].port="";
     dataSourceInfor[index].timeout="";
+    dataSourceInfor[index].repeat="";
     ui->name1->setText("");
     ui->desc1->setText("");
     ui->host->setText("");
@@ -254,6 +257,7 @@ void ConfigDialog::fillDataSourceForm()
         ui->host->setText(dataSourceInfor[index].host);
         ui->port->setText(dataSourceInfor[index].port);
         ui->timeout->setValue(dataSourceInfor[index].timeout.toInt());
+        ui->repeat->setValue(dataSourceInfor[index].repeat.toInt());
        }
     else{
         ui->name1->setText(dataSourceInfor[index].name);
@@ -398,6 +402,7 @@ void ConfigDialog::saveConfig()
             json.insert("host",dataSourceInfor[index].host);
             json.insert("port",dataSourceInfor[index].port);
             json.insert("timeout",dataSourceInfor[index].timeout);
+            json.insert("repeat",dataSourceInfor[index].repeat);
             dataSourceArray.push_back(json);
     }
     QJsonArray dataSetArray;
@@ -456,6 +461,7 @@ void ConfigDialog::loadConfig()
         dataSourceInfor[index].host=json.value("host").toString();
         dataSourceInfor[index].port=json.value("port").toString();
         dataSourceInfor[index].timeout=json.value("timeout").toString();
+        dataSourceInfor[index].repeat=json.value("repeat").toString();
    }
    QJsonValue dataSet=object.value("dataSet");
    QJsonArray dataSetArray=dataSet.toArray();

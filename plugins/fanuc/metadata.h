@@ -1,6 +1,6 @@
 #ifndef METADATA_H
 #define METADATA_H
-#define MaxDataSource   10
+#define MaxDataSource   15
 #define MaxDataSet      1000
 #include <QString>
 #include <QJsonDocument>
@@ -16,9 +16,11 @@ struct  DATASOURCE
     QString    desc;          //备注
     QString    host;          //主机
     QString    port;          //端口号
-    QString    timeout = "";
+    QString    timeout = "";  //超时时间
+    QString    repeat = "";   //重复次数
     QString    flibhndl= "";
     QMutex     m_mutex;
+    int        errCount=0;
  };
 
 /*数据集信息*/

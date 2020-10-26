@@ -94,11 +94,38 @@ QString SourceManage::getValue(QString id)
         return json_str;
     }
     /*判断数据源连接状态(如果已经连接)*/
+//   if(dataSourceInfor[sourceId].flibhndl==nullptr){
+//       QtConcurrent::run(this,&SourceManage::connectToHost,sourceId);
+//       while( dataSourceInfor[sourceId].flibhndl==""){
+//            QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+//       }
+//       if (dataSourceInfor[sourceId].flibhndl=="err")
+//       {
+//           dataSourceInfor[sourceId].flibhndl="";
+//           json.insert("result","err");
+//           json.insert("value","连接服务器失败");
+//           document.setObject(json);
+//           QString json_str(document.toJson(QJsonDocument::Compact));
+//           return json_str;
+//       }
+//   }
+    /*判断数据源连接状态(如果已经连接)*/
    if(dataSourceInfor[sourceId].flibhndl==nullptr){
        ushort Flibhndl = 0;
-       short ret = cnc_allclibhndl3(dataSourceInfor[sourceId].host.toUtf8().data(),dataSourceInfor[sourceId].port.toUInt(), dataSourceInfor[sourceId].timeout.toInt(), &Flibhndl);
+       short ret= cnc_allclibhndl3(dataSourceInfor[sourceId].host.toUtf8().data(),dataSourceInfor[sourceId].port.toUInt(), dataSourceInfor[sourceId].timeout.toInt(), &Flibhndl);
        if (ret != EW_OK)
        {
+           dataSourceInfor[sourceId].errCount++;
+           if (dataSourceInfor[sourceId].errCount>=dataSourceInfor[sourceId].repeat.toUInt())
+           {
+               dataSourceInfor[sourceId].enable=false;
+               dataSourceInfor[sourceId].errCount=0;
+               json.insert("result","err");
+               json.insert("value","连接服务器连续失败"+dataSourceInfor[sourceId].repeat+"次,服务器已被失能");
+               document.setObject(json);
+               QString json_str(document.toJson(QJsonDocument::Compact));
+               return json_str;
+           }
            json.insert("result","err");
            json.insert("value","连接服务器失败");
            document.setObject(json);
@@ -106,6 +133,7 @@ QString SourceManage::getValue(QString id)
            return json_str;
        }
        else{
+           dataSourceInfor[sourceId].errCount=0;
            dataSourceInfor[sourceId].flibhndl=QString::number(Flibhndl);
        }
    }
@@ -210,6 +238,7 @@ void SourceManage::loadConfig()
         dataSourceInfor[index].host=json.value("host").toString();
         dataSourceInfor[index].port=json.value("port").toString();
         dataSourceInfor[index].timeout=json.value("timeout").toString();
+        dataSourceInfor[index].repeat=json.value("repeat").toString();
    }
    QJsonValue dataSet=object.value("dataSet");
    QJsonArray dataSetArray=dataSet.toArray();
@@ -228,4 +257,17 @@ void SourceManage::loadConfig()
         dataSetInfor[index].parameter3=json.value("parameter3").toString();
         dataSetInfor[index].parameter4=json.value("parameter4").toString();
    }
+}
+
+void SourceManage::connectToHost(int id)
+{
+    ushort Flibhndl = 0;
+    short ret= cnc_allclibhndl3(dataSourceInfor[id].host.toUtf8().data(),dataSourceInfor[id].port.toUInt(), dataSourceInfor[id].timeout.toInt(), &Flibhndl);
+    if (ret != EW_OK)
+    {
+        dataSourceInfor[id].flibhndl="err";
+    }
+    else{
+        dataSourceInfor[id].flibhndl=QString::number(Flibhndl);
+    }
 }

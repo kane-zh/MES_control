@@ -40,16 +40,21 @@ void outputMessage(QtMsgType type, const QMessageLogContext &context, const QStr
 }
 int main(int argc, char *argv[])
 {
-
+    QDir path = QDir(qApp->applicationDirPath());
+    QString configDir=path.path()+("/logs");
+    if (!path.exists(configDir))
+    {
+     path.mkdir(configDir);
+    }
     //注册MessageHandler
-//    qInstallMessageHandler(outputMessage); //注册MessageHandler
-//    g_OutputDebug.open(qPrintable(QString(QString(QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss").append("-log.txt")))), std::ios::out | std::ios::trunc);
+    qInstallMessageHandler(outputMessage); //注册MessageHandler
+    g_OutputDebug.open(qPrintable("logs/"+QString(QDateTime::currentDateTime().toString("yyyy-MM-dd-hh-mm-ss").append("-log.txt"))), std::ios::out | std::ios::trunc);
     qRegisterMetaType<RequestMetaData>("RequestMetaData");
     qRegisterMetaType<ResponseMetaData>("ResponseMetaData");
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
-
+    a.connect( &a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
     return a.exec();
 }
 

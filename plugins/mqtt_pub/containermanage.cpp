@@ -105,37 +105,6 @@ void ContainerManage::timeOut()
 void ContainerManage::autoSave(int id)
 {
     int server=topicInfor[id].service.toInt();
-    /*判断服务器连接状态(如果已经连接)*/
-   if(serviceInfor[server].client!=nullptr){
-       if(serviceInfor[server].client->state()!=QMqttClient::Connected){
-           serviceInfor[server].client->disconnectFromHost();
-           serviceInfor[server].client=nullptr;
-       }
-   }
-   /*判断服务器是否连接*/
-   if(serviceInfor[server].client==nullptr){
-       QMqttClient *client = new QMqttClient(this);
-       client->setHostname(serviceInfor[server].address);
-       client->setPort(serviceInfor[server].port.toUInt());
-       client->setClientId(QString::number(server));
-       client->setUsername(serviceInfor[server].username);
-       client->setPassword(serviceInfor[server].password);
-       client->connectToHost();
-       QTime dieTime = QTime::currentTime().addMSecs(serviceInfor[server].timeOut.toUInt());
-       while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
-       }
-       if(!(client->state()==QMqttClient::Connected)){
-            client->disconnectFromHost();
-            delete  client;
-            qDebug()<<"连接服务器失败";
-            topicInfor[id].getValueEnable=true;
-            return;
-           }
-           else{
-              serviceInfor[server].client=client;
-           }
-   }
    QJsonDocument document = QJsonDocument::fromJson(topicInfor[id].rules.toUtf8());
    QJsonArray array= document.array();
    QJsonObject  values;
@@ -175,17 +144,53 @@ void ContainerManage::autoSave(int id)
        qDebug()<<"未成功获取到有效可发布数据!!!";
     }
     else{
+        serviceInfor[server].m_mutex.lock();
+        /*判断服务器连接状态(如果已经连接)*/
+       if(serviceInfor[server].client!=nullptr){
+           if(serviceInfor[server].client->state()!=QMqttClient::Connected){
+               serviceInfor[server].client->disconnect();
+               serviceInfor[server].client=nullptr;
+           }
+       }
+       /*判断服务器是否连接*/
+       if(serviceInfor[server].client==nullptr){
+           QMqttClient *client = new QMqttClient(this);
+           client->setHostname(serviceInfor[server].address);
+           client->setPort(serviceInfor[server].port.toUInt());
+           client->setClientId(QString::number(server));
+           client->setUsername(serviceInfor[server].username);
+           client->setPassword(serviceInfor[server].password);
+           client->connectToHost();
+           QTime dieTime = QTime::currentTime().addMSecs(serviceInfor[server].timeOut.toUInt());
+           while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+           }
+           if(!(client->state()==QMqttClient::Connected)){
+                client->disconnectFromHost();
+                delete  client;
+                qDebug()<<"连接服务器失败";
+                topicInfor[id].getValueEnable=true;
+                serviceInfor[server].m_mutex.unlock();
+                return;
+               }
+               else{
+                  serviceInfor[server].client=client;
+               }
+       }
         QJsonDocument document2;
         document2.setObject(values);
         QByteArray byte_array = document2.toJson(QJsonDocument::Compact);
         QString json_str(byte_array);
-        serviceInfor[server].m_mutex.lock();
-        if (serviceInfor[server].client->publish(topicInfor[id].topic,json_str.toUtf8()) == -1){
+        int result=serviceInfor[server].client->publish(topicInfor[id].topic,json_str.toUtf8());
+        if (result == -1){
            qDebug()<<"发布主题失败!!!";
         }
         else{
-          qDebug()<<"发布主题成功!!!"<<QTime::currentTime();
+          qDebug()<<"发布主题成功!!!"<<QTime::currentTime()<<QString::number(result);
         }
+        /*将连接断开(在多链接情况下,不断开,第二次也不可以使用了)*/
+        serviceInfor[server].client->disconnectFromHost();
+        serviceInfor[server].client=nullptr;
         serviceInfor[server].m_mutex.unlock();
     }
     topicInfor[id].getValueEnable=true;

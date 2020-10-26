@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowState(Qt::WindowMaximized);
+    setAttribute(Qt::WA_QuitOnClose);
 //    setWindowFlags(windowFlags()|Qt::FramelessWindowHint|Qt::WindowTitleHint);
     PluginManage::getInstance().loadAllPlugins();
     addPluginActions();
