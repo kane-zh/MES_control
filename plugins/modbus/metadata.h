@@ -50,5 +50,6 @@ struct  DATASET
     QString desc;       //备注
     DATARTU readData;   //读数据
     DATARTU writeData;  //写数据
+
  };
 #endif // METADATA_H

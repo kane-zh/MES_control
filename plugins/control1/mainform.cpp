@@ -221,7 +221,7 @@ QString mainForm::readFromDrive(QString index){
     data.index=index;
     emit sendMsgToManager(data);
     while(getValueResult==""){
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
@@ -241,7 +241,7 @@ QString mainForm::writeToDrive(QString index,QString value){
     data.value=value;
     emit sendMsgToManager(data);
     while(getValueResult==""){
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();

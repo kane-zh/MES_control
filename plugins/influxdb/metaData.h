@@ -40,5 +40,6 @@ struct  DATATABLE
     QString rules;      //字段--数据表对应规则(json字符串)
     bool    getValueEnable=true;
     QString getValueResult="";
+
  };
 #endif // METADATA_H

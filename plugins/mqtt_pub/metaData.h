@@ -43,5 +43,6 @@ struct  TOPIC
     QString rules;      //数据源--主题对应规则(json字符串)
     bool    getValueEnable=true;
     QString getValueResult="";
+
  };
 #endif // METADATA_H

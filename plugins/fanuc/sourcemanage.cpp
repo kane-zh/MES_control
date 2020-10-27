@@ -97,7 +97,7 @@ QString SourceManage::getValue(QString id)
 //   if(dataSourceInfor[sourceId].flibhndl==nullptr){
 //       QtConcurrent::run(this,&SourceManage::connectToHost,sourceId);
 //       while( dataSourceInfor[sourceId].flibhndl==""){
-//            QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+//            QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
 //       }
 //       if (dataSourceInfor[sourceId].flibhndl=="err")
 //       {

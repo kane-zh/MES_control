@@ -182,7 +182,7 @@ QString SourceManage::getValue(QString id)
     dataSetInfor[dataSet].socket->write(RD.toUtf8().data());
     QTime dieTime = QTime::currentTime().addMSecs(dataSetInfor[dataSet].timeout.toInt());
     while (dataSetInfor[dataSet].value==""&&QTime::currentTime() < dieTime) {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     if(dataSetInfor[dataSet].value==""){
        json.insert("result","err");
@@ -300,7 +300,7 @@ QString SourceManage::setValue(QString id, QString value)
     dataSetInfor[dataSet].socket->write(WR.toUtf8().data());
     QTime dieTime = QTime::currentTime().addMSecs(dataSetInfor[dataSet].timeout.toInt());
     while (dataSetInfor[dataSet].value==""&&QTime::currentTime() < dieTime) {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     if(dataSetInfor[dataSet].value==""){
        json.insert("result","err");

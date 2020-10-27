@@ -379,7 +379,7 @@ void ConfigDialog::getValueTest(){
     dataSetInfor[dataSet].socket->write(RD.toUtf8().data());
     QTime dieTime = QTime::currentTime().addMSecs(ui->timeout->value());
     while (dataSetInfor[dataSet].value==""&&QTime::currentTime() < dieTime) {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     if(dataSetInfor[dataSet].value==""&&QTime::currentTime() >=dieTime){
        QMessageBox::warning(this,tr("提示"),tr("读取节点值超时"),QMessageBox::Yes);
@@ -440,7 +440,7 @@ void ConfigDialog::setValueTest()
     dataSetInfor[dataSet].socket->write(WR.toUtf8().data());
     QTime dieTime = QTime::currentTime().addMSecs(ui->timeout->value());
     while (dataSetInfor[dataSet].value==""&&QTime::currentTime() < dieTime) {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     if(dataSetInfor[dataSet].value==""&&QTime::currentTime() >=dieTime){
        QMessageBox::warning(this,tr("提示"),tr("设置节点值超时"),QMessageBox::Yes);

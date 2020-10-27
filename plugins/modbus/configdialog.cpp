@@ -519,7 +519,7 @@ void ConfigDialog::getValueTest(){
      connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
      eventLoop.exec();       //block until finish
      while (dataSetInfor[dataSet].readData.value=="") {
-          QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
      }
     if(dataSetInfor[dataSet].readData.value=="err"){
         QMessageBox::warning(this,tr("提示"),tr("读取节点值失败，无返回值"),QMessageBox::Yes);

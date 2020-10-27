@@ -50,7 +50,7 @@ void ConfigDialog::showEvent(QShowEvent *)
     request.type="getDrivesInfor";
     emit SendMsgToContainerManage(request);      //获取驱动信息
     while(driveInfor==""){
-     QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+     QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document = QJsonDocument::fromJson(driveInfor.toUtf8());
     QJsonObject json = document.object();
@@ -68,7 +68,7 @@ void ConfigDialog::showEvent(QShowEvent *)
         request.drive=list.at(i);
         emit SendMsgToContainerManage(request);
         while(dateSetInfor==""){
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+            QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
         }
         document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
         QJsonArray array= document.array();
@@ -462,7 +462,7 @@ void ConfigDialog::saveValueTest()
             request.index=dataTableModel->data(dataTableModel->index(i,3)).toString();
             emit SendMsgToContainerManage(request);
             while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
-                 QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
             }
             QJsonDocument document=QJsonDocument::fromJson(dataTableInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
             dataTableInfor[ui->index2->text().toInt()].getValueResult="";

@@ -20,6 +20,15 @@ ContainerManage::~ContainerManage()
         QSqlDatabase::removeDatabase(dataBaseInfor[index].name);
        }
     }
+    QJsonObject json;
+    QJsonDocument document;
+    json.insert("result","err");
+    json.insert("value","服务关闭");
+    document.setObject(json);
+    QString json_str(document.toJson(QJsonDocument::Compact));
+    for(int i=0;i<MaxDataTable;i++){
+       dataTableInfor[i].getValueResult=json_str;
+    }
 }
 /*从主程序框架接收消息*/
 void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
@@ -129,7 +138,7 @@ void ContainerManage::autoSave(int id)
             data.index=value["dataIndex"].toString();
             emit sendMsgToManager(data);
             while(dataTableInfor[index].getValueResult==""){
-                 QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
             }
             QJsonDocument document1=QJsonDocument::fromJson(dataTableInfor[index].getValueResult.toUtf8());
             dataTableInfor[index].getValueResult="";

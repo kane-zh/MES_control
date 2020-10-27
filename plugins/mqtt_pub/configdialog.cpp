@@ -368,7 +368,7 @@ void ConfigDialog::connectTest()
     client->connectToHost();
     QTime dieTime = QTime::currentTime().addMSecs(ui->timeOut->value());
     while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     if(client->state()==QMqttClient::Connected){
         QMessageBox::information(this,tr("提示"),tr("连接服务器成功"),QMessageBox::Yes);
@@ -391,7 +391,7 @@ void ConfigDialog::publishTest()
     client->connectToHost();
     QTime dieTime = QTime::currentTime().addMSecs(ui->timeOut->value());
     while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     if(!client->state()==QMqttClient::Connected){
         QMessageBox::warning(this,tr("提示"),tr("连接服务器失败"),QMessageBox::Yes);
@@ -408,7 +408,7 @@ void ConfigDialog::publishTest()
              request.index=topicModel->data(topicModel->index(i,3)).toString();
              emit SendMsgToContainerManage(request);
              while(topicInfor[ui->index2->text().toInt()].getValueResult==""){
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
              }
              QJsonDocument document=QJsonDocument::fromJson(topicInfor[ui->index2->text().toInt()].getValueResult.toLocal8Bit().data());
              topicInfor[ui->index2->text().toInt()].getValueResult="";

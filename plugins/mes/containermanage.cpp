@@ -15,6 +15,15 @@ ContainerManage::ContainerManage(QWidget *parent)
 ContainerManage::~ContainerManage()
 {
     m_time->stop();
+    QJsonObject json;
+    QJsonDocument document;
+    json.insert("result","err");
+    json.insert("value","服务关闭");
+    document.setObject(json);
+    QString json_str(document.toJson(QJsonDocument::Compact));
+    for(int i=0;i<MaxRecord;i++){
+       recordInfor[i].getValueResult=json_str;
+    }
 }
 /*从主程序框架接收消息*/
 void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
@@ -134,7 +143,7 @@ void ContainerManage::autoUpdate(int id)
             data.index=value["dataIndex"].toString();
             emit sendMsgToManager(data);
             while(recordInfor[index].getValueResult==""){
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
             }
            QJsonDocument document_result = QJsonDocument::fromJson(recordInfor[index].getValueResult.toUtf8());
            recordInfor[index].getValueResult="";

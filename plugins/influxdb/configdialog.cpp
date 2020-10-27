@@ -387,7 +387,7 @@ void ConfigDialog::saveValueTest()
              request.index=dataTableModel->data(dataTableModel->index(i,3)).toString();
              emit SendMsgToContainerManage(request);
              while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
              }
              QJsonDocument document=QJsonDocument::fromJson(dataTableInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
              dataTableInfor[ui->index2->text().toInt()].getValueResult="";

@@ -6,7 +6,9 @@ mainForm::mainForm(QWidget *parent) :
     ui(new Ui::mainForm)
 {
     ui->setupUi(this);
-
+    ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView );
+    ui->quickWidget->setSource(QUrl("qrc:/PlanetsMain.qml"));
+    ui->quickWidget->rootObject();
 }
 
 mainForm::~mainForm()
@@ -14,13 +16,6 @@ mainForm::~mainForm()
     delete ui;
 }
 
-/*窗体显示事件*/
-void mainForm::showEvent(QShowEvent *)
-{
-    ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView );
-    ui->quickWidget->setSource(QUrl("qrc:/PlanetsMain.qml"));
-    ui->quickWidget->rootObject();
-}
 void mainForm::receiveMsgFromManager(ResponseMetaData response)
 {
 

@@ -190,7 +190,7 @@ QString SourceManage::getValue(QString id)
     connect(reply, SIGNAL(finished()), &eventLoop, SLOT(quit()));
     eventLoop.exec();       //block until finish
     while (dataSetInfor[id.toInt()].readData.value=="") {
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+         QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     delete reply;
     dataSourceInfor[sourceId].m_mutex.unlock();

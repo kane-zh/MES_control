@@ -32,12 +32,12 @@ private:
     void scan(const QString &filepath);             //扫描JSON文件中的插件元数据
     bool check(const QString &filepath);            //插件依赖检测
     void loadPlugin(const QString &filepath);       //加载其中某个插件
-    void unloadAllPlugins();                        //卸载所有插件
     void unloadPlugin(const QString &filepath);     //卸载某个插件
     QList<QPluginLoader *> allPlugins();            //获取所有插件
     QPluginLoader* getPlugin(const QString &name);  //获取某个插件
 public:
     void loadAllPlugins();                          //加载所有插件
+    void unloadAllPlugins();                        //卸载所有插件
 public:
     QHash<QString, QVariant> m_names; //插件路径--插件名称
     QHash<QString, QVariant> m_versions; //插件路径--插件版本

@@ -41,5 +41,6 @@ struct  RECORDINFOR
 //    QString driver;       //监控变量索引
     bool    runFlag=false;
     QString getValueResult="";
+
  };
 #endif // METADATA_H

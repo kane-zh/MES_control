@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    PluginManage::getInstance().unloadAllPlugins();
     delete ui;
 }
 

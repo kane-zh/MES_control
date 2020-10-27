@@ -13,7 +13,15 @@ ContainerManage::ContainerManage(QWidget *parent)
 ContainerManage::~ContainerManage()
 {
      m_time->stop();
-
+     QJsonObject json;
+     QJsonDocument document;
+     json.insert("result","err");
+     json.insert("value","服务关闭");
+     document.setObject(json);
+     QString json_str(document.toJson(QJsonDocument::Compact));
+     for(int i=0;i<MaxTopic;i++){
+        topicInfor[i].getValueResult=json_str;
+     }
 }
 /*从主程序框架接收消息*/
 void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
@@ -120,7 +128,7 @@ void ContainerManage::autoSave(int id)
            data.index=value["dataIndex"].toString();
            emit sendMsgToManager(data);
            while(topicInfor[id].getValueResult==""){
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
            }
            QJsonDocument document1=QJsonDocument::fromJson(topicInfor[id].getValueResult.toUtf8());
            topicInfor[id].getValueResult="";
@@ -163,7 +171,7 @@ void ContainerManage::autoSave(int id)
            client->connectToHost();
            QTime dieTime = QTime::currentTime().addMSecs(serviceInfor[server].timeOut.toUInt());
            while (QTime::currentTime() < dieTime&&(client->state()!=QMqttClient::Connected)) {
-                QCoreApplication::processEvents(QEventLoop::AllEvents, 5);
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
            }
            if(!(client->state()==QMqttClient::Connected)){
                 client->disconnectFromHost();

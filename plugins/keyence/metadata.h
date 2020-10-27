@@ -29,5 +29,6 @@ struct  DATASET
     QString value;
     QTcpSocket *socket = nullptr;
     QMutex m_mutex;
+
  };
 #endif // METADATA_H
