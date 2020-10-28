@@ -356,6 +356,7 @@ void ConfigDialog::connectTest()
        }
     httpRequest  *myrequest=new httpRequest(this);
     QString result=myrequest->get(ui->address->text(),ui->port->text(),ui->username->text(),ui->password->text(),ui->name1->text(),"show databases");
+    delete  myrequest;
     if(result=="err"){
       QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
       return;
@@ -374,7 +375,6 @@ void ConfigDialog::connectTest()
 }
 void ConfigDialog::saveValueTest()
 {
-    httpRequest  *myrequest=new httpRequest(this);
     int serverIndex=ui->dataBase->currentData().toInt();
     QString  value1=ui->name2->currentText()+",index="+QString::number(ui->index2->value())+" ";
     QString  value2="";
@@ -407,7 +407,9 @@ void ConfigDialog::saveValueTest()
        }
         if(value2!=""){
              value2.remove(value2.length()-1,2);
+             httpRequest  *myrequest=new httpRequest(this);
              QString result=myrequest->post(ui->address->text(),ui->port->text(),ui->username->text(),ui->password->text(),ui->name1->text(),value1+value2);
+             delete  myrequest;
              if(result=="err"){
                QMessageBox::warning(this,tr("提示"),tr("写数据失败!!!"),QMessageBox::Yes);
                return;

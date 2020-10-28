@@ -30,7 +30,7 @@ void MainWindow::addPluginActions()
 {
     foreach (QFileInfo info,PluginManage::getInstance().m_loaders.keys())
     {
-      QAction *action=new QAction();
+      QAction *action=new QAction(this);
       action->setText(PluginManage::getInstance().m_title.value(info.absoluteFilePath()).toString());
       action->setObjectName(info.absoluteFilePath());//将插件字典键值保存到action的ObjectName,方便向槽传递数值
       connect(action,SIGNAL(triggered(bool)),this,SLOT(showPluginForm()));

@@ -39,16 +39,18 @@ QString httpRequest::login(QString address, QString name, QString passwd)
         //错误处理
         if (reply->error() != QNetworkReply::NoError)
         {
+            delete  reply;
+            delete  m_pHttpMgr;
             return "err";
         }
         //请求收到的结果
         QByteArray responseByte = reply->readAll();
+        delete  reply;
+        delete  m_pHttpMgr;
         QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
         if( jsonDocument.isNull() ){
             return "err";
         }
-        delete  reply;
-        delete  m_pHttpMgr;
         QJsonObject jsonObject = jsonDocument.object();
         return "Jwt "+jsonObject.value("token").toString();
 }
@@ -64,7 +66,7 @@ QString httpRequest::update(QString address, QString token, QByteArray value)
     requestInfo.setRawHeader("Accept","text/json,*/*;q=0.5");//服务器要求的数据头部
     requestInfo.setRawHeader("Authorization",token.toUtf8());//服务器要求的数据头部
     //发送数据
-    QBuffer    *qBuffer =new QBuffer(&value);
+    QBuffer    *qBuffer =new QBuffer(&value,this);
     QNetworkReply *reply = m_pHttpMgr->sendCustomRequest (requestInfo,QByteArray("PATCH"),qBuffer);
     //添加事件循环机制，返回后再运行后面的
     QEventLoop eventLoop;
@@ -73,16 +75,18 @@ QString httpRequest::update(QString address, QString token, QByteArray value)
     //错误处理
     if (reply->error() != QNetworkReply::NoError)
     {
+        delete  reply;
+        delete  m_pHttpMgr;
         return "err";
     }
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
+    delete  reply;
+    delete  m_pHttpMgr;
     QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
     if( jsonDocument.isNull() ){
         return "err";
     }
-    delete  reply;
-    delete  m_pHttpMgr;
     QJsonObject jsonObject = jsonDocument.object();
     return jsonObject.value("result").toString();
 }

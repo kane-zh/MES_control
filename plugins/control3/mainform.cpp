@@ -100,6 +100,7 @@ void mainForm::showDebugForm()
     connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
     connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
     m_config->exec();
+    delete  m_config;
     loadConfig();
 }
 void mainForm::autoReport()

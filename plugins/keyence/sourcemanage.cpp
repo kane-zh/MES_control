@@ -14,6 +14,7 @@ void SourceManage::showForm(QWidget *parent)
 {
   ConfigDialog *m_dialog=new ConfigDialog(parent);
   m_dialog->exec();
+  delete  m_dialog;
   loadConfig();    //加载配置信息
 }
 /*准备读数据信号*/
@@ -140,6 +141,7 @@ QString SourceManage::getValue(QString id)
     if(dataSetInfor[dataSet].socket!=nullptr){
       if(dataSetInfor[dataSet].socket->state()!=QAbstractSocket::ConnectedState ){
             dataSetInfor[dataSet].socket->abort();
+            delete  dataSetInfor[dataSet].socket;
             dataSetInfor[dataSet].socket=nullptr;
         }
     }

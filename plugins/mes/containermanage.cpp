@@ -5,7 +5,7 @@
 ContainerManage::ContainerManage(QWidget *parent)
 {
     loadConfig();        //加载配置信息
-    m_time=new QTimer();
+    m_time=new QTimer(this);
     connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
     connect(this,SIGNAL(updateToServer(int)),this,SLOT(autoUpdate(int)));
     m_time->start(100);
@@ -15,6 +15,7 @@ ContainerManage::ContainerManage(QWidget *parent)
 ContainerManage::~ContainerManage()
 {
     m_time->stop();
+    delete  m_time;
     QJsonObject json;
     QJsonDocument document;
     json.insert("result","err");
@@ -92,6 +93,7 @@ void ContainerManage::showForm(QWidget *parent)
   connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
   connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
   m_config->exec();
+  delete m_config;
   loadConfig();        //加载配置信息
 }
 /*时间定时器超时(槽)*/
@@ -122,6 +124,7 @@ void ContainerManage::autoUpdate(int id)
         result=myrequest->login(serverInfor[serverIndex].address,serverInfor[serverIndex].username,serverInfor[serverIndex].password);
         if(result=="err"){
             qDebug()<<"连接服务器失败!!!";
+            delete  myrequest;
             return;
         }
         else {
@@ -164,6 +167,7 @@ void ContainerManage::autoUpdate(int id)
      serverInfor[serverIndex].m_mutex.lock();
      result=myrequest->update(serverInfor[serverIndex].address+"/equipment/equipmentState/"+recordInfor[index].serverid+"/",
                               serverInfor[serverIndex].token,byte_array);
+     delete  myrequest;
      serverInfor[serverIndex].m_mutex.unlock();
      if(result=="err"){
        serverInfor[serverIndex].token="";

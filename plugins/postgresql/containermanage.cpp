@@ -3,7 +3,7 @@
 ContainerManage::ContainerManage(QWidget *parent)
 {
     loadConfig();        //加载配置信息
-    m_time=new QTimer();
+    m_time=new QTimer(this);
     connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
     m_time->start(100);
 }
@@ -12,6 +12,7 @@ ContainerManage::ContainerManage(QWidget *parent)
 ContainerManage::~ContainerManage()
 {
     m_time->stop();
+    delete m_time;
     QSqlDatabase db;
     for(int index=0;index<MaxDataBase;index++  ){
         db=QSqlDatabase::database(dataBaseInfor[index].name);
@@ -97,6 +98,7 @@ void ContainerManage::showForm(QWidget *parent)
   connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
   connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
   m_config->exec();
+  delete m_config;
   loadConfig();
 }
 

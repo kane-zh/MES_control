@@ -74,7 +74,7 @@ int main(int argc, char *argv[])
      path.mkdir(configDir);
     }
     //注册MessageHandler
-    qInstallMessageHandler(outputMessage);
+//    qInstallMessageHandler(outputMessage);
 
     qRegisterMetaType<RequestMetaData>("RequestMetaData");
     qRegisterMetaType<ResponseMetaData>("ResponseMetaData");

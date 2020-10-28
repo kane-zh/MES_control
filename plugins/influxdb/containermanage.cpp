@@ -4,7 +4,7 @@
 ContainerManage::ContainerManage(QWidget *parent)
 {
     loadConfig();        //加载配置信息
-    m_time=new QTimer();
+    m_time=new QTimer(this);
     connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
     m_time->start(100);
 }
@@ -13,6 +13,7 @@ ContainerManage::ContainerManage(QWidget *parent)
 ContainerManage::~ContainerManage()
 {
      m_time->stop();
+     delete m_time;
      QJsonObject json;
      QJsonDocument document;
      json.insert("result","err");
@@ -90,6 +91,7 @@ void ContainerManage::showForm(QWidget *parent)
   connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
   connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
   m_config->exec();
+  delete m_config;
   loadConfig();        //加载配置信息
 }
 /*时间定时器超时(槽)*/
@@ -114,7 +116,6 @@ void ContainerManage::autoSave(int id)
 {
     int index=id;
     int dataBase=dataTableInfor[index].dataBase.toInt();
-    httpRequest  *myrequest=new httpRequest(this);
     QString  value1=dataTableInfor[index].name+",index="+QString::number(index)+" ";
     QString  value2="";
     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
@@ -150,9 +151,11 @@ void ContainerManage::autoSave(int id)
         if(value2!=""){
              value2.remove(value2.length()-1,2);
              dataBaseInfor[dataBase].m_mutex.lock();
+             httpRequest  *myrequest=new httpRequest(this);
              QString result=myrequest->post(dataBaseInfor[dataBase].address,dataBaseInfor[dataBase].port,
                                             dataBaseInfor[dataBase].username,dataBaseInfor[dataBase].password,
                                             dataBaseInfor[dataBase].name,value1+value2);
+             delete  myrequest;
              dataBaseInfor[dataBase].m_mutex.unlock();
              if(result=="err"){
                qDebug()<<"写数据失败!!!";

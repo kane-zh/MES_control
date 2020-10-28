@@ -73,6 +73,8 @@ QString httpRequest::get(QString address, QString token)
     {
         return "err";
     }
+    delete  reply;
+    delete  m_pHttpMgr;
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
     return QString(responseByte);

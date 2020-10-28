@@ -57,6 +57,7 @@ void mainForm::showDebugForm()
   }
   ConfigDialog *m_config=new ConfigDialog(this);
   m_config->exec();
+  delete  m_config;
   loadConfig();
   startSerial();
 }
@@ -86,12 +87,14 @@ void mainForm::startSerial()
         serialinfor.serialDevice=serial;
         connect(serial, SIGNAL(readyRead()), this, SLOT(onReadReady()));
         connect(serial,SIGNAL(errorOccurred(QModbusDevice::Error)),this,SLOT(handleSerialError(QModbusDevice::Error )));
+        delete  serial;
         return;
      }
      else
      {
          QMessageBox::information(this,tr("提示"),tr("端口打开失败!!!"),QMessageBox::Yes);
          qDebug()<<"端口打开失败";
+         delete  serial;
          return;
      }
 }

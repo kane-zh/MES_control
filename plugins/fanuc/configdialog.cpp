@@ -45,8 +45,8 @@ ConfigDialog::~ConfigDialog()
 /*窗体显示事件*/
 void ConfigDialog::showEvent(QShowEvent *)
 {
-    dataSourceModel=new QStandardItemModel();  //建立数据源显示model实例
-    dataSetModel=new QStandardItemModel();     //建立数据集显示model实例
+    dataSourceModel=new QStandardItemModel(this);  //建立数据源显示model实例
+    dataSetModel=new QStandardItemModel(this);     //建立数据集显示model实例
     ui->tableView1->setModel(dataSourceModel);
     ui->tableView2->setModel(dataSetModel);
     ui->index1->setMaximum(MaxDataSource-1);

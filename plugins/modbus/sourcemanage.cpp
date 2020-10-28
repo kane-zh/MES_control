@@ -14,6 +14,7 @@ void SourceManage::showForm(QWidget *parent)
 {
   ConfigDialog *m_dialog=new ConfigDialog(parent);
   m_dialog->exec();
+  delete  m_dialog;
   loadConfig();    //加载配置信息
 }
 
@@ -109,6 +110,7 @@ QString SourceManage::getValue(QString id)
        if(dataSourceInfor[sourceId].modbusDevice->state()==QModbusDevice::UnconnectedState ||
           dataSourceInfor[sourceId].modbusDevice->state()==QModbusDevice::ClosingState ){
            dataSourceInfor[sourceId].modbusDevice->disconnect();
+           delete  dataSourceInfor[sourceId].modbusDevice;
            dataSourceInfor[sourceId].modbusDevice=nullptr;
        }
    }

@@ -13,6 +13,7 @@ void SourceManage::showForm(QWidget *parent)
 {
   ConfigDialog *m_config=new ConfigDialog(parent);
   m_config->exec();
+  delete m_config;
   loadConfig();            //加载配置信息
 }
 /*获取数据集信息*/

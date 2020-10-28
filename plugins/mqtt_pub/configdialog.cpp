@@ -377,6 +377,7 @@ void ConfigDialog::connectTest()
         QMessageBox::warning(this,tr("提示"),tr("连接服务器失败"),QMessageBox::Yes);
     }
     client->disconnectFromHost();
+    delete client;
 }
 /*发布主题测试*/
 void ConfigDialog::publishTest()
@@ -396,6 +397,7 @@ void ConfigDialog::publishTest()
     if(!client->state()==QMqttClient::Connected){
         QMessageBox::warning(this,tr("提示"),tr("连接服务器失败"),QMessageBox::Yes);
         client->disconnectFromHost();
+        delete  client;
         return;
     }
     QJsonObject json;
@@ -445,6 +447,7 @@ void ConfigDialog::publishTest()
      }
 
       client->disconnectFromHost();
+      delete client;
  }
 /*保存信息*/
 void ConfigDialog::saveConfig()

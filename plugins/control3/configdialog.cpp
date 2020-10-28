@@ -18,6 +18,7 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
 
 ConfigDialog::~ConfigDialog()
 {
+    delete  request;
     delete ui;
 }
 
@@ -168,6 +169,7 @@ void ConfigDialog::connectTest()
     else {
       QMessageBox::information(this,tr("提示"),tr("连接服务器成功!!!"),QMessageBox::Yes);
     }
+    delete myrequest;
 
 }
 /*保存数据测试*/

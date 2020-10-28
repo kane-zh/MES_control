@@ -27,8 +27,8 @@ ConfigDialog::~ConfigDialog()
 /*窗体显示事件*/
 void ConfigDialog::showEvent(QShowEvent *)
 {
-    dataSourceModel=new QStandardItemModel();  //建立数据源显示model实例
-    dataSetModel=new QStandardItemModel();     //建立数据集显示model实例
+    dataSourceModel=new QStandardItemModel(this);  //建立数据源显示model实例
+    dataSetModel=new QStandardItemModel(this);     //建立数据集显示model实例
     ui->tableView1->setModel(dataSourceModel);
     ui->tableView2->setModel(dataSetModel);
     ui->index1->setMaximum(MaxDataSource-1);
@@ -442,6 +442,8 @@ void ConfigDialog::getValueTest(){
     while (dataSetInfor[dataSet].readData.value=="") {
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
+    delete  reply;
+    delete   dataSourceInfor[dataSource].modbusDevice;
    if(dataSetInfor[dataSet].readData.value=="err"){
        QMessageBox::warning(this,tr("提示"),tr("读取节点值失败，无返回值"),QMessageBox::Yes);
    }

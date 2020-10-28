@@ -61,11 +61,13 @@ QString httpRequest::post(QString address, QString port, QString name, QString p
     QString s=reply->errorString();
     if (reply->error() != QNetworkReply::NoError)
     {
+        delete qBuffer;
         delete  reply;
         delete  m_pHttpMgr;
         return "err";
     }
     else{
+        delete qBuffer;
         delete  reply;
         delete  m_pHttpMgr;
         return "ok";

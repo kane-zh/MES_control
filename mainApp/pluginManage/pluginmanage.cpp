@@ -14,18 +14,22 @@ void PluginManage::detalSignaleOfPlugin(RequestMetaData request)
     case getDrivesInfor:
         responseData.value=infor->getDrivesInfor();
         plugin->receiveMsgFromManager(responseData);
+        delete infor;
         break;
     case getDataSetInfor:
         responseData.value=infor->getDataSetInfor(request.drive);
         plugin->receiveMsgFromManager(responseData);
+        delete infor;
         break;
     case getValue:
         responseData.value=infor->getValue(request.drive,request.index);
         plugin->receiveMsgFromManager(responseData);
+        delete infor;
         break;
     case setValue:
         responseData.value=infor->setValue(request.drive,request.index,request.value);
         plugin->receiveMsgFromManager(responseData);
+        delete infor;
         break;
      }
 }

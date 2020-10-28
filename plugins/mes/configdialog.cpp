@@ -23,6 +23,7 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
 
 ConfigDialog::~ConfigDialog()
 {
+    delete  request;
     delete ui;
 }
 
@@ -344,9 +345,7 @@ void ConfigDialog::connectTest()
       QMessageBox::warning(this,tr("提示"),tr("地址不能为空!!!"),QMessageBox::Yes);
       return;
        }
-
-    httpRequest  *myrequest=new httpRequest(this);
-    QString result=myrequest->login(ui->address->text(),ui->username->text(),ui->password->text());
+    QString result=request->login(ui->address->text(),ui->username->text(),ui->password->text());
     if(result=="err"){
       QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
     }
@@ -370,11 +369,10 @@ void ConfigDialog::saveValueTest()
       QMessageBox::warning(this,tr("提示"),tr("服务地址不能为空!!!"),QMessageBox::Yes);
       return;
        }
-    httpRequest  *myrequest=new httpRequest(this);
     int serverIndex=ui->serverInfor->currentData().toInt();
     QString result;
     if(serverInfor[serverIndex].token==""){
-        result=myrequest->login(serverInfor[serverIndex].address,serverInfor[serverIndex].username,serverInfor[serverIndex].password);
+        result=request->login(serverInfor[serverIndex].address,serverInfor[serverIndex].username,serverInfor[serverIndex].password);
         if(result=="err"){
           QMessageBox::warning(this,tr("提示"),tr("连接服务器失败!!!"),QMessageBox::Yes);
           return;
@@ -416,7 +414,7 @@ void ConfigDialog::saveValueTest()
     else{
         document.setObject(json);
         QByteArray byte_array = document.toJson(QJsonDocument::Compact);
-        result=myrequest->update(ui->address->text()+"/equipment/equipmentState/"+ui->serverId->text()+"/",serverInfor[serverIndex].token,byte_array);
+        result=request->update(ui->address->text()+"/equipment/equipmentState/"+ui->serverId->text()+"/",serverInfor[serverIndex].token,byte_array);
         if(result=="err"){
           serverInfor[serverIndex].token="";
           QMessageBox::warning(this,tr("提示"),tr("更新记录失败!!!"),QMessageBox::Yes);
