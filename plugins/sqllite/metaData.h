@@ -3,7 +3,7 @@
 #define  MaxDataBase       10
 #define  MaxDataTable      100
 #include <QString>
-
+#include <QMutex>
 struct RequestMetaData_dialog
 {
     QString type;
@@ -25,6 +25,7 @@ struct  DATABASE
     QString    address;      //地址
     QString    username;     //用户名
     QString    password;     //密码
+    QMutex     m_mutex;
  };
 /*数据表信息*/
 struct  DATATABLE

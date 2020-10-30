@@ -39,12 +39,16 @@ QString httpRequest::login(QString address, QString name, QString passwd)
         //错误处理
         if (reply->error() != QNetworkReply::NoError)
         {
+            delete  reply;
+            delete  m_pHttpMgr;
             return "err";
         }
         //请求收到的结果
         QByteArray responseByte = reply->readAll();
         QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
         if( jsonDocument.isNull() ){
+            delete  reply;
+            delete  m_pHttpMgr;
             return "err";
         }
         delete  reply;
@@ -71,6 +75,8 @@ QString httpRequest::get(QString address, QString token)
     //错误处理
     if (reply->error() != QNetworkReply::NoError)
     {
+        delete  reply;
+        delete  m_pHttpMgr;
         return "err";
     }
     delete  reply;
@@ -99,12 +105,16 @@ QString httpRequest::post(QString address, QString token, QByteArray value)
     //错误处理
     if (reply->error() != QNetworkReply::NoError)
     {
+        delete  reply;
+        delete  m_pHttpMgr;
         return "err";
     }
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
     QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
     if( jsonDocument.isNull() ){
+        delete  reply;
+        delete  m_pHttpMgr;
         return "err";
     }
     delete  reply;

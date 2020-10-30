@@ -105,26 +105,6 @@ void ContainerManage::showForm(QWidget *parent)
 void ContainerManage::autoSave(int id)
 {
     int index=id;
-    int dataBase=dataTableInfor[index].dataBase.toInt();
-    QSqlDatabase db=QSqlDatabase::database(dataBaseInfor[dataBase].name);
-    if(!db.isValid()){
-        db.close();
-        QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
-        db= QSqlDatabase::addDatabase("QMYSQL",dataBaseInfor[dataBase].name);
-        db.setHostName(dataBaseInfor[dataBase].address);
-        db.setPort(dataBaseInfor[dataBase].port.toInt());
-        db.setDatabaseName(dataBaseInfor[dataBase].name);
-        db.setUserName(dataBaseInfor[dataBase].username);
-        db.setPassword(dataBaseInfor[dataBase].password);
-        db.setConnectOptions("MYSQL_OPT_CONNECT_TIMEOUT=3");
-        if(!db.open())
-        {
-           qDebug()<<"连接数据库"+dataBaseInfor[dataBase].name+"失败";
-           db.close();
-           QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
-           return;
-        }
-    }
     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
     QJsonArray array= document.array();
     QString  fields="";
@@ -161,13 +141,42 @@ void ContainerManage::autoSave(int id)
     if(values.isEmpty()){
         qDebug()<<"未成功获取到有效可写数据!!!";
     }
-    else{
+    else{;
         fields.remove(fields.length()-1,1);
         values.remove(values.length()-1,1);
-        QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
-        QSqlQuery  query(db);
+        int dataBase=dataTableInfor[index].dataBase.toInt();
         dataBaseInfor[dataBase].m_mutex.lock();
+        QSqlDatabase db=QSqlDatabase::database(dataBaseInfor[dataBase].name);
+        if(!db.isValid()){
+            db.close();
+            QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
+            db= QSqlDatabase::addDatabase("QMYSQL",dataBaseInfor[dataBase].name);
+            db.setHostName(dataBaseInfor[dataBase].address);
+            db.setPort(dataBaseInfor[dataBase].port.toInt());
+            db.setDatabaseName(dataBaseInfor[dataBase].name);
+            db.setUserName(dataBaseInfor[dataBase].username);
+            db.setPassword(dataBaseInfor[dataBase].password);
+            db.setConnectOptions("MYSQL_OPT_CONNECT_TIMEOUT=3");
+            bool ok=db.open();
+            if(!ok)
+            {
+               qDebug()<<"连接数据库"+dataBaseInfor[dataBase].name+"失败";
+               db.close();
+               QSqlDatabase::removeDatabase(dataBaseInfor[dataBase].name);
+               dataBaseInfor[dataBase].m_mutex.unlock();
+               dataTableInfor[index].getValueEnable=true;
+               return;
+            }
+        }
+        QSqlQuery  query(db);
+        QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
         query.exec(cmd);
+        if(query.lastError().type()==QSqlError::NoError){
+            qDebug()<<"写数据成功";
+        }
+        else{
+            qDebug()<<"写数据失败"+ query.lastError().text();
+        }
         dataBaseInfor[dataBase].m_mutex.unlock();
     }
     dataTableInfor[index].getValueEnable=true;

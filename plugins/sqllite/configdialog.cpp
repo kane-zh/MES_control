@@ -521,7 +521,7 @@ void ConfigDialog::saveConfig()
     document.setObject(object);
     QByteArray data=document.toJson();
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/mysql.ini";
+    QString fileName=path.path()+"/plugins/config/sqllite.ini";
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly|QIODevice::Text)) { //如果文件不存在则新建文件
         file.open( QIODevice::ReadWrite | QIODevice::Text );
@@ -533,7 +533,7 @@ void ConfigDialog::saveConfig()
 void ConfigDialog::loadConfig()
 {
     QDir path = QDir(qApp->applicationDirPath());
-    QString fileName=path.path()+"/plugins/config/mysql.ini";
+    QString fileName=path.path()+"/plugins/config/sqllite.ini";
     QFile file(fileName);
    if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
        file.open( QIODevice::ReadWrite | QIODevice::Text );

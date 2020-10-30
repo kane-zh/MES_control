@@ -25,12 +25,16 @@ QString httpRequest::get(QString address, QString port, QString name, QString pa
     //错误处理
     if (reply->error() != QNetworkReply::NoError)
     {
+        delete  reply;
+        delete  m_pHttpMgr;
         return "err";
     }
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
     QString  dat=QString(responseByte);
     if( dat.isNull() ){
+        delete  reply;
+        delete  m_pHttpMgr;
         return "err";
     }
     delete  reply;

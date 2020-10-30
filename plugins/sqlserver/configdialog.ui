@@ -261,7 +261,7 @@
           <item row="4" column="1">
            <widget class="QSpinBox" name="frequency">
             <property name="minimum">
-             <number>10000</number>
+             <number>1000</number>
             </property>
             <property name="maximum">
              <number>999999999</number>

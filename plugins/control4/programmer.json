@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "control4",
+    "version" : "1.0.0",
+    "type" : "container",
+    "title":"丰光生产监控",
+    "des" : "只适合window系统",
+    "dependencies" : []
+}
