@@ -1,6 +1,5 @@
 #include "configdialog.h"
 #include "ui_configdialog.h"
-#include <QtMqtt/qmqttclient.h>
 ConfigDialog::ConfigDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ConfigDialog)

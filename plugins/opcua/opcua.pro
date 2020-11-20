@@ -24,5 +24,5 @@ SOURCES += \
 
 DISTFILES += \
     programmer.json
-LIBS += -lpthread libwsock32 libws2_32
+win32:LIBS += -lpthread libwsock32 libws2_32
 

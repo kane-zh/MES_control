@@ -11,7 +11,7 @@
 #include <QtConcurrent>
 #include "../../mainApp/pluginManage/containerinterface.h"
 #include "httprequest.h"
-#include "metaData.h"
+#include "metadata.h"
 #include "configdialog.h"
 namespace Ui {
 class ContainerManage;
