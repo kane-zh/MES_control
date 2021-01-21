@@ -38,7 +38,8 @@ void ConfigDialog::showEvent(QShowEvent *)
     RequestMetaData_dialog request;
     request.type="getDataSetInfor";
     request.drive="FNAUC";
-    emit SendMsgToContainerManage(request);
+    dateSetInfor="";
+    emit SendMsgToPluginInterface(request);
     while(dateSetInfor==""){
     }
     QJsonDocument document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
@@ -48,8 +49,8 @@ void ConfigDialog::showEvent(QShowEvent *)
     for (int i = 0; i < array.count(); i++)
     {
         QJsonObject value = array.at(i).toObject();
-        ui->state->addItem(value["name"].toString(),value["index"].toDouble());
-        ui->program->addItem(value["name"].toString(),value["index"].toDouble());
+        ui->state->addItem(value["name"].toString(),value["id"].toDouble());
+        ui->program->addItem(value["name"].toString(),value["id"].toDouble());
     }
     showServer();    //显示服务器信息
     showReport();       //显示汇报源信息
@@ -57,8 +58,8 @@ void ConfigDialog::showEvent(QShowEvent *)
     fillReportForm();   //填充汇报源表单
     fillServerBox(); //填充服务器下拉框
 }
-/*从容器管理器接收消息(曹)*/
-void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog response)
+/*从容器管理器接收消息(回调)*/
+void ConfigDialog::receiveMsgFromPluginInterface(ResponseMetaData_dialog response)
 {
     if(response.type=="getDrivesInfor"){
         driveInfor=response.value;
@@ -286,7 +287,7 @@ void ConfigDialog::fillServerBox()
     {
       if(serverInfor[index].name!="")
       {
-          ui->server->addItem(serverInfor[index].name,index);
+          ui->server->addItem(serverInfor[index].name,id);
       }
     }
 }
@@ -330,7 +331,7 @@ void ConfigDialog::saveConfig()
         serverArray.push_back(json);
     }
     QJsonArray ReportArray;
-    for(int index=0;index<MaxReport;index++){
+    for(int id=0;id<MaxReport;id++){
         QJsonObject json;
         json.insert("name",reportInfor[index].name);
         json.insert("serverName",reportInfor[index].serverName);
@@ -384,7 +385,7 @@ void ConfigDialog::loadConfig()
    }
    QJsonValue Report=object.value("report");
    QJsonArray ReportArray=Report.toArray();
-   for(int index=0;index<MaxReport;index++){
+   for(int id=0;id<MaxReport;id++){
         QJsonObject json=ReportArray.at(index).toObject();
         reportInfor[index].name=json.value("name").toString();
         reportInfor[index].serverName=json.value("serverName").toString();

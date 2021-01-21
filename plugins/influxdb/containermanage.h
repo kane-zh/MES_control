@@ -27,13 +27,12 @@ public:
     explicit ContainerManage(QWidget *parent = nullptr);
     ~ContainerManage();
 signals:
-    virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
-    void sendMsgToDialog(ResponseMetaData_dialog response);
+    virtual void sendMsgToPluginManager(RequestMetaData request) Q_DECL_OVERRIDE;
 public:
-    virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE;
+    virtual void receiveMsgFromPluginManager(ResponseMetaData response) Q_DECL_OVERRIDE;
     virtual void showForm(QWidget *parent = nullptr) Q_DECL_OVERRIDE;
 public slots:
-    void receiveMsgFromDialog(RequestMetaData_dialog request) ;
+    void dealSignalOfDialog(RequestMetaData_dialog request) ;
     void loadConfig();                         //加载配置信息
     void autoSave(int id);                      //自动保存
     void timeOut();
@@ -44,4 +43,5 @@ private:
     QString   dateSetInfor="";
     QTimer *m_time;
     qlonglong  time_count=0;
+    ConfigDialog *m_config=nullptr;
 };

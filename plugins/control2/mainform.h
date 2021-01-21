@@ -15,9 +15,9 @@ public:
     explicit mainForm(QWidget *parent = nullptr);
     ~mainForm();
 signals:
-    virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
+    virtual void sendMsgToPluginManager(RequestMetaData request) Q_DECL_OVERRIDE;
 public:
-    virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE;
+    virtual void receiveMsgFromPluginManager(ResponseMetaData response) Q_DECL_OVERRIDE;
 
 private:
     Ui::mainForm *ui;

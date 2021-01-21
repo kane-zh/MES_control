@@ -25,17 +25,17 @@ public:
     ~mainForm();
     void showEvent(QShowEvent *) ;
 signals:
-    virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
+    virtual void sendMsgToPluginManager(RequestMetaData request) Q_DECL_OVERRIDE;
 public:
-    virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE; 
+    virtual void receiveMsgFromPluginManager(ResponseMetaData response) Q_DECL_OVERRIDE; 
 private slots:
     void showDebugForm() ;
     void startSerial();
     void loadConfig();                         //加载配置信息
     void onReadReady();
     void handleSerialError(QSerialPort::SerialPortError  err);
-    QString readFromDrive(QString index);
-    QString writeToDrive(QString index, QString value);
+    QString readFromDrive(QString id);
+    QString writeToDrive(QString id, QString value);
 private:
     QString   driveInfor="";
     QString   dateSetInfor="";

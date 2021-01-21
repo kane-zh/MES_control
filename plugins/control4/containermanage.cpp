@@ -24,8 +24,8 @@ ContainerManage::~ContainerManage()
         reportInfor[i].getValueResult=json_str;
      }
 }
-/*从主程序框架接收消息*/
-void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
+/*从插件管理器接收消息(回调)*/
+void ContainerManage::receiveMsgFromPluginManager(ResponseMetaData response)
 {
     /*判断消息是否发送给对话框界面的*/
     if(response.target=="dialog"){
@@ -43,7 +43,9 @@ void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
          data.type="getValue";
       }
       data.value=response.value;
-      emit sendMsgToDialog(data);
+      if(m_config!=nullptr){
+      m_config->receiveMsgFromPluginInterface(data);
+      }
       return;
     }
     switch(response.type){
@@ -61,37 +63,37 @@ void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
         break;
     }
 }
-/*处理从对话框接收的信号*/
-void ContainerManage::receiveMsgFromDialog(RequestMetaData_dialog request)
+/*处理对话框发送的信号*/
+void ContainerManage::dealSignalOfDialog(RequestMetaData_dialog request)
 {
-        RequestMetaData data;
-        data.from="dialog";
-        data.target="pluginManage";
-        data.drive=request.drive;
-        data.index=request.index;
-        data.value=request.value;
-        if(request.type=="getDrivesInfor"){
-           data.type=getDrivesInfor;
-        }
-        if(request.type=="getDataSetInfor"){
-           data.type=getDataSetInfor;
-        }
-        if(request.type=="setValue"){
-           data.type=setValue;
-        }
-        if(request.type=="getValue"){
-           data.type=getValue;
-        }
-        emit sendMsgToManager(data); //转发信息到插件管理器
+    RequestMetaData data;
+    data.from="dialog";
+    data.target="pluginManage";
+    data.drive=request.drive;
+    data.id=request.id;
+    data.value=request.value;
+    if(request.type=="getDrivesInfor"){
+       data.type=getDrivesInfor;
+    }
+    if(request.type=="getDataSetInfor"){
+       data.type=getDataSetInfor;
+    }
+    if(request.type=="setValue"){
+       data.type=setValue;
+    }
+    if(request.type=="getValue"){
+       data.type=getValue;
+    }
+    emit sendMsgToPluginManager(data); //转发信息到插件管理器
 }
 
 void ContainerManage::showForm(QWidget *parent)
 {
   ConfigDialog *m_config=new ConfigDialog(parent);
-  connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
-  connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
+  connect(m_config,SIGNAL(SendMsgToPluginInterface(RequestMetaData_dialog)),this,SLOT(dealSignalOfDialog(RequestMetaData_dialog)));
   m_config->exec();
   delete m_config;
+  m_config=nullptr;
   loadConfig();        //加载配置信息
 }
 /*时间定时器超时(槽)*/
@@ -253,20 +255,19 @@ void ContainerManage::autoSave(int id)
     }
   }
 }
-
-QString ContainerManage::readFromDrive(QString index,QString  reportId){
+QString ContainerManage::readFromDrive(QString id,QString  reportId){
     RequestMetaData data;
     data.type=getValue;
     data.from=reportId;
     data.target="manage";
     data.drive="FNAUC";
-    data.index=index;
-    emit sendMsgToManager(data);
+    data.id=id;
+    reportInfor[reportId.toInt()].getValueResult="";
+    emit sendMsgToPluginManager(data);//发送信号到插件管理器
     while(reportInfor[reportId.toInt()].getValueResult==""){
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(reportInfor[reportId.toInt()].getValueResult.toLocal8Bit().data());
-    reportInfor[reportId.toInt()].getValueResult="";
     if(document.object().value("result").toString()!="ok"){
         return "err";
     }
@@ -282,21 +283,21 @@ QString ContainerManage::readFromDrive(QString index,QString  reportId){
         }
     }
 }
-QString ContainerManage::writeToDrive(QString index,QString  reportId,QString value){
+QString ContainerManage::writeToDrive(QString id,QString  reportId,QString value){
     RequestMetaData data;
     data.type=setValue;
     data.from=reportId;
     data.target="manage";
     data.drive="FANUC";
-    data.index=index;
+    data.id=id;
     data.value=value;
-    emit sendMsgToManager(data);
+    reportInfor[reportId.toInt()].getValueResult="";
+    emit sendMsgToPluginManager(data);//发送信号到插件管理器
     while(reportInfor[reportId.toInt()].getValueResult==""){
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(reportInfor[reportId.toInt()].getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
-    reportInfor[reportId.toInt()].getValueResult="";
     if(object.value("result")=="err"){
         return "err";
     }

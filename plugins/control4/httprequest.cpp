@@ -45,12 +45,12 @@ QString httpRequest::login(QString address, QString name, QString passwd)
         }
         //请求收到的结果
         QByteArray responseByte = reply->readAll();
+        delete  reply;
+        delete  m_pHttpMgr;
         QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
         if( jsonDocument.isNull() ){
             return "err";
         }
-        delete  reply;
-        delete  m_pHttpMgr;
         QJsonObject jsonObject = jsonDocument.object();
         return "Jwt "+jsonObject.value("token").toString();
 }
@@ -77,10 +77,10 @@ QString httpRequest::get(QString address, QString token)
         delete  m_pHttpMgr;
         return "err";
     }
-    delete  reply;
-    delete  m_pHttpMgr;
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
+    delete  reply;
+    delete  m_pHttpMgr;
     return QString(responseByte);
 }
 
@@ -109,14 +109,12 @@ QString httpRequest::post(QString address, QString token, QByteArray value)
     }
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
-    QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
-    if( jsonDocument.isNull() ){
-        delete  reply;
-        delete  m_pHttpMgr;
-        return "err";
-    }
     delete  reply;
     delete  m_pHttpMgr;
+    QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
+    if( jsonDocument.isNull() ){
+        return "err";
+    }
     QJsonObject jsonObject = jsonDocument.object();
     return jsonObject.value("result").toString();
 }

@@ -27,7 +27,8 @@ void ConfigDialog::showEvent(QShowEvent *)
 {
     RequestMetaData_dialog request;
     request.type="getDrivesInfor";
-    emit SendMsgToContainerManage(request);
+    driveInfor="";
+    emit SendMsgToPluginInterface(request);
     fillServerInforForm();    //填充服务器表单
     while(driveInfor==""){
 
@@ -39,24 +40,24 @@ void ConfigDialog::showEvent(QShowEvent *)
     for(QJsonObject::Iterator it=json.begin();it!=json.end();it++)
     {
       list.append(it.key());
+    }
+    QJsonObject json_all;
+    for(int i = 0; i< list.size();++i)
+    {
+        request.type="getDataSetInfor";
+        request.drive=list.at(i);
+        dateSetInfor="";
+        emit SendMsgToPluginInterface(request);
+        while(dateSetInfor==""){
         }
-        driveInfor="";
-        QJsonObject json_all;
-        for(int i = 0; i< list.size();++i)
-        {
-            request.type="getDataSetInfor";
-            request.drive=list.at(i);
-            emit SendMsgToContainerManage(request);
-            while(dateSetInfor==""){
-            }
-            document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
-            QJsonArray array= document.array();
-            json_all.insert(list.at(i),array);
-        }
+        document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
+        QJsonArray array= document.array();
+        json_all.insert(list.at(i),array);
+    }
 
 }
-/*从容器管理器接收消息(曹)*/
-void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog response)
+/*从容器管理器接收消息(回调)*/
+void ConfigDialog::receiveMsgFromPluginInterface(ResponseMetaData_dialog response)
 {
     if(response.type=="getDrivesInfor"){
         driveInfor=response.value;

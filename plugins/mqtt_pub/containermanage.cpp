@@ -24,7 +24,7 @@ ContainerManage::~ContainerManage()
         topicInfor[i].getValueResult=json_str;
      }
 }
-/*从主程序框架接收消息*/
+/*从插件管理器接收消息(回调)*/
 void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
 {
     /*判断消息是否发送给对话框界面的*/
@@ -43,7 +43,9 @@ void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
          data.type="getValue";
       }
       data.value=response.value;
-      emit sendMsgToDialog(data);
+      if(m_config!=nullptr){
+      m_config->receiveMsgFromPluginInterface(data);
+      }
       return;
     }
     switch(response.type){
@@ -64,35 +66,35 @@ void ContainerManage::receiveMsgFromManager(ResponseMetaData response)
 /*处理从对话框接收的信号*/
 void ContainerManage::receiveMsgFromDialog(RequestMetaData_dialog request)
 {
-        RequestMetaData data;
-        data.from="dialog";
-        data.target="pluginManage";
-        data.drive=request.drive;
-        data.index=request.index;
-        data.value=request.value;
-        if(request.type=="getDrivesInfor"){
-           data.type=getDrivesInfor;
-        }
-        if(request.type=="getDataSetInfor"){
-           data.type=getDataSetInfor;
-        }
-        if(request.type=="setValue"){
-           data.type=setValue;
-        }
-        if(request.type=="getValue"){
-           data.type=getValue;
-        }
-        emit sendMsgToManager(data); //转发信息到插件管理器
+    RequestMetaData data;
+    data.from="dialog";
+    data.target="pluginManage";
+    data.drive=request.drive;
+    data.index=request.index;
+    data.value=request.value;
+    if(request.type=="getDrivesInfor"){
+       data.type=getDrivesInfor;
+    }
+    if(request.type=="getDataSetInfor"){
+       data.type=getDataSetInfor;
+    }
+    if(request.type=="setValue"){
+       data.type=setValue;
+    }
+    if(request.type=="getValue"){
+       data.type=getValue;
+    }
+     emit sendMsgToPluginManager(data); //发送信号到插件管理器
 }
 
 void ContainerManage::showForm(QWidget *parent)
 {
-  ConfigDialog *m_config=new ConfigDialog(parent);
-  connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
-  connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
-  m_config->exec();
-  delete m_config;
-  loadConfig();        //加载配置信息
+    m_config=new ConfigDialog(parent);
+    connect(m_config,SIGNAL(SendMsgToPluginInterface(RequestMetaData_dialog)),this,SLOT(dealSignalOfDialog(RequestMetaData_dialog)));
+    m_config->exec();
+    delete m_config;
+    m_config=nullptr;
+    loadConfig();        //加载配置信息
 }
 /*时间定时器超时(槽)*/
 void ContainerManage::timeOut()
@@ -128,12 +130,12 @@ void ContainerManage::autoSave(int id)
            data.target="manage";
            data.drive=value["drive"].toString();
            data.index=value["dataIndex"].toString();
-           emit sendMsgToManager(data);
+           topicInfor[id].getValueResult="";
+           emit sendMsgToPluginManager(data);
            while(topicInfor[id].getValueResult==""){
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
            }
            QJsonDocument document1=QJsonDocument::fromJson(topicInfor[id].getValueResult.toUtf8());
-           topicInfor[id].getValueResult="";
             if(document1.object().value("result").toString()=="err"){
             qDebug()<<"获取数据"+value["field"].toString()+"失败："+document1.object().value("value").toString();
            }

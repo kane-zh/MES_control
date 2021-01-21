@@ -63,11 +63,11 @@ QString SourceManage::getDataSetInfor()
     for(int index=0;index<MaxDataSet;index++){
         if(dataSetInfor[index].name!=""){
             QJsonObject json;
-            json.insert("index",index);
+            json.insert("id",index);
             json.insert("name",dataSetInfor[index].name);
             json.insert("desc",dataSetInfor[index].desc);
             if(dataSetInfor[index].enable==false ||
-               dataSourceInfor[dataSetInfor[index].sourceIndex.toInt()].enable==false){
+               dataSourceInfor[dataSetInfor[index].sourceId.toInt()].enable==false){
                json.insert("enable","false");
             }
             else{
@@ -94,7 +94,7 @@ QString SourceManage::getValue(QString id)
     QJsonDocument document;
     QJsonObject json;
 
-    int sourceId=dataSetInfor[id.toInt()].sourceIndex.toInt();
+    int sourceId=dataSetInfor[id.toInt()].sourceId.toInt();
     /*判断索引范围*/
     if(id>MaxDataSet){
         json.insert("result","err");
@@ -136,7 +136,7 @@ QString SourceManage::getValue(QString id)
         return json_str;
     }
     int  dataSet=id.toInt();
-    int  dataSource=dataSetInfor[dataSet].sourceIndex.toInt();
+    int  dataSource=dataSetInfor[dataSet].sourceId.toInt();
      /*判断数据源连接状态(如果已经连接)*/
     if(dataSetInfor[dataSet].socket!=nullptr){
       if(dataSetInfor[dataSet].socket->state()!=QAbstractSocket::ConnectedState ){
@@ -150,8 +150,8 @@ QString SourceManage::getValue(QString id)
         /*连接指定的服务器*/
         QTcpSocket  *socket = new QTcpSocket(this);
         if (socket){
-           socket->connectToHost(dataSourceInfor[dataSetInfor[dataSet].sourceIndex.toInt()].host,
-                   dataSourceInfor[dataSetInfor[dataSet].sourceIndex.toInt()].port.toInt());
+           socket->connectToHost(dataSourceInfor[dataSetInfor[dataSet].sourceId.toInt()].host,
+                   dataSourceInfor[dataSetInfor[dataSet].sourceId.toInt()].port.toInt());
            //等待连接成功
            if(!socket->waitForConnected(3000))
            {
@@ -205,7 +205,7 @@ QString SourceManage::setValue(QString id, QString value)
     QJsonDocument document;
     QJsonObject json;
 
-    int sourceId=dataSetInfor[id.toInt()].sourceIndex.toInt();
+    int sourceId=dataSetInfor[id.toInt()].sourceId.toInt();
     /*判断索引范围*/
     if(id>MaxDataSet){
         json.insert("result","err");
@@ -255,7 +255,7 @@ QString SourceManage::setValue(QString id, QString value)
         return json_str;
     }
     int  dataSet=id.toInt();
-    int  dataSource=dataSetInfor[dataSet].sourceIndex.toInt();
+    int  dataSource=dataSetInfor[dataSet].sourceId.toInt();
      /*判断数据源连接状态(如果已经连接)*/
     if(dataSetInfor[dataSet].socket!=nullptr){
        if(dataSetInfor[dataSet].socket->state()!=QAbstractSocket::ConnectedState ){
@@ -268,8 +268,8 @@ QString SourceManage::setValue(QString id, QString value)
         /*连接指定的服务器*/
         QTcpSocket  *socket = new QTcpSocket(this);
         if (socket){
-           socket->connectToHost(dataSourceInfor[dataSetInfor[dataSet].sourceIndex.toInt()].host,
-                   dataSourceInfor[dataSetInfor[dataSet].sourceIndex.toInt()].port.toInt());
+           socket->connectToHost(dataSourceInfor[dataSetInfor[dataSet].sourceId.toInt()].host,
+                   dataSourceInfor[dataSetInfor[dataSet].sourceId.toInt()].port.toInt());
            //等待连接成功
            if(!socket->waitForConnected(3000))
            {
@@ -346,7 +346,7 @@ void SourceManage::loadConfig()
         QJsonObject json=dataSetArray.at(index).toObject();
         dataSetInfor[index].name=json.value("name").toString();
         dataSetInfor[index].sourceName=json.value("sourceName").toString();
-        dataSetInfor[index].sourceIndex=json.value("sourceIndex").toString();
+        dataSetInfor[index].sourceId=json.value("sourceId").toString();
         dataSetInfor[index].enable=json.value("enable").toBool();
         dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();

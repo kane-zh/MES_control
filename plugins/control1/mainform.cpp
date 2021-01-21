@@ -27,7 +27,7 @@ void mainForm::showEvent(QShowEvent *)
 
 }
 
-void mainForm::receiveMsgFromManager(ResponseMetaData response)
+void mainForm::receiveMsgFromPluginManager(ResponseMetaData response)
 {
     switch(response.type){
     case getDrivesInfor:
@@ -215,40 +215,40 @@ void mainForm::onReadReady()
 
 
 }
-QString mainForm::readFromDrive(QString index){
+QString mainForm::readFromDrive(QString id){
     RequestMetaData data;
     data.type=getValue;
     data.from="1";
     data.target="manage";
     data.drive="KEYENCE";
-    data.index=index;
-    emit sendMsgToManager(data);
+    data.id=id;
+    getValueResult="";
+    emit sendMsgToPluginManager(data);//发送信号到插件管理器
     while(getValueResult==""){
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
-    getValueResult="";
     if(object.value("result").toString()=="err"){
         return "err";
     }
     return object.value("value").toString();
 }
-QString mainForm::writeToDrive(QString index,QString value){
+QString mainForm::writeToDrive(QString id,QString value){
     RequestMetaData data;
     data.type=setValue;
     data.from="1";
     data.target="manage";
     data.drive="KEYENCE";
-    data.index=index;
+    data.id=id;
     data.value=value;
-    emit sendMsgToManager(data);
+    getValueResult="";
+    emit sendMsgToPluginManager(data);//发送信号到插件管理器
     while(getValueResult==""){
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
-    getValueResult="";
     if(object.value("result").toString()=="err"){
         return "err";
     }

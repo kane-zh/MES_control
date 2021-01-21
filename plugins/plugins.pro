@@ -12,23 +12,25 @@ SUBDIRS += \
         influxdb\   #influxdb数据库
         mes\        #慧智通MES
 #        mqtt_pub
+        control2\   #3D模型演示(测试)
+        control3\   #发那科生产监控(丰光精密)
 }
 
 
-#window平台专用插件
+##window平台专用插件
 win32{
 SUBDIRS += \
         fanuc\
         control1\   #mes对接(潍坊精卫)
-        control2\   #3D模型演示(测试)
         control3\   #发那科自动报工(丰光精密)
         control4\   #发那科生产监控(丰光精密)
 }
 
 
 
-#linux平台专用插件
+##linux平台专用插件
 unix{
 SUBDIRS += \
-     opcua
+         opcua\
+         control5
 }

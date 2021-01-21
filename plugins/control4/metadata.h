@@ -11,7 +11,7 @@ struct RequestMetaData_dialog
 {
     QString type;
     QString drive;
-    QString index;
+    QString id;
     QString value;
 };
 struct ResponseMetaData_dialog

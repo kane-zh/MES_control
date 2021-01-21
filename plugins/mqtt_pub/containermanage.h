@@ -26,7 +26,7 @@ public:
     explicit ContainerManage(QWidget *parent = nullptr);
     ~ContainerManage();
 signals:
-    virtual void sendMsgToManager(RequestMetaData request) Q_DECL_OVERRIDE;
+    virtual void sendMsgToPluginManager(RequestMetaData request) Q_DECL_OVERRIDE;
     void sendMsgToDialog(ResponseMetaData_dialog response);
 public:
     virtual void receiveMsgFromManager(ResponseMetaData response) Q_DECL_OVERRIDE;
@@ -43,4 +43,5 @@ private:
     QString   dateSetInfor="";
     QTimer *m_time;
     qlonglong  time_count=0;
+    ConfigDialog *m_config=nullptr;
 };

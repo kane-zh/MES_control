@@ -31,9 +31,9 @@ public:
     ~ConfigDialog();
     void showEvent(QShowEvent *) ;
 signals:
-    void SendMsgToContainerManage(RequestMetaData_dialog request);
+    void SendMsgToPluginInterface(RequestMetaData_dialog request);
 public slots:
-    void receiveMsgFromContainerManage(ResponseMetaData_dialog response); //从ContainerManage接收信号
+    void receiveMsgFromPluginInterface(ResponseMetaData_dialog response); //从ContainerManage接收消息
 private slots:
     void showDataBaseConfig();                   //显示数据库配置
     void showRules();                            //显示数据表匹配规则

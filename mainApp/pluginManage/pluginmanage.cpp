@@ -1,11 +1,14 @@
 #include "pluginmanage.h"
 
 /*处理插件发出的信号*/
-void PluginManage::detalSignaleOfPlugin(RequestMetaData request)
+void PluginManage::dealSignaleOfPlugin(RequestMetaData request)
 {
     auto obj=this->sender();
     ContainerInterface *plugin = qobject_cast<ContainerInterface *>(obj);
-    DriveInfor *infor= new DriveInfor(this);
+    QtConcurrent::run(this,&PluginManage::dd,request,plugin);
+}
+void PluginManage::dd(RequestMetaData request,ContainerInterface *plugin){
+    DriveInfor *infor= new DriveInfor();
     ResponseMetaData responseData;
     responseData.from=request.target;
     responseData.target=request.from;
@@ -13,27 +16,26 @@ void PluginManage::detalSignaleOfPlugin(RequestMetaData request)
     switch(request.type){
     case getDrivesInfor:
         responseData.value=infor->getDrivesInfor();
-        plugin->receiveMsgFromManager(responseData);
+        plugin->receiveMsgFromPluginManager(responseData);
         delete infor;
         break;
     case getDataSetInfor:
         responseData.value=infor->getDataSetInfor(request.drive);
-        plugin->receiveMsgFromManager(responseData);
+        plugin->receiveMsgFromPluginManager(responseData);
         delete infor;
         break;
     case getValue:
-        responseData.value=infor->getValue(request.drive,request.index);
-        plugin->receiveMsgFromManager(responseData);
+        responseData.value=infor->getValue(request.drive,request.id);
+        plugin->receiveMsgFromPluginManager(responseData);
         delete infor;
         break;
     case setValue:
-        responseData.value=infor->setValue(request.drive,request.index,request.value);
-        plugin->receiveMsgFromManager(responseData);
+        responseData.value=infor->setValue(request.drive,request.id,request.value);
+        plugin->receiveMsgFromPluginManager(responseData);
         delete infor;
         break;
      }
 }
-
 // 加载所有插件
 void PluginManage::loadAllPlugins()
 {
@@ -88,7 +90,7 @@ void PluginManage::loadPlugin(const QString& path)
                 ContainerInterface *plugin = qobject_cast<ContainerInterface *>(loader->instance());
                 if (plugin)
                 {
-                    connect(loader->instance(),SIGNAL(sendMsgToManager(RequestMetaData)),this,SLOT(detalSignaleOfPlugin(RequestMetaData)));
+                    connect(loader->instance(),SIGNAL(sendMsgToPluginManager(RequestMetaData)),this,SLOT(dealSignaleOfPlugin(RequestMetaData)));
                     m_loaders.insert(path, loader); // 保存插件loader实例
                 }
                 else
@@ -102,7 +104,7 @@ void PluginManage::loadPlugin(const QString& path)
                 DebugControlInterface *plugin = qobject_cast<DebugControlInterface *>(loader->instance());
                 if (plugin)
                 {
-                    connect(loader->instance(),SIGNAL(sendMsgToManager(RequestMetaData)),this,SLOT(detalSignaleOfPlugin(RequestMetaData)));
+                    connect(loader->instance(),SIGNAL(sendMsgToPluginManager(RequestMetaData)),this,SLOT(dealSignaleOfPlugin(RequestMetaData)));
                     m_loaders.insert(path, loader); // 保存插件loader实例
                 }
                 else
@@ -116,7 +118,7 @@ void PluginManage::loadPlugin(const QString& path)
                 AutoControlInterface *plugin = qobject_cast<AutoControlInterface *>(loader->instance());
                 if (plugin)
                 {
-                    connect(loader->instance(),SIGNAL(sendMsgToManager(RequestMetaData)),this,SLOT(detalSignaleOfPlugin(RequestMetaData)));
+                    connect(loader->instance(),SIGNAL(sendMsgToPluginManager(RequestMetaData)),this,SLOT(dealSignaleOfPlugin(RequestMetaData)));
                     m_loaders.insert(path, loader); // 保存插件loader实例
                 }
                 else

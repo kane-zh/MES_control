@@ -9,6 +9,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
+#include <QtConcurrent>
 #include "driverinterface.h"
 #include "containerinterface.h"
 #include "autocontrolinterface.h"
@@ -27,7 +28,7 @@ public:
         return m_instance;
     }
 private slots:
-     void detalSignaleOfPlugin(RequestMetaData request); //处理插件发出的信号
+     void dealSignaleOfPlugin(RequestMetaData request); //处理插件发出的信号
 private:
     void scan(const QString &filepath);             //扫描JSON文件中的插件元数据
     bool check(const QString &filepath);            //插件依赖检测
@@ -45,5 +46,6 @@ public:
     QHash<QString, QVariantList>m_dependencies; //插件路径--插件额外依赖的其他插件
     QHash<QString, QPluginLoader *>m_loaders; //插件路径--QPluginLoader实例
     QHash<QString, QString >m_types; //插件路径--插件类型
+    void dd(RequestMetaData request,ContainerInterface *plugin);
 };
 

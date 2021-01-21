@@ -19,7 +19,7 @@ struct RequestMetaData
     QString target;
     TYPE    type;
     QString drive;
-    QString index;
+    QString id;
     QString value;
 };
 struct ResponseMetaData

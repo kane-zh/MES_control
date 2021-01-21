@@ -3,6 +3,7 @@
 #define  MaxDataSource     10
 #define  MaxDataSet        1000
 #include <QString>
+#include <QMutex>
 #include "open62541.h"
 /*UA服务器信息*/
 struct  UA_INFOR
@@ -27,13 +28,14 @@ struct  DATASOURCE
     bool       enable=true;       //使能
     QString    desc;         //备注
     UA_INFOR   uaInfor;      //OPCUA连接信息
+    QMutex     m_mutex;
  };
 /*数据集信息*/
 struct  DATASET
 {
     QString name;            //名称
     QString sourceName;      //数据源名称
-    QString sourceIndex;     //数据源索引
+    QString sourceId;     //数据源标识
     bool    writeEnable=false;     //写使能
     bool    enable=true;          //使能
     QString desc;            //备注

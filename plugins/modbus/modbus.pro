@@ -25,3 +25,6 @@ SOURCES += \
     configdialog.cpp \
     sourcemanage.cpp
 
+RESOURCES += \
+    image.qrc
+

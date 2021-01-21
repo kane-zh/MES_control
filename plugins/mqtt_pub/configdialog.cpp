@@ -32,6 +32,7 @@ void ConfigDialog::showEvent(QShowEvent *)
 {
     RequestMetaData_dialog request;
     request.type="getDrivesInfor";
+    driveInfor="";
     emit SendMsgToContainerManage(request);
     m_delegate=new ItemDelegate(this);
     serviceModel=new QStandardItemModel(this);  //建立服务器显示model实例
@@ -57,22 +58,22 @@ void ConfigDialog::showEvent(QShowEvent *)
     for(QJsonObject::Iterator it=json.begin();it!=json.end();it++)
     {
       list.append(it.key());
+    }
+    m_delegate->setDriveInfor(list);
+    QJsonObject json_all;
+    for(int i = 0; i< list.size();++i)
+    {
+        request.type="getDataSetInfor";
+        request.drive=list.at(i);
+        dateSetInfor="";
+        emit SendMsgToContainerManage(request);
+        while(dateSetInfor==""){
         }
-        m_delegate->setDriveInfor(list);
-        driveInfor="";
-        QJsonObject json_all;
-        for(int i = 0; i< list.size();++i)
-        {
-            request.type="getDataSetInfor";
-            request.drive=list.at(i);
-            emit SendMsgToContainerManage(request);
-            while(dateSetInfor==""){
-            }
-            document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
-            QJsonArray array= document.array();
-            json_all.insert(list.at(i),array);
-        }
-        m_delegate->setDataSetInfor(json_all);
+        document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
+        QJsonArray array= document.array();
+        json_all.insert(list.at(i),array);
+    }
+    m_delegate->setDataSetInfor(json_all);
 }
 /*从容器管理器接收消息(曹)*/
 void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog response)
@@ -408,12 +409,12 @@ void ConfigDialog::publishTest()
              request.type="getValue";
              request.drive=topicModel->data(topicModel->index(i,1)).toString();
              request.index=topicModel->data(topicModel->index(i,3)).toString();
+             topicInfor[ui->index2->text().toInt()].getValueResult="";
              emit SendMsgToContainerManage(request);
              while(topicInfor[ui->index2->text().toInt()].getValueResult==""){
                   QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
              }
              QJsonDocument document=QJsonDocument::fromJson(topicInfor[ui->index2->text().toInt()].getValueResult.toLocal8Bit().data());
-             topicInfor[ui->index2->text().toInt()].getValueResult="";
               if(document.object().value("result").toString()=="err"){
               QMessageBox::warning(this,tr("提示"),tr("获取数据")+topicModel->data(topicModel->index(i,0)).toString()+"失败："
                                    +document.object().value("value").toString(),QMessageBox::Yes);

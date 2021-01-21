@@ -24,11 +24,11 @@ QString SourceManage::getDataSetInfor()
     for(int index=0;index<MaxDataSet;index++){
         if(dataSetInfor[index].name!=""){
             QJsonObject json;
-            json.insert("index",index);
+            json.insert("id",index);
             json.insert("name",dataSetInfor[index].name);
             json.insert("desc",dataSetInfor[index].desc);
             if(dataSetInfor[index].enable==false ||
-               dataSourceInfor[dataSetInfor[index].sourceIndex.toInt()].enable==false){
+               dataSourceInfor[dataSetInfor[index].sourceId.toInt()].enable==false){
                json.insert("enable","false");
             }
             else{
@@ -54,7 +54,7 @@ QString SourceManage::getValue(QString id)
     QJsonDocument document;
     QJsonObject json;
 
-    int sourceId=dataSetInfor[id.toInt()].sourceIndex.toInt();
+    int sourceId=dataSetInfor[id.toInt()].sourceId.toInt();
     /*判断索引范围*/
     if(id>MaxDataSet){
         json.insert("result","err");
@@ -277,7 +277,7 @@ void SourceManage::loadConfig()
         QJsonObject json=dataSetArray.at(index).toObject();
         dataSetInfor[index].name=json.value("name").toString();
         dataSetInfor[index].sourceName=json.value("sourceName").toString();
-        dataSetInfor[index].sourceIndex=json.value("sourceIndex").toString();
+        dataSetInfor[index].sourceId=json.value("sourceId").toString();
         dataSetInfor[index].enable=json.value("enable").toBool();
         dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();

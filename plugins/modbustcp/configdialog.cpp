@@ -114,7 +114,7 @@ void ConfigDialog::showDataSet()
 {
     dataSetModel->clear();
     QStringList list;
-    list<<tr("索引")<<tr("名称")<<tr("数据源名称")<<tr("数据源索引")<<tr("使能")<<tr("写使能")<<tr("说明")
+    list<<tr("索引")<<tr("名称")<<tr("数据源名称")<<tr("数据源标识")<<tr("使能")<<tr("写使能")<<tr("说明")
         <<tr("读主机地址")<<tr("读功能码")<<tr("读起始地址")<<tr("读长度")
         <<tr("写主机地址")<<tr("写功能码")<<tr("写起始地址")<<tr("写长度");
     dataSetModel->setHorizontalHeaderLabels(list);
@@ -132,7 +132,7 @@ void ConfigDialog::showDataSet()
             list<<new QStandardItem(QString::number(index))<<
                   new QStandardItem(dataSetInfor[index].name)<<
                   new QStandardItem(dataSetInfor[index].sourceName)<<
-                  new QStandardItem(dataSetInfor[index].sourceIndex)<<
+                  new QStandardItem(dataSetInfor[index].sourceId)<<
                   new QStandardItem(enable)<<
                   new QStandardItem(writeEnable)<<
                   new QStandardItem(dataSetInfor[index].desc)<<
@@ -204,7 +204,7 @@ void ConfigDialog::setDataSet()
     }
     dataSetInfor[index].name=ui->name2->text();
     dataSetInfor[index].sourceName=ui->dataSource->currentText();
-    dataSetInfor[index].sourceIndex=ui->dataSource->currentData().toString();
+    dataSetInfor[index].sourceId=ui->dataSource->currentData().toString();
     dataSetInfor[index].enable=ui->enable2->isChecked();
     dataSetInfor[index].writeEnable=ui->writeEnable->isChecked();
     dataSetInfor[index].desc=ui->desc2->text();
@@ -264,7 +264,7 @@ void ConfigDialog::clearDataSet()
     }
     dataSetInfor[index].name="";
     dataSetInfor[index].sourceName="";
-    dataSetInfor[index].sourceIndex="";
+    dataSetInfor[index].sourceId="";
     dataSetInfor[index].enable=true;
     dataSetInfor[index].writeEnable=false;
     dataSetInfor[index].desc="";
@@ -315,7 +315,7 @@ void ConfigDialog::fillDataSetForm()
     int index=ui->index2->value();
     if(dataSetInfor[index].name!=""){
     ui->name2->setText(dataSetInfor[index].name);
-    ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
+    ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceId.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
     ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
@@ -330,7 +330,7 @@ void ConfigDialog::fillDataSetForm()
     }
     else{
     ui->name2->setText(dataSetInfor[index].name);
-    ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceIndex.toInt()));
+    ui->dataSource->setCurrentIndex(ui->dataSource->findData(dataSetInfor[index].sourceId.toInt()));
     ui->enable2->setChecked(dataSetInfor[index].enable);
     ui->writeEnable->setChecked(dataSetInfor[index].writeEnable);
     ui->desc2->setText(dataSetInfor[index].desc);
@@ -476,7 +476,7 @@ void ConfigDialog::saveConfig()
             QJsonObject json;
             json.insert("name",dataSetInfor[index].name);
             json.insert("sourceName",dataSetInfor[index].sourceName);
-            json.insert("sourceIndex",dataSetInfor[index].sourceIndex);
+            json.insert("sourceId",dataSetInfor[index].sourceId);
             json.insert("enable",dataSetInfor[index].enable);
             json.insert("writeEnable",dataSetInfor[index].writeEnable);
             json.insert("desc",dataSetInfor[index].desc);
@@ -539,7 +539,7 @@ void ConfigDialog::loadConfig()
         QJsonObject json=dataSetArray.at(index).toObject();
         dataSetInfor[index].name=json.value("name").toString();
         dataSetInfor[index].sourceName=json.value("sourceName").toString();
-        dataSetInfor[index].sourceIndex=json.value("sourceIndex").toString();
+        dataSetInfor[index].sourceId=json.value("sourceId").toString();
         dataSetInfor[index].enable=json.value("enable").toBool();
         dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();

@@ -44,7 +44,7 @@ struct  DATASET
 {
     QString name;       //名称
     QString sourceName;     //数据源名称
-    QString sourceIndex;    //数据源索引
+    QString sourceId;    //数据源标识
     bool    writeEnable=false;    //写使能
     bool    enable=true;         //使能
     QString desc;       //备注

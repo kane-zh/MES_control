@@ -260,7 +260,7 @@ Item {
             }
 
             onSwipeLeft: {
-                if (index <= planetButtonView.count / 2) {
+                if (id <= planetButtonView.count / 2) {
                     rotationSpeedSlider.forceActiveFocus()
                 } else {
                     planetSizeSlider.forceActiveFocus()

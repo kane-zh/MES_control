@@ -31,14 +31,12 @@ QString httpRequest::get(QString address, QString port, QString name, QString pa
     }
     //请求收到的结果
     QByteArray responseByte = reply->readAll();
-    QString  dat=QString(responseByte);
-    if( dat.isNull() ){
-        delete  reply;
-        delete  m_pHttpMgr;
-        return "err";
-    }
     delete  reply;
     delete  m_pHttpMgr;
+    QString  dat=QString(responseByte);
+    if( dat.isNull() ){
+        return "err";
+    }
     return dat;
 }
 
@@ -65,14 +63,14 @@ QString httpRequest::post(QString address, QString port, QString name, QString p
     QString s=reply->errorString();
     if (reply->error() != QNetworkReply::NoError)
     {
-        delete qBuffer;
         delete  reply;
+        delete qBuffer;
         delete  m_pHttpMgr;
         return "err";
     }
     else{
-        delete qBuffer;
         delete  reply;
+        delete qBuffer;
         delete  m_pHttpMgr;
         return "ok";
     }

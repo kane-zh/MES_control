@@ -10,10 +10,10 @@ class ItemDelegate : public QItemDelegate
    Q_OBJECT
 public:
    explicit  ItemDelegate(QObject *parent=0);
-   QWidget   *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-   void setEditorData(QWidget *editor,const QModelIndex &index) const;
-   void setModelData(QWidget *editor,QAbstractItemModel *model,const QModelIndex &index) const;
-   void updateEditorGeometry(QWidget *editor,const QStyleOptionViewItem &option,const QModelIndex &index)const;
+   QWidget   *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &id) const;
+   void setEditorData(QWidget *editor,const QModelIndex &id) const;
+   void setModelData(QWidget *editor,QAbstractItemModel *model,const QModelIndex &id) const;
+   void updateEditorGeometry(QWidget *editor,const QStyleOptionViewItem &option,const QModelIndex &id)const;
 public slots:
    void setDriveInfor(QStringList value);
    void setDataSetInfor(QJsonObject value);

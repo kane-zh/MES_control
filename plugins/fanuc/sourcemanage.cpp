@@ -14,6 +14,7 @@ void SourceManage::showForm(QWidget *parent)
   ConfigDialog *m_config=new ConfigDialog(parent);
   m_config->exec();
   delete m_config;
+   m_config=nullptr;
   loadConfig();            //加载配置信息
 }
 /*获取数据集信息*/
@@ -23,11 +24,11 @@ QString SourceManage::getDataSetInfor()
     for(int index=0;index<MaxDataSet;index++){
         if(dataSetInfor[index].name!=""){
             QJsonObject json;
-            json.insert("index",index);
+            json.insert("id",index);
             json.insert("name",dataSetInfor[index].name);
             json.insert("desc",dataSetInfor[index].desc);
             if(dataSetInfor[index].enable==false ||
-               dataSourceInfor[dataSetInfor[index].sourceIndex.toInt()].enable==false){
+               dataSourceInfor[dataSetInfor[index].sourceId.toInt()].enable==false){
                json.insert("enable","false");
             }
             else{
@@ -53,7 +54,7 @@ QString SourceManage::getValue(QString id)
 {
     QJsonDocument document;
     QJsonObject json;
-    int sourceId=dataSetInfor[id.toInt()].sourceIndex.toInt();
+    int sourceId=dataSetInfor[id.toInt()].sourceId.toInt();
     /*判断索引范围*/
     if(id>MaxDataSet){
         json.insert("result","err");
@@ -247,7 +248,7 @@ void SourceManage::loadConfig()
         QJsonObject json=dataSetArray.at(index).toObject();
         dataSetInfor[index].name=json.value("name").toString();
         dataSetInfor[index].sourceName=json.value("sourceName").toString();
-        dataSetInfor[index].sourceIndex=json.value("sourceIndex").toString();
+        dataSetInfor[index].sourceId=json.value("sourceId").toString();
         dataSetInfor[index].enable=json.value("enable").toBool();
         dataSetInfor[index].writeEnable=json.value("writeEnable").toBool();
         dataSetInfor[index].desc=json.value("desc").toString();
@@ -263,12 +264,12 @@ void SourceManage::loadConfig()
 void SourceManage::connectToHost(int id)
 {
     ushort Flibhndl = 0;
-    short ret= cnc_allclibhndl3(dataSourceInfor[id].host.toUtf8().data(),dataSourceInfor[id].port.toUInt(), dataSourceInfor[id].timeout.toInt(), &Flibhndl);
+    short ret= cnc_allclibhndl3(dataSourceInfor[index].host.toUtf8().data(),dataSourceInfor[index].port.toUInt(), dataSourceInfor[index].timeout.toInt(), &Flibhndl);
     if (ret != EW_OK)
     {
-        dataSourceInfor[id].flibhndl="err";
+        dataSourceInfor[index].flibhndl="err";
     }
     else{
-        dataSourceInfor[id].flibhndl=QString::number(Flibhndl);
+        dataSourceInfor[index].flibhndl=QString::number(Flibhndl);
     }
 }

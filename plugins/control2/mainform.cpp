@@ -16,7 +16,7 @@ mainForm::~mainForm()
     delete ui;
 }
 
-void mainForm::receiveMsgFromManager(ResponseMetaData response)
+void mainForm::receiveMsgFromPluginManager(ResponseMetaData response)
 {
 
 }

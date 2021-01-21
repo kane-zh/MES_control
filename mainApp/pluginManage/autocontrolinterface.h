@@ -12,9 +12,9 @@ class AutoControlInterface
 public:
     virtual ~AutoControlInterface() {}
 signals:
-    virtual void sendMsgToManager(RequestMetaData request)=0;
+    virtual void sendMsgToPluginManager(RequestMetaData request)=0;
 public:
-    virtual void receiveMsgFromManager(ResponseMetaData response)=0;
+    virtual void receiveMsgFromPluginManager(ResponseMetaData response)=0;
     virtual void showForm(QWidget *parent = nullptr)=0;
 };
 

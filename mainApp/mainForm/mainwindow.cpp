@@ -56,14 +56,15 @@ void MainWindow::showPluginForm()
              list.at(i)->deleteLater();
          }
       }
+      QList<QObject*> list1=ui->centralWidget->children();
       QAction  *action= qobject_cast<QAction *>(sender());//获取信号发出者,并获取其ObjectName还原键值
       QPluginLoader *loader = PluginManage::getInstance().m_loaders.value(action->objectName()); //通过键值获取保存的插件loader
       auto obj = loader->instance();
       QString type=PluginManage::getInstance().m_types.value(action->objectName());
       if(type=="dataSource")
       {
-          DriveInterface *plugin = qobject_cast<DriveInterface *>(obj);
-          plugin->showForm(ui->centralWidget);
+            DriveInterface *plugin = qobject_cast<DriveInterface *>(obj);
+            plugin->showForm(ui->centralWidget);
       }
       else if(type=="container"){
             ContainerInterface *plugin = qobject_cast<ContainerInterface *>(obj);
@@ -74,10 +75,10 @@ void MainWindow::showPluginForm()
             plugin->showForm(ui->centralWidget);
       }
       else if(type=="debugControl"){
-               QWidget *widget = qobject_cast<QWidget*>(obj);
-               widget->setParent(ui->centralWidget);
-               ui->gridLayout->addWidget(widget);
-               widget->show();
+            QWidget *widget = qobject_cast<QWidget*>(obj);
+            widget->setParent(ui->centralWidget);
+            ui->gridLayout->addWidget(widget);
+            widget->show();
       }
 }
 

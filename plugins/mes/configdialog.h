@@ -28,9 +28,9 @@ public:
     ~ConfigDialog();
     void showEvent(QShowEvent *) ;
 signals:
-    void SendMsgToContainerManage(RequestMetaData_dialog request);
+    void SendMsgToPluginInterface(RequestMetaData_dialog request);
 public slots:
-    void receiveMsgFromContainerManage(ResponseMetaData_dialog response); //从ContainerManage接收信号
+    void receiveMsgFromPluginInterface(ResponseMetaData_dialog response); //从ContainerManage接收消息
 private slots:
     void showServerInfor();                         //显示服务器
     void setServerInfor();                          //设置指定的服务器配置

@@ -32,7 +32,8 @@ void ConfigDialog::showEvent(QShowEvent *)
 {
     RequestMetaData_dialog request;
     request.type="getDrivesInfor";
-    emit SendMsgToContainerManage(request);
+    driveInfor="";
+    emit SendMsgToPluginInterface(request);
     m_delegate=new ItemDelegate(this);
     serverModel=new QStandardItemModel(this);  //建立服务器显示model实例
     recordModel=new QStandardItemModel(this);     //建立记录信息显示model实例
@@ -56,25 +57,25 @@ void ConfigDialog::showEvent(QShowEvent *)
     for(QJsonObject::Iterator it=json.begin();it!=json.end();it++)
     {
       list.append(it.key());
+    }
+    m_delegate->setDriveInfor(list);
+    QJsonObject json_all;
+    for(int i = 0; i< list.size();++i)
+    {
+        request.type="getDataSetInfor";
+        request.drive=list.at(i);
+        dateSetInfor="";
+        emit SendMsgToPluginInterface(request);
+        while(dateSetInfor==""){
         }
-        m_delegate->setDriveInfor(list);
-        driveInfor="";
-        QJsonObject json_all;
-        for(int i = 0; i< list.size();++i)
-        {
-            request.type="getDataSetInfor";
-            request.drive=list.at(i);
-            emit SendMsgToContainerManage(request);
-            while(dateSetInfor==""){
-            }
-            document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
-            QJsonArray array= document.array();
-            json_all.insert(list.at(i),array);
-        }
-          m_delegate->setDataSetInfor(json_all);
+        document = QJsonDocument::fromJson(dateSetInfor.toUtf8());
+        QJsonArray array= document.array();
+        json_all.insert(list.at(i),array);
+    }
+     m_delegate->setDataSetInfor(json_all);
 }
-/*从容器管理器接收消息(曹)*/
-void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog response)
+/*从容器管理器接收消息(回调)*/
+void ConfigDialog::receiveMsgFromPluginInterface(ResponseMetaData_dialog response)
 {
     if(response.type=="getDrivesInfor"){
         driveInfor=response.value;
@@ -174,12 +175,12 @@ void ConfigDialog::setRecordInfor()
       return;
        }
     QJsonArray array;
-    for(int index=0;index<recordModel->rowCount();index++){
+    for(int id=0;id<recordModel->rowCount();id++){
             QJsonObject json;
-            json.insert("field",recordModel->data(recordModel->index(index,0)).toString());
-            json.insert("drive",recordModel->data(recordModel->index(index,1)).toString());
-            json.insert("dataName",recordModel->data(recordModel->index(index,2)).toString());
-            json.insert("dataIndex",recordModel->data(recordModel->index(index,3)).toString());
+            json.insert("field",recordModel->data(recordModel->index(id,0)).toString());
+            json.insert("drive",recordModel->data(recordModel->index(id,1)).toString());
+            json.insert("dataName",recordModel->data(recordModel->index(id,2)).toString());
+            json.insert("dataId",recordModel->data(recordModel->index(id,3)).toString());
             array.push_back(json);
     }
     QJsonDocument document;
@@ -295,7 +296,7 @@ void ConfigDialog::fillRecordInforForm()
             list<<new QStandardItem(value["field"].toString())<<
                   new QStandardItem(value["drive"].toString())<<
                   new QStandardItem(value["dataName"].toString())<<
-                  new QStandardItem(value["dataIndex"].toString());
+                  new QStandardItem(value["dataId"].toString());
             recordModel->appendRow(list);
         }
        }
@@ -388,24 +389,23 @@ void ConfigDialog::saveValueTest()
     for (int i = 0; i < array.count(); i++)
      {
         QJsonObject value = array.at(i).toObject();
-        if(value["dataIndex"].toString()!=""){
+        if(value["dataId"].toString()!=""){
             RequestMetaData_dialog data;
             data.type="getValue";
             data.drive=value["drive"].toString();
-            data.index=value["dataIndex"].toString();
-            emit SendMsgToContainerManage(data);
+            data.id=value["dataId"].toString();
+            getValueResult="";
+            emit SendMsgToPluginInterface(data);
             while(getValueResult==""){
             }
            QJsonDocument document_result = QJsonDocument::fromJson(getValueResult.toUtf8());
            if(document_result.object().value("result").toString()=="err"){
            QMessageBox::warning(this,tr("提示"),tr("获取数据")+recordModel->data(recordModel->index(i,0)).toString()+"失败："
                                 +document_result.object().value("value").toString(),QMessageBox::Yes);
-          }
+           }
           else{
               json.insert(value["field"].toString(),document_result.object().value("value").toString());
            }
-
-           getValueResult="";
          }
      }
     if(json.isEmpty()){

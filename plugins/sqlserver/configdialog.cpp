@@ -48,7 +48,8 @@ void ConfigDialog::showEvent(QShowEvent *)
     /*以下为获取驱动插件的信息*/
     RequestMetaData_dialog request;
     request.type="getDrivesInfor";
-    emit SendMsgToContainerManage(request);      //获取驱动信息
+    driveInfor="";
+    emit SendMsgToPluginInterface(request);      //获取驱动信息
     while(driveInfor==""){
      QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
@@ -60,13 +61,13 @@ void ConfigDialog::showEvent(QShowEvent *)
     {
       list.append(it.key());
     }
-    driveInfor="";
     QJsonObject json_all;
     for(int i = 0; i< list.size();++i)
     {
         request.type="getDataSetInfor";
         request.drive=list.at(i);
-        emit SendMsgToContainerManage(request);
+        dateSetInfor="";
+        emit SendMsgToPluginInterface(request);
         while(dateSetInfor==""){
             QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
         }
@@ -77,8 +78,8 @@ void ConfigDialog::showEvent(QShowEvent *)
       m_delegate->setDriveInfor(list);//将驱动插件的信息传递到代理
       m_delegate->setDataSetInfor(json_all);
 }
-/*从容器管理器接收消息(曹)*/
-void ConfigDialog::receiveMsgFromContainerManage(ResponseMetaData_dialog response)
+/*从容器管理器接收消息(回调)*/
+void ConfigDialog::receiveMsgFromPluginInterface(ResponseMetaData_dialog response)
 {
     if(response.type=="getDrivesInfor"){
         driveInfor=response.value;
@@ -138,7 +139,7 @@ void ConfigDialog::showRules()
                list<<new QStandardItem(value["field"].toString())<<
                      new QStandardItem(value["drive"].toString())<<
                      new QStandardItem(value["dataName"].toString())<<
-                     new QStandardItem(value["dataIndex"].toString());
+                     new QStandardItem(value["dataId"].toString());
                dataTableModel->appendRow(list);
             }
        }
@@ -238,12 +239,12 @@ void ConfigDialog::setDataTable()
       return;
        }
     QJsonArray array;
-    for(int index=0;index<dataTableModel->rowCount();index++){
+    for(int id=0;id<dataTableModel->rowCount();id++){
             QJsonObject json;
-            json.insert("field",dataTableModel->data(dataTableModel->index(index,0)).toString());
-            json.insert("drive",dataTableModel->data(dataTableModel->index(index,1)).toString());
-            json.insert("dataName",dataTableModel->data(dataTableModel->index(index,2)).toString());
-            json.insert("dataIndex",dataTableModel->data(dataTableModel->index(index,3)).toString());
+            json.insert("field",dataTableModel->data(dataTableModel->index(id,0)).toString());
+            json.insert("drive",dataTableModel->data(dataTableModel->index(id,1)).toString());
+            json.insert("dataName",dataTableModel->data(dataTableModel->index(id,2)).toString());
+            json.insert("dataId",dataTableModel->data(dataTableModel->index(id,3)).toString());
             array.push_back(json);
     }
     QJsonDocument document;
@@ -456,13 +457,13 @@ void ConfigDialog::saveValueTest()
             RequestMetaData_dialog request;
             request.type="getValue";
             request.drive=dataTableModel->data(dataTableModel->index(i,1)).toString();
-            request.index=dataTableModel->data(dataTableModel->index(i,3)).toString();
-            emit SendMsgToContainerManage(request);
+            request.id=dataTableModel->data(dataTableModel->index(i,3)).toString();
+            dataTableInfor[ui->index2->text().toInt()].getValueResult="";
+            emit SendMsgToPluginInterface(request);
             while(dataTableInfor[ui->index2->text().toInt()].getValueResult==""){
                  QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
             }
             QJsonDocument document=QJsonDocument::fromJson(dataTableInfor[ui->index2->text().toInt()].getValueResult.toUtf8());
-            dataTableInfor[ui->index2->text().toInt()].getValueResult="";
              if(document.object().value("result").toString()=="err"){
              QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataTableModel->data(dataTableModel->index(i,0)).toString()+"失败："
                                   +document.object().value("value").toString(),QMessageBox::Yes);

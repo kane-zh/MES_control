@@ -32,8 +32,8 @@ void mainForm::showEvent(QShowEvent *)
     fillTaskTypeBox();
 }
 
-/*从主程序框架接收消息*/
-void mainForm::receiveMsgFromManager(ResponseMetaData response)
+/*从插件管理器接收消息(回调)*/
+void mainForm::receiveMsgFromPluginManager(ResponseMetaData response)
 {
     /*判断消息是否发送给对话框界面的*/
     if(response.target=="dialog"){
@@ -51,7 +51,9 @@ void mainForm::receiveMsgFromManager(ResponseMetaData response)
          data.type="getValue";
       }
       data.value=response.value;
-      emit sendMsgToDialog(data);
+      if(m_config!=nullptr){
+      m_config->receiveMsgFromPluginInterface(data);
+      }
       return;
     }
     switch(response.type){
@@ -69,38 +71,38 @@ void mainForm::receiveMsgFromManager(ResponseMetaData response)
         break;
     }
 }
-/*处理从对话框接收的信号*/
-void mainForm::receiveMsgFromDialog(RequestMetaData_dialog request)
+/*处理对话框发送的信号*/
+void mainForm::dealSignalOfDialog(RequestMetaData_dialog request)
 {
-        RequestMetaData data;
-        data.from="dialog";
-        data.target="pluginManage";
-        data.drive=request.drive;
-        data.index=request.index;
-        data.value=request.value;
-        if(request.type=="getDrivesInfor"){
-           data.type=getDrivesInfor;
-        }
-        if(request.type=="getDataSetInfor"){
-           data.type=getDataSetInfor;
-        }
-        if(request.type=="setValue"){
-           data.type=setValue;
-        }
-        if(request.type=="getValue"){
-           data.type=getValue;
-        }
-        emit sendMsgToManager(data); //转发信息到插件管理器
+    RequestMetaData data;
+    data.from="dialog";
+    data.target="pluginManage";
+    data.drive=request.drive;
+    data.id=request.id;
+    data.value=request.value;
+    if(request.type=="getDrivesInfor"){
+       data.type=getDrivesInfor;
+    }
+    if(request.type=="getDataSetInfor"){
+       data.type=getDataSetInfor;
+    }
+    if(request.type=="setValue"){
+       data.type=setValue;
+    }
+    if(request.type=="getValue"){
+       data.type=getValue;
+    }
+    emit sendMsgToPluginManager(data); //发送信号到插件管理器
 }
 
 /*窗体显示*/
 void mainForm::showDebugForm()
 {
-    ConfigDialog *m_config=new ConfigDialog(this);
-    connect(m_config,SIGNAL(SendMsgToContainerManage(RequestMetaData_dialog)),this,SLOT(receiveMsgFromDialog(RequestMetaData_dialog)));
-    connect(this,SIGNAL(sendMsgToDialog(ResponseMetaData_dialog)),m_config,SLOT(receiveMsgFromContainerManage(ResponseMetaData_dialog)));
+    m_config=new ConfigDialog(this);
+    connect(m_config,SIGNAL(SendMsgToPluginInterface(RequestMetaData_dialog)),this,SLOT(dealSignalOfDialog(RequestMetaData_dialog)));
     m_config->exec();
-    delete  m_config;
+    delete m_config;
+    m_config=nullptr;
     loadConfig();
 }
 void mainForm::autoReport()
@@ -327,9 +329,7 @@ void mainForm::showTaskItem()
 {
     taskModel->clear();
     QStringList list;
-    list<<tr("产品类型")<<tr("产品")<<tr("批次")<<tr("状态")<<tr("数量")<<tr("完成数")
-            <<tr("工位1")<<tr("工位1完成数")<<tr("工位2")<<tr("工位2完成数")<<tr("工位3")<<tr("工位3完成数")
-            <<tr("工位4")<<tr("工位4完成数")<<tr("工位5")<<tr("工位5完成数")<<tr("工位6")<<tr("工位6完成数");
+    list<<tr("产品类型")<<tr("产品")<<tr("批次")<<tr("状态")<<tr("数量")<<tr("完成数");
     taskModel->setHorizontalHeaderLabels(list);
 
     QString result;
@@ -353,28 +353,16 @@ void mainForm::showTaskItem()
          QString text=result_array.at(i).toObject().value("name").toString()+"("+result_array.at(i).toObject().value("code").toString()+")";
          QString data=QString::number(result_array.at(i).toObject().value("id").toInt());
          QList<QStandardItem *>  list;
-         list<<new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("productType_name").toString()+"("
-                                 +result_array.at(i).toObject().value("salesOrderItem").toObject().value("productType_code").toString()+")")<<
-               new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_name").toString()+"("
-                                 +result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_code").toString()+")")<<
+         list<<new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("productType_code").toString()+"("
+                                 +result_array.at(i).toObject().value("salesOrderItem").toObject().value("productType_name").toString()+")")<<
+               new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_code").toString()+"("
+                                 +result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_name").toString()+")")<<
                 new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("batch").toString())<<
                 new QStandardItem(result_array.at(i).toObject().value("state").toString())<<
                 new QStandardItem(QString::number(result_array.at(i).toObject().value("sum").toInt()))<<
                 new QStandardItem(QString::number(result_array.at(i).toObject().value("completed").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute1").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute2").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute3").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute4").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute5").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute6").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute7").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute8").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute9").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute10").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute11").toInt()))<<
-                new QStandardItem(QString::number(result_array.at(i).toObject().value("attribute12").toInt()))<<
                 new QStandardItem(QString::number(result_array.at(i).toObject().value("id").toInt()))<<
-               new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_id").toString());
+                new QStandardItem(result_array.at(i).toObject().value("salesOrderItem").toObject().value("product_id").toString());
 
          taskModel->appendRow(list);
       }
@@ -382,19 +370,19 @@ void mainForm::showTaskItem()
 
 }
 
-QString mainForm::readFromDrive(QString index){
+QString mainForm::readFromDrive(QString id){
     RequestMetaData data;
     data.type=getValue;
     data.from="1";
     data.target="manage";
     data.drive="FNAUC";
-    data.index=index;
-    emit sendMsgToManager(data);
+    data.id=id;
+    getValueResult="";
+    emit sendMsgToPluginManager(data);//发送信号到插件管理器
     while(getValueResult==""){
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
-    getValueResult="";
     if(document.object().value("result").toString()!="ok"){
         return "err";
     }
@@ -410,21 +398,21 @@ QString mainForm::readFromDrive(QString index){
         }
     }
 }
-QString mainForm::writeToDrive(QString index,QString value){
+QString mainForm::writeToDrive(QString id,QString value){
     RequestMetaData data;
     data.type=setValue;
     data.from="1";
     data.target="manage";
     data.drive="FANUC";
-    data.index=index;
+    data.id=id;
     data.value=value;
-    emit sendMsgToManager(data);
+    getValueResult="";
+    emit sendMsgToPluginManager(data);//发送信号到插件管理器
     while(getValueResult==""){
          QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
     }
     QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
     QJsonObject object=document.object();
-    getValueResult="";
     if(object.value("result")=="err"){
         return "err";
     }

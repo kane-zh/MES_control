@@ -49,13 +49,9 @@ QString httpRequest::login(QString address, QString name, QString passwd)
         delete  m_pHttpMgr;
         QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
         if( jsonDocument.isNull() ){
-            delete  reply;
-            delete  m_pHttpMgr;
             return "err";
         }
         QJsonObject jsonObject = jsonDocument.object();
-        delete  reply;
-        delete  m_pHttpMgr;
         return "Jwt "+jsonObject.value("token").toString();
 }
 
@@ -88,16 +84,11 @@ QString httpRequest::update(QString address, QString token, QByteArray value)
     QByteArray responseByte = reply->readAll();
     delete  reply;
     delete  m_pHttpMgr;
+    delete  qBuffer;
     QJsonDocument jsonDocument = QJsonDocument::fromJson(QString(responseByte).toLocal8Bit().data());
     if( jsonDocument.isNull() ){
-        delete  reply;
-        delete  m_pHttpMgr;
-        delete  qBuffer;
         return "err";
     }
     QJsonObject jsonObject = jsonDocument.object();
-    delete  reply;
-    delete  m_pHttpMgr;
-    delete  qBuffer;
     return jsonObject.value("result").toString();
 }

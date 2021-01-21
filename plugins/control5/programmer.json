@@ -1,0 +1,10 @@
+{
+    "author" : "kane",
+    "date" : "2020/05/20",
+    "name" : "control5",
+    "version" : "1.0.0",
+    "type" : "debugControl",
+    "title":"自动粘棒中控",
+    "des" : "高测永祥项目",
+    "dependencies" : []
+}
