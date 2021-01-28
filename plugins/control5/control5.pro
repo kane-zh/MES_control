@@ -16,12 +16,14 @@ FORMS += \
     mainform.ui
 
 HEADERS += \
+    ItemDelegate.h \
     configdialog.h \
     httprequest.h \
     mainform.h \
     metaData.h
 
 SOURCES += \
+    ItemDelegate.cpp \
     configdialog.cpp \
     httprequest.cpp \
     mainform.cpp

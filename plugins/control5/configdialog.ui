@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>331</width>
+    <width>807</width>
     <height>624</height>
    </rect>
   </property>
@@ -14,124 +14,35 @@
    <cursorShape>ArrowCursor</cursorShape>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>数据点配置界面</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/mysql.png</normaloff>:/mysql.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="1">
-    <widget class="QTabWidget" name="tabWidget">
-     <property name="tabPosition">
-      <enum>QTabWidget::North</enum>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="save">
+     <property name="text">
+      <string>保存</string>
      </property>
-     <property name="currentIndex">
-      <number>0</number>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QTableView" name="tableView"/>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="read">
+     <property name="text">
+      <string>读测试</string>
      </property>
-     <property name="tabBarAutoHide">
-      <bool>true</bool>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>PushButton</string>
      </property>
-     <widget class="QWidget" name="Tab1">
-      <attribute name="title">
-       <string>服务器配置</string>
-      </attribute>
-      <layout class="QGridLayout" name="gridLayout_7" rowstretch="9,0" columnstretch="3">
-       <item row="0" column="0">
-        <widget class="QWidget" name="widget_4" native="true">
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="desc1"/>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="name1"/>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="password"/>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="Label_4">
-            <property name="text">
-             <string>备注:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="Label_6">
-            <property name="text">
-             <string>密码:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="Label_5">
-            <property name="text">
-             <string>用户名:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="Label_3">
-            <property name="text">
-             <string>使能:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="username"/>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="Label_7">
-            <property name="text">
-             <string>地址:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="Label_2">
-            <property name="text">
-             <string>名称:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="enable1">
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="address"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QWidget" name="widget_6" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QPushButton" name="connectTest">
-            <property name="text">
-             <string>连接测试</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="clearServerInfor">
-            <property name="text">
-             <string>清除数据</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="saveServerInfor">
-            <property name="text">
-             <string>保存</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
    </item>
   </layout>

@@ -132,28 +132,29 @@ QString SourceManage::getValue(QString id)
     dataSourceInfor[sourceId].m_mutex.lock();
     UA_Variant value;
     UA_Variant_init(&value);
+    QString identifierType=dataSetInfor[id.toInt()].uaNode.identifierType;
     QString namespaceIndex=dataSetInfor[id.toInt()].uaNode.namespaceIndex;
     QString identifier=dataSetInfor[id.toInt()].uaNode.identifier;
      /*根据数据集节点类型，构建不同的节点信息*/
-    if(dataSetInfor[id.toInt()].uaNode.identifierType=="String"){
+    if(identifierType=="String"){
        const UA_NodeId nodeId = UA_NODEID_STRING(namespaceIndex.toInt(),identifier.toLocal8Bit().data());
        retval = UA_Client_readValueAttribute(dataSourceInfor[sourceId].uaInfor.client, nodeId, &value);
     }
-    else if(dataSetInfor[id.toInt()].uaNode.identifierType=="Numeric"){
+    else if(identifierType=="Numeric"){
        const UA_NodeId nodeId =UA_NODEID_NUMERIC(namespaceIndex.toInt(),identifier.toLong());
        retval = UA_Client_readValueAttribute(dataSourceInfor[sourceId].uaInfor.client, nodeId, &value);
     }
-    else if(dataSetInfor[id.toInt()].uaNode.identifierType=="ByteString"){
+    else if(identifierType=="ByteString"){
        const UA_NodeId nodeId =UA_NODEID_BYTESTRING(namespaceIndex.toInt(),identifier.toLocal8Bit().data());
        retval = UA_Client_readValueAttribute(dataSourceInfor[sourceId].uaInfor.client, nodeId, &value);
     }
-    else if(dataSetInfor[id.toInt()].uaNode.identifierType=="String_Alloc"){
+    else if(identifierType=="String_Alloc"){
        const UA_NodeId nodeId =UA_NODEID_STRING_ALLOC(namespaceIndex.toInt(),identifier.toLocal8Bit().data());
        retval = UA_Client_readValueAttribute(dataSourceInfor[sourceId].uaInfor.client, nodeId, &value);
     }
     else{
         json.insert("result","err");
-        json.insert("value","不支持的节点类型");
+        json.insert("value","不支持的节点标识类型");
         document.setObject(json);
         QByteArray byte_array = document.toJson(QJsonDocument::Compact);
         QString json_str(byte_array);

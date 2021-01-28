@@ -107,6 +107,7 @@ void ContainerManage::showForm(QWidget *parent)
 void ContainerManage::autoSave(int id)
 {
     int index=id;
+    QTime start=QTime::currentTime();
     QJsonDocument document = QJsonDocument::fromJson(dataTableInfor[index].rules.toUtf8());
     QJsonArray array= document.array();
     QString  fields="";
@@ -137,10 +138,10 @@ void ContainerManage::autoSave(int id)
                  values.append(document1.object().value("value").toString());
                  values.append("'");
                  values.append(",");
-//                qDebug()<<QTime::currentTime()<<QString::number(index);
+//                 qDebug()<<QTime::currentTime();
              }
          }
-     }
+    }
     if(values.isEmpty()){
         qDebug()<<"未成功获取到有效可写数据!!!";
     }
@@ -175,7 +176,7 @@ void ContainerManage::autoSave(int id)
         QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
         query.exec(cmd);
         if(query.lastError().type()==QSqlError::NoError){
-            qDebug()<<"写数据成功"<<QTime::currentTime();
+           qDebug()<<"写数据成功"<<QTime::currentTime();
         }
         else{
             qDebug()<<"写数据失败"+ query.lastError().text();

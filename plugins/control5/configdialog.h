@@ -9,9 +9,12 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QCborError>
 #include <QDir>
+#include <QMenu>
+#include <QtConcurrent>
+#include "ItemDelegate.h"
 #include "metaData.h"
-#include "httprequest.h"
 #include "QDesktopWidget"
 
 namespace Ui {
@@ -26,25 +29,28 @@ public:
     explicit ConfigDialog(QWidget *parent = nullptr);
     ~ConfigDialog();
     void showEvent(QShowEvent *) ;
+    void contextMenuEvent(QContextMenuEvent* e);
 signals:
     void SendMsgToPluginInterface(RequestMetaData_dialog request);
 public slots:
     void receiveMsgFromPluginInterface(ResponseMetaData_dialog response); //从ContainerManage接收消息
+    void autosave();
 private slots:
-    void setServerInfor();                          //设置指定的服务器配置
-    void clearServerInfor();                        //清除指定的服务器配置
-    void fillServerInforForm();                     //填充服务器表单
-    void connectTest();                          //连接测试
-    void saveValueTest();                        //保存数值测试
-    void saveConfig();                             //保存配置信息
-    void loadConfig();                            //加载配置信息
+    void readTest();      //读数据测试
+    void createActions();//创建右键菜单
+    void RemoveRow();//移除选中行
+    void AddRow();   //在选中行下添加行
+    void saveConfig();                           //保存配置信息
+    void loadConfig();                           //加载配置信息
 private:
-    SERVERINFOR  serverInfor;
-    RECORDINFOR  recordInfor;
+    QStandardItemModel    *dataModel;
+    ItemDelegate *m_delegate;
+    QMenu                 *menu;
+    QAction               *add_row;
+    QAction               *del_row;
     QString  driveInfor="";
     QString  dateSetInfor="";
     QString  getValueResult="";
-    httpRequest *request;
     Ui::ConfigDialog *ui;
 };
 

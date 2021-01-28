@@ -12,8 +12,8 @@ SUBDIRS += \
         influxdb\   #influxdb数据库
         mes\        #慧智通MES
 #        mqtt_pub
-        control2\   #3D模型演示(测试)
-        control3\   #发那科生产监控(丰光精密)
+#        control2\   #3D模型演示(测试)
+#        control3\   #发那科生产监控(丰光精密)
 }
 
 

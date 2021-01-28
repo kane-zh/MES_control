@@ -479,8 +479,6 @@ void ConfigDialog::getValueTest()
     QString identifierType=ui->identifierType->currentText();
     QString namespaceIndex=ui->namespaceIndex->text();
     QString identifier=ui->identifier->text();
-    const UA_NodeId nodeId = UA_NODEID_STRING(namespaceIndex.toInt(),identifier.toLocal8Bit().data());
-    retval = UA_Client_readValueAttribute(client, nodeId, &value);
     /*根据数据集节点类型，构建不同的节点信息*/
     if(identifierType=="String"){
        const UA_NodeId nodeId = UA_NODEID_STRING(namespaceIndex.toInt(),identifier.toLocal8Bit().data());
@@ -499,7 +497,7 @@ void ConfigDialog::getValueTest()
        retval = UA_Client_readValueAttribute(client, nodeId, &value);
      }
     else{
-      QMessageBox::warning(this,tr("提示"),tr("不支持的节点类型"),QMessageBox::Yes);
+      QMessageBox::warning(this,tr("提示"),tr("不支持的节点标识类型"),QMessageBox::Yes);
       return;
      }
     if(retval != UA_STATUSCODE_GOOD) {
@@ -512,6 +510,7 @@ void ConfigDialog::getValueTest()
     UA_Client_delete(client);
     QMessageBox::information(this,tr("提示"),tr("读取节点数值成功,值为:")+result,QMessageBox::Yes);
 }
+
 /*保存信息*/
 void ConfigDialog::saveConfig()
 {
