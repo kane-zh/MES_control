@@ -7,30 +7,85 @@
     <x>0</x>
     <y>0</y>
     <width>918</width>
-    <height>603</height>
+    <height>606</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="0" column="1">
     <widget class="QTabWidget" name="tabWidget">
      <property name="font">
       <font>
        <pointsize>20</pointsize>
       </font>
      </property>
+     <property name="tabPosition">
+      <enum>QTabWidget::North</enum>
+     </property>
+     <property name="tabShape">
+      <enum>QTabWidget::Rounded</enum>
+     </property>
      <property name="currentIndex">
       <number>0</number>
+     </property>
+     <property name="elideMode">
+      <enum>Qt::ElideNone</enum>
      </property>
      <property name="tabsClosable">
       <bool>false</bool>
      </property>
      <property name="movable">
-      <bool>true</bool>
+      <bool>false</bool>
+     </property>
+     <property name="tabBarAutoHide">
+      <bool>false</bool>
      </property>
      <widget class="QWidget" name="tab1">
+      <attribute name="title">
+       <string>总控界面</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>20</y>
+         <width>361</width>
+         <height>42</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>操作模式:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="comboBox_2">
+          <item>
+           <property name="text">
+            <string>单入库模式</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>单出库模式</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>混合出入库</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab2">
       <attribute name="title">
        <string>配置界面</string>
       </attribute>
@@ -47,30 +102,51 @@
         <string>数据点配置</string>
        </property>
       </widget>
-     </widget>
-     <widget class="QWidget" name="tab2">
-      <attribute name="title">
-       <string>原料入库</string>
-      </attribute>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>270</x>
+         <y>110</y>
+         <width>241</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab3">
       <attribute name="title">
-       <string>产品入库</string>
+       <string>原料入库</string>
       </attribute>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>201</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>人工检测</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab4">
-      <attribute name="title">
-       <string>产品出库</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tab">
       <attribute name="title">
        <string>原料出库</string>
       </attribute>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tab5">
       <attribute name="title">
-       <string>总控界面</string>
+       <string>产品入库</string>
+      </attribute>
+     </widget>
+     <widget class="QWidget" name="tab6">
+      <attribute name="title">
+       <string>产品出库</string>
       </attribute>
      </widget>
     </widget>

@@ -26,27 +26,27 @@ void ConfigDialog::autosave(){
     while (1) {
         for (int i = 0; i < dataModel->rowCount(); i++)
          {
-                 RequestMetaData_dialog request;
-                 request.type="getValue";
-                 request.drive=dataModel->data(dataModel->index(i,1)).toString();
-                 request.id=dataModel->data(dataModel->index(i,3)).toString();
-                 getValueResult="";
-                 emit SendMsgToPluginInterface(request);
-                 while(getValueResult==""){
-                      QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-                 }
-                 QJsonDocument document=QJsonDocument::fromJson(getValueResult.toUtf8());
-                 QJsonObject object=document.object();
-                 if(document.object().value("result").toString()=="err"){
-                    double count=dataModel->data(dataModel->index(i,5)).toDouble();
-                    count++;
-                    dataModel->setData(dataModel->index(i,5),QString::number(count));
-                  }
-                 double count1=dataModel->data(dataModel->index(i,5)).toDouble();
-                 double t1=(float)((count1*100)/num);
-                 dataModel->setData(dataModel->index(i,6),QString::number(t1));
-                 dataModel->setData(dataModel->index(i,4),document.object().value("value").toString());
-           }
+             RequestMetaData_dialog request;
+             request.type="getValue";
+             request.drive=dataModel->data(dataModel->index(i,1)).toString();
+             request.id=dataModel->data(dataModel->index(i,3)).toString();
+             getValueResult="";
+             emit SendMsgToPluginInterface(request);
+             while(getValueResult==""){
+                  QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+             }
+             QJsonDocument document=QJsonDocument::fromJson(getValueResult.toUtf8());
+             QJsonObject object=document.object();
+             if(document.object().value("result").toString()=="err"){
+                double count=dataModel->data(dataModel->index(i,5)).toDouble();
+                count++;
+                dataModel->setData(dataModel->index(i,5),QString::number(count));
+              }
+             double count1=dataModel->data(dataModel->index(i,5)).toDouble();
+             double t1=(float)((count1*100)/num);
+             dataModel->setData(dataModel->index(i,6),QString::number(t1));
+             dataModel->setData(dataModel->index(i,4),document.object().value("value").toString());
+        }
         num++;
         QThread::msleep(10);
         qDebug()<<QTime::currentTime()<<num;

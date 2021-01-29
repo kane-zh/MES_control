@@ -8,7 +8,6 @@ mainForm::mainForm(QWidget *parent) :
     ui->setupUi(this);
     loadConfig();
     connect(ui->showForm,SIGNAL(clicked()),this,SLOT(showDebugForm()));
-
 }
 
 mainForm::~mainForm()
@@ -19,9 +18,10 @@ mainForm::~mainForm()
 
 void mainForm::showEvent(QShowEvent *)
 {
-
+    m_time=new QTimer(this);
+    connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
+    m_time->start(200);
 }
-
 /*从插件管理器接收消息(回调)*/
 void mainForm::receiveMsgFromPluginManager(ResponseMetaData response)
 {
@@ -96,27 +96,62 @@ void mainForm::showDebugForm()
     loadConfig();
 }
 
-
+/*时间定时器超时(槽)*/
+void mainForm::timeOut()
+{
+    if(getValueEnable==true){
+       getValueEnable=false;
+       QtConcurrent::run(this,&mainForm::autoSave);
+    }
+    ui->label->setText(GlobalVariable::instance()->getValue("1"));
+}
+void mainForm::autoSave()
+{
+ for (int i = 0; i <1000; i++)
+  {
+     if(m_datapoint[i].dataId!=""){
+         RequestMetaData data;
+         data.type=getValue;
+         data.from=m_datapoint[i].name;
+         data.target="manage";
+         data.drive=m_datapoint[i].drive;
+         data.id=m_datapoint[i].dataId;
+         getValueResult="";
+         emit sendMsgToPluginManager(data);
+         while(getValueResult==""){
+              QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+         }
+         QJsonDocument document=QJsonDocument::fromJson(getValueResult.toLocal8Bit().data());
+          if(document.object().value("result").toString()=="err"){
+            m_datapoint[i].errCount++;
+         }
+         else{
+           GlobalVariable::instance()->setValue(m_datapoint[i].name,document.object().value("value").toString());
+         }
+       }
+   }
+    getValueEnable=true;
+}
 /*加载信息*/
 void mainForm::loadConfig()
 {
-//    QDir path = QDir(qApp->applicationDirPath());
-//    QString fileName=path.path()+"/plugins/config/control3.ini";
-//    QFile file(fileName);
-//   if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
-//       file.open( QIODevice::ReadWrite | QIODevice::Text );
-//      }
-//    QByteArray data=file.readAll();
-//    file.close();
-//    QJsonDocument doc=QJsonDocument::fromJson(data);
-//    QJsonObject server=doc.object().value("server").toObject();
-//    QJsonObject record=doc.object().value("record").toObject();
-//    serverInfor.name=server.value("name").toString();
-//    serverInfor.enable=server.value("enable").toBool();
-//    serverInfor.desc=server.value("desc").toString();
-//    serverInfor.username=server.value("username").toString();
-//    serverInfor.password=server.value("password").toString();
-//    serverInfor.address=server.value("address").toString();
-
+    QDir path = QDir(qApp->applicationDirPath());
+    QString fileName=path.path()+"/plugins/config/control5.ini";
+    QFile file(fileName);
+   if (!file.open(QFile::ReadOnly)) {   //如果文件不存在则新建文件
+       file.open( QIODevice::ReadWrite | QIODevice::Text );
+      }
+   QByteArray data=file.readAll();
+   file.close();
+    QJsonDocument document = QJsonDocument::fromJson(data);
+    QJsonArray array= document.array();
+    for (int i = 0; i < array.count(); i++)
+     {
+        QJsonObject json = array.at(i).toObject();
+        m_datapoint[i].name=json.value("name").toString();
+        m_datapoint[i].drive=json.value("drive").toString();
+        m_datapoint[i].dataName=json.value("dataName").toBool();
+        m_datapoint[i].dataId=json.value("dataId").toString();
+     }
 }
 

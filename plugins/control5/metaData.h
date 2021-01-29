@@ -14,13 +14,13 @@ struct ResponseMetaData_dialog
     QString type;
     QString value;
 };
-/*记录信息*/
-struct  RECORDINFOR
+/*数据点信息*/
+struct  DATAPOINT
 {
-    QString type;
+    QString name;
     QString drive;
-    QString id;
-    QString value;
-
- };
+    QString dataName;
+    QString dataId;
+    long    errCount;
+};
 #endif // METADATA_H

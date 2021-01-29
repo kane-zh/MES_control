@@ -7,9 +7,11 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QtConcurrent>
+#include <QHash>
 #include "httprequest.h"
 #include "configdialog.h"
 #include "metaData.h"
+#include "globalvariable.h"
 #include "../../mainApp/pluginManage/debugcontrolinterface.h"
 namespace Ui {
 class mainForm;
@@ -32,11 +34,16 @@ private slots:
     void dealSignalOfDialog(RequestMetaData_dialog request) ;
     void showDebugForm();
     void loadConfig();
+    void timeOut();
+    void autoSave();
 private:
     QString   driveInfor="";
     QString   dateSetInfor="";
     QString   getValueResult="";
+    bool   getValueEnable=true;
     ConfigDialog *m_config=nullptr;
+    DATAPOINT m_datapoint[1000];
+    QTimer *m_time;
 private:
     Ui::mainForm *ui;
 

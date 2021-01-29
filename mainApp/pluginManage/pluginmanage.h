@@ -30,6 +30,7 @@ public:
 private slots:
      void dealSignaleOfPlugin(RequestMetaData request); //处理插件发出的信号
 private:
+    void dd(RequestMetaData request,ContainerInterface *plugin);
     void scan(const QString &filepath);             //扫描JSON文件中的插件元数据
     bool check(const QString &filepath);            //插件依赖检测
     void loadPlugin(const QString &filepath);       //加载其中某个插件
@@ -46,6 +47,5 @@ public:
     QHash<QString, QVariantList>m_dependencies; //插件路径--插件额外依赖的其他插件
     QHash<QString, QPluginLoader *>m_loaders; //插件路径--QPluginLoader实例
     QHash<QString, QString >m_types; //插件路径--插件类型
-    void dd(RequestMetaData request,ContainerInterface *plugin);
 };
 
