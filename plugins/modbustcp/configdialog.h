@@ -13,6 +13,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QTime>
+#include <QThread>
 #include "QDesktopWidget"
 #include "metadata.h"
 namespace Ui {

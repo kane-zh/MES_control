@@ -260,7 +260,7 @@ QString ContainerManage::readFromDrive(QString id,QString  reportId){
     data.type=getValue;
     data.from=reportId;
     data.target="manage";
-    data.drive="FNAUC";
+    data.drive="FANUC";
     data.id=id;
     reportInfor[reportId.toInt()].getValueResult="";
     emit sendMsgToPluginManager(data);//发送信号到插件管理器

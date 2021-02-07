@@ -11,48 +11,12 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     this->resize(deskRect.width()/3,deskRect.height()/1.2);
     connect(ui->save,SIGNAL(clicked()),this,SLOT(saveConfig()));
     connect(ui->read,SIGNAL(clicked()),this,SLOT(readTest()));
-    connect(ui->pushButton,SIGNAL(clicked()),this,SLOT(autosave()));
 }
 
 ConfigDialog::~ConfigDialog()
 {
     delete ui;
 }
-void ConfigDialog::autosave(){
-    double num=0;
-    QStringList list;
-    list<<tr("数据名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引")<<tr("值")<<tr("值")<<tr("值");
-    dataModel->setHorizontalHeaderLabels(list);
-    while (1) {
-        for (int i = 0; i < dataModel->rowCount(); i++)
-         {
-             RequestMetaData_dialog request;
-             request.type="getValue";
-             request.drive=dataModel->data(dataModel->index(i,1)).toString();
-             request.id=dataModel->data(dataModel->index(i,3)).toString();
-             getValueResult="";
-             emit SendMsgToPluginInterface(request);
-             while(getValueResult==""){
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-             }
-             QJsonDocument document=QJsonDocument::fromJson(getValueResult.toUtf8());
-             QJsonObject object=document.object();
-             if(document.object().value("result").toString()=="err"){
-                double count=dataModel->data(dataModel->index(i,5)).toDouble();
-                count++;
-                dataModel->setData(dataModel->index(i,5),QString::number(count));
-              }
-             double count1=dataModel->data(dataModel->index(i,5)).toDouble();
-             double t1=(float)((count1*100)/num);
-             dataModel->setData(dataModel->index(i,6),QString::number(t1));
-             dataModel->setData(dataModel->index(i,4),document.object().value("value").toString());
-        }
-        num++;
-        QThread::msleep(10);
-        qDebug()<<QTime::currentTime()<<num;
-    }
-}
-
 /*窗体显示事件*/
 void ConfigDialog::showEvent(QShowEvent *)
 {
@@ -117,7 +81,7 @@ void ConfigDialog::createActions()
     dataModel->clear();
     loadConfig();          //加载配置
     QStringList list;
-    list<<tr("数据名")<<tr("驱动")<<tr("数据集")<<tr("数据集索引")<<tr("值");
+    list<<tr("数据点名称")<<tr("驱动")<<tr("数据集")<<tr("数据集索引")<<tr("描述")<<tr("读取值");
     dataModel->setHorizontalHeaderLabels(list);
     menu=new QMenu(this);
     add_row=new QAction(tr("添加行"),this);
@@ -156,7 +120,7 @@ void ConfigDialog::readTest()
               QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataModel->data(dataModel->index(i,0)).toString()+"失败："
                                    +document.object().value("value").toString(),QMessageBox::Yes);
                }
-             dataModel->setData(dataModel->index(i,4),document.object().value("value").toString());
+             dataModel->setData(dataModel->index(i,5),document.object().value("value").toString());
        }
      QMessageBox::information(this,tr("提示"),tr("读数据完成"),QMessageBox::Ok);
 }
@@ -166,12 +130,13 @@ void ConfigDialog::saveConfig()
 {
     QJsonArray dataArray;
     for(int index=0;index<dataModel->rowCount();index++){
-            QJsonObject json;
-            json.insert("name",dataModel->takeItem(index,0)->text());
-            json.insert("drive",dataModel->takeItem(index,1)->text());
-            json.insert("dataName",dataModel->takeItem(index,2)->text());
-            json.insert("dataId",dataModel->takeItem(index,3)->text());
-            dataArray.push_back(json);
+        QJsonObject json;
+        json.insert("name",dataModel->data(dataModel->index(index,0)).toString());
+        json.insert("drive",dataModel->data(dataModel->index(index,1)).toString());
+        json.insert("dataName",dataModel->data(dataModel->index(index,2)).toString());
+        json.insert("dataId",dataModel->data(dataModel->index(index,3)).toString());
+        json.insert("desc",dataModel->data(dataModel->index(index,4)).toString());
+        dataArray.push_back(json);
     }
     QJsonDocument document;
     document.setArray(dataArray);
@@ -206,7 +171,8 @@ void ConfigDialog::loadConfig()
         list<<new QStandardItem(value["name"].toString())<<
               new QStandardItem(value["drive"].toString())<<
               new QStandardItem(value["dataName"].toString())<<
-              new QStandardItem(value["dataId"].toString());
+              new QStandardItem(value["dataId"].toString())<<
+              new QStandardItem(value["desc"].toString());;
         dataModel->appendRow(list);
      }
 }

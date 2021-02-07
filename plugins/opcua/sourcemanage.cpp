@@ -1,5 +1,6 @@
 #include "sourcemanage.h"
 #include <QTime>
+#include <QThread>
 SourceManage::SourceManage()
 {
    loadConfig();
@@ -98,6 +99,7 @@ QString SourceManage::getValue(QString id)
         QString json_str(document.toJson(QJsonDocument::Compact));
         return json_str;
     }
+     dataSourceInfor[sourceId].m_mutex.lock();
      /*判断数据源连接状态(如果已经连接)*/
     if(dataSourceInfor[sourceId].uaInfor.client!=nullptr){
         UA_SecureChannelState channelState;
@@ -123,13 +125,13 @@ QString SourceManage::getValue(QString id)
          json.insert("value","连接数据集的服务器失败");
          document.setObject(json);
          QString json_str(document.toJson(QJsonDocument::Compact));
+         dataSourceInfor[sourceId].m_mutex.unlock();
          return json_str;
         }
         else {
          dataSourceInfor[sourceId].uaInfor.client=client;
         }
     }
-    dataSourceInfor[sourceId].m_mutex.lock();
     UA_Variant value;
     UA_Variant_init(&value);
     QString identifierType=dataSetInfor[id.toInt()].uaNode.identifierType;
@@ -158,6 +160,7 @@ QString SourceManage::getValue(QString id)
         document.setObject(json);
         QByteArray byte_array = document.toJson(QJsonDocument::Compact);
         QString json_str(byte_array);
+        dataSourceInfor[sourceId].m_mutex.unlock();
         return json_str;
     }
      dataSourceInfor[sourceId].m_mutex.unlock();

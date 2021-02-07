@@ -67,6 +67,8 @@ void outputMessage(QtMsgType type, const QMessageLogContext &context, const QStr
 }
 int main(int argc, char *argv[])
 {
+    QApplication a(argc, argv);
+    a.connect( &a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
     QDir path = QDir(qApp->applicationDirPath());
     configDir=path.path()+("/logs");
     if (!path.exists(configDir))
@@ -78,10 +80,8 @@ int main(int argc, char *argv[])
 
     qRegisterMetaType<RequestMetaData>("RequestMetaData");
     qRegisterMetaType<ResponseMetaData>("ResponseMetaData");
-    QApplication a(argc, argv);
     MainWindow w;
     w.show();
-    a.connect( &a,SIGNAL(lastWindowClosed()),&a,SLOT(quit()));
     return a.exec();
 }
 

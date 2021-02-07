@@ -138,7 +138,6 @@ void ContainerManage::autoSave(int id)
                  values.append(document1.object().value("value").toString());
                  values.append("'");
                  values.append(",");
-//                 qDebug()<<QTime::currentTime();
              }
          }
     }
@@ -176,7 +175,7 @@ void ContainerManage::autoSave(int id)
         QString cmd="insert into "+dataTableInfor[index].name+"("+fields+") " +"values ("+values+");";
         query.exec(cmd);
         if(query.lastError().type()==QSqlError::NoError){
-           qDebug()<<"写数据成功"<<QTime::currentTime();
+           qDebug()<<"写数据成功";
         }
         else{
             qDebug()<<"写数据失败"+ query.lastError().text();

@@ -8,11 +8,18 @@
 #include <QMessageBox>
 #include <QtConcurrent>
 #include <QHash>
+#include <QWebEngineView>
 #include "httprequest.h"
 #include "configdialog.h"
 #include "metaData.h"
 #include "globalvariable.h"
+#include "Automatic/runThread01.h"
+#include "Automatic/runThread02.h"
+#include "Automatic/runThread03.h"
+#include "Automatic/runThread04.h"
+#include "Automatic/runThread05.h"
 #include "../../mainApp/pluginManage/debugcontrolinterface.h"
+#include "Automatic/baseprocess.h"
 namespace Ui {
 class mainForm;
 }
@@ -32,19 +39,38 @@ public:
     virtual void receiveMsgFromPluginManager(ResponseMetaData response) Q_DECL_OVERRIDE;
 private slots:
     void dealSignalOfDialog(RequestMetaData_dialog request) ;
+    void dealSignalOfThread(QString request) ;
     void showDebugForm();
     void loadConfig();
     void timeOut();
     void autoSave();
+private slots:
+    void monijiance();
+    void rengongbanyun();
+signals:
+    void ShowMessage(QString Text);
+private slots:
+    void Init();
+    void Run();
+    void Alarm();
+    void Pause();
+    void Reset();
+    void Estop();
+    void Restart();
 private:
+    void StartAllThread();//启动运行线程
+    RunThread01  *pThread01=nullptr;
+    RunThread02  *pThread02=nullptr;
+    RunThread03  *pThread03=nullptr;
+    RunThread04  *pThread04=nullptr;
+    RunThread05  *pThread05=nullptr;
     QString   driveInfor="";
     QString   dateSetInfor="";
     QString   getValueResult="";
     bool   getValueEnable=true;
     ConfigDialog *m_config=nullptr;
-    DATAPOINT m_datapoint[1000];
+    DATAPOINT m_datapoint[200];
     QTimer *m_time;
 private:
     Ui::mainForm *ui;
-
 };

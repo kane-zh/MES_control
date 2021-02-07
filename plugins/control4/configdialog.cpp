@@ -37,7 +37,7 @@ void ConfigDialog::showEvent(QShowEvent *)
     ui->index2->setMaximum(MaxReport-1);
     RequestMetaData_dialog request;
     request.type="getDataSetInfor";
-    request.drive="FNAUC";
+    request.drive="FANUC";
     dateSetInfor="";
     emit SendMsgToPluginInterface(request);
     while(dateSetInfor==""){

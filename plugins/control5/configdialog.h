@@ -34,7 +34,6 @@ signals:
     void SendMsgToPluginInterface(RequestMetaData_dialog request);
 public slots:
     void receiveMsgFromPluginInterface(ResponseMetaData_dialog response); //从ContainerManage接收消息
-    void autosave();
 private slots:
     void readTest();      //读数据测试
     void createActions();//创建右键菜单

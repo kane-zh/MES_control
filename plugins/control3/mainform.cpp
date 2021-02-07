@@ -375,7 +375,7 @@ QString mainForm::readFromDrive(QString id){
     data.type=getValue;
     data.from="1";
     data.target="manage";
-    data.drive="FNAUC";
+    data.drive="FANUC";
     data.id=id;
     getValueResult="";
     emit sendMsgToPluginManager(data);//发送信号到插件管理器

@@ -50,13 +50,6 @@ void MainWindow::addPluginActions()
 /*根据动态菜单信号，显示相应插件窗体*/
 void MainWindow::showPluginForm()
 {
-    QList<QObject*> list=ui->centralWidget->children(); //获取桌面所有子窗口，并销毁。确保桌面只有唯一子窗口
-     if(list.count()>1){
-         for(int i=1;i<list.count();i++){
-             list.at(i)->deleteLater();
-         }
-      }
-      QList<QObject*> list1=ui->centralWidget->children();
       QAction  *action= qobject_cast<QAction *>(sender());//获取信号发出者,并获取其ObjectName还原键值
       QPluginLoader *loader = PluginManage::getInstance().m_loaders.value(action->objectName()); //通过键值获取保存的插件loader
       auto obj = loader->instance();
@@ -75,10 +68,15 @@ void MainWindow::showPluginForm()
             plugin->showForm(ui->centralWidget);
       }
       else if(type=="debugControl"){
+//          QList<QObject*> list=ui->centralWidget->children(); //获取桌面所有子窗口，并销毁。确保桌面只有唯一子窗口
+//           if(list.count()>1){
+//               for(int i=1;i<list.count();i++){
+//                  list.at(i)->deleteLater();
+//               }
+//            }
             QWidget *widget = qobject_cast<QWidget*>(obj);
             widget->setParent(ui->centralWidget);
-            ui->gridLayout->addWidget(widget);
-            widget->show();
+            ui->verticalLayout->addWidget(widget);
       }
 }
 

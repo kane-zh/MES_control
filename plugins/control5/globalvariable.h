@@ -1,4 +1,4 @@
-﻿#ifndef GLOBALVARIABLE_H
+#ifndef GLOBALVARIABLE_H
 #define GLOBALVARIABLE_H
 #include <QDir>
 #include <QFile>
@@ -10,48 +10,6 @@
 #include <QHash>
 #include <QSharedPointer>
 #include "metaData.h"
-//class GlobalVariable
-//{
-//protected:
-//    GlobalVariable(){}
-//    virtual ~GlobalVariable(){}
-
-//public:
-//    static GlobalVariable * getInstance()
-//    {
-//        if(m_instance == NULL)
-//        {
-//            m_mutex.lock();
-//            if (m_instance == NULL)
-//            {
-//                m_instance = new  GlobalVariable();
-//            }
-//            m_mutex.unlock();
-//        }
-
-//        return m_instance;
-//    }
-
-//    //摧毁单例
-//    static void deleteInstance()
-//    {
-//        if(m_instance != NULL)
-//        {
-//            delete m_instance;
-//            m_instance = NULL;
-//        }
-//    }
-//public:
-//    bool StartMonitor();
-//    bool SetValue(QString key,QString value);
-//    QString GetValue(QString key);
-//private:
-//    static GlobalVariable * m_instance;
-//    static QMutex m_mutex;    //加入互斥锁,保证线程安全(如果存在多线程)
-//private:
-//    QHash<QString,DATAPOINT> m_datapoint;
-//    QHash<QString,QString> m_value;
-//};
 class GlobalVariable
 {
 public:
@@ -73,9 +31,12 @@ private:
     static QSharedPointer<GlobalVariable> m_instance;
 private:
     QHash<QString,QString> m_value;
+    QHash<QString,QString> m_data;
 public:
     bool setValue(QString key,QString value);
     QString getValue(QString key);
+    bool setData(QString key,QString value);
+    QString getData(QString key);
 };
 
 

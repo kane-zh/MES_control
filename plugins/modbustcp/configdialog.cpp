@@ -353,7 +353,27 @@ void ConfigDialog::fillDataSourceBox()
 /*连接到服务器测试*/
 void ConfigDialog::connectTest()
 {
+    /*连接指定的服务器*/
+    QModbusTcpClient  *modbusDevice = new QModbusTcpClient(this);
+    if (modbusDevice){
+        modbusDevice->setConnectionParameter(QModbusDevice::NetworkAddressParameter,ui->host->text());
+        modbusDevice->setConnectionParameter(QModbusDevice::NetworkPortParameter,ui->port->text());
+        modbusDevice->setTimeout(ui->responseTime->value());
+        modbusDevice->setNumberOfRetries(ui->numberOfRetries->value());
+        modbusDevice->connectDevice();
+        qDebug()<<modbusDevice->state();
+        QThread::msleep(3);
+        qDebug()<<modbusDevice->state();
+        if(modbusDevice->state()==QModbusDevice::ConnectedState ){
+             QMessageBox::information(this,tr("提示"),tr("连接数据集的服务器成功"),QMessageBox::Yes);
 
+        }
+        else{
+            QMessageBox::warning(this,tr("提示"),tr("连接数据集的服务器失败!!"),QMessageBox::Yes);
+        }
+        modbusDevice->disconnectDevice();
+    }
+    delete  modbusDevice;
 
 }
 /*获取值测试*/
