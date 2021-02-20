@@ -18,6 +18,7 @@
 #include "Automatic/runThread03.h"
 #include "Automatic/runThread04.h"
 #include "Automatic/runThread05.h"
+#include "Automatic/runThread06.h"
 #include "../../mainApp/pluginManage/debugcontrolinterface.h"
 #include "Automatic/baseprocess.h"
 namespace Ui {
@@ -44,9 +45,6 @@ private slots:
     void loadConfig();
     void timeOut();
     void autoSave();
-private slots:
-    void monijiance();
-    void rengongbanyun();
 signals:
     void ShowMessage(QString Text);
 private slots:
@@ -64,6 +62,7 @@ private:
     RunThread03  *pThread03=nullptr;
     RunThread04  *pThread04=nullptr;
     RunThread05  *pThread05=nullptr;
+    RunThread06  *pThread06=nullptr;
     QString   driveInfor="";
     QString   dateSetInfor="";
     QString   getValueResult="";

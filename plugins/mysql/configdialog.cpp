@@ -456,6 +456,9 @@ void ConfigDialog::saveValueTest()
      QString  values="";
      for (int i = 0; i < dataTableModel->rowCount(); i++)
       {
+         if(!this->isVisible()){
+            return;
+         }
          if(dataTableModel->data(dataTableModel->index(i,2)).toString()!=""){
              RequestMetaData_dialog request;
              request.type="getValue";

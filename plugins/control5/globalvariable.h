@@ -2,6 +2,8 @@
 #define GLOBALVARIABLE_H
 #include <QDir>
 #include <QFile>
+#include <QObject>
+#include <QMetaEnum>
 #include <QApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -10,8 +12,9 @@
 #include <QHash>
 #include <QSharedPointer>
 #include "metaData.h"
-class GlobalVariable
+class GlobalVariable:public QObject
 {
+   Q_OBJECT
 public:
     static QSharedPointer<GlobalVariable>& instance()
     {
@@ -22,6 +25,12 @@ public:
         }
         return m_instance;
     }
+public:
+    enum  variable
+    {
+        currentState,    //当前模块状态
+    };
+     Q_ENUM(variable)
 private:
     GlobalVariable(){}
     GlobalVariable(const GlobalVariable&){}

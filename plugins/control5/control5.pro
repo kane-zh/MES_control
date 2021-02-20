@@ -8,7 +8,6 @@ else:unix: DESTDIR         = ../../mainApp/plugins/libs
 
 
 DISTFILES += \
-    Automatic/1.py \
     programmer.json
 
 FORMS += \
@@ -22,6 +21,7 @@ HEADERS += \
     Automatic/runThread03.h \
     Automatic/runThread04.h \
     Automatic/runThread05.h \
+    Automatic/runThread06.h \
     ItemDelegate.h \
     configdialog.h \
     globalvariable.h \
@@ -30,11 +30,13 @@ HEADERS += \
     metaData.h
 
 SOURCES += \
+    Automatic/baseprocess.cpp \
     Automatic/runThread01.cpp \
     Automatic/runThread02.cpp \
     Automatic/runThread03.cpp \
     Automatic/runThread04.cpp \
     Automatic/runThread05.cpp \
+    Automatic/runThread06.cpp \
     ItemDelegate.cpp \
     configdialog.cpp \
     globalvariable.cpp \

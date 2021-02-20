@@ -7,15 +7,11 @@ mainForm::mainForm(QWidget *parent) :
 {
     ui->setupUi(this);
     loadConfig();
-    connect(ui->showForm,SIGNAL(clicked()),this,SLOT(showDebugForm()));
-    connect(ui->pushButton,SIGNAL(clicked()),this,SLOT(monijiance()));
-    connect(ui->pushButton_5,SIGNAL(clicked()),this,SLOT(rengongbanyun()));
+    connect(ui->dataPointConfig,SIGNAL(clicked()),this,SLOT(showDebugForm()));
     connect(ui->init_all,SIGNAL(clicked()),this,SLOT(Init()));//总初始化
     connect(ui->run_all,SIGNAL(clicked()),this,SLOT(Init()));//总运行
     connect(ui->pause_all,SIGNAL(clicked()),this,SLOT(Init()));//总暂停
-    connect(ui->alarm_all,SIGNAL(clicked()),this,SLOT(Init()));//总报警
     connect(ui->reset_all,SIGNAL(clicked()),this,SLOT(Init()));//总报警复位
-    connect(ui->restart_all,SIGNAL(clicked()),this,SLOT(Init()));//总重启
 }
 
 mainForm::~mainForm()
@@ -25,10 +21,6 @@ mainForm::~mainForm()
 
 void mainForm::showEvent(QShowEvent *)
 {
-    QWebEngineView *m_webView = new QWebEngineView(ui->widget);
-//    QStackedLayout* layout = new QStackedLayout(ui->frame);
-//    ui->frame->setLayout(layout);
-//    layout->addWidget(m_webView);
     m_time=new QTimer(this);
     connect(m_time,SIGNAL(timeout()),this,SLOT(timeOut()));
     m_time->start(200);
@@ -126,14 +118,16 @@ void mainForm::timeOut()
 {
     if(getValueEnable==true){
        getValueEnable=false;
-       QtConcurrent::run(this,&mainForm::autoSave);
+//       QtConcurrent::run(this,&mainForm::autoSave);
     }
-    ui->currentTime->setText(QTime::currentTime().toString());
 }
 void mainForm::autoSave()
 {
  for (int i = 0; i <200; i++)
   {
+     if(!this->isVisible()){
+      return;
+     }
      if(m_datapoint[i].dataId!=""){
          RequestMetaData data;
          data.type=getValue;
@@ -157,17 +151,7 @@ void mainForm::autoSave()
    }
  getValueEnable=true;
 }
-
-void mainForm::monijiance()
-{
-   GlobalVariable::instance()->setData("state","运行中");
-}
-
-void mainForm::rengongbanyun()
-{
-   GlobalVariable::instance()->setData("state","暂停中");
-}
-//启动所有子任务
+//启动所有子任务，并绑定信号槽
 void mainForm::StartAllThread()
 {
     if(pThread01==nullptr)
@@ -177,9 +161,7 @@ void mainForm::StartAllThread()
         connect(ui->init_1,SIGNAL(clicked()),pThread01,SLOT(startInit()));//初始化1
         connect(ui->run_1,SIGNAL(clicked()),pThread01,SLOT(startRun()));//运行1
         connect(ui->pause_1,SIGNAL(clicked()),pThread01,SLOT(startPause()));//暂停1
-        connect(ui->alarm_1,SIGNAL(clicked()),pThread01,SLOT(startAlarm()));//报警1
-        connect(ui->init_1,SIGNAL(clicked()),pThread01,SLOT(startRestart()));//重启1
-        pThread01->start();
+        connect(ui->init_1,SIGNAL(clicked()),pThread01,SLOT(startReset()));//重启1
     }
     if(pThread02==nullptr)
     {
@@ -188,9 +170,7 @@ void mainForm::StartAllThread()
         connect(ui->init_2,SIGNAL(clicked()),pThread02,SLOT(startInit()));//初始化2
         connect(ui->run_2,SIGNAL(clicked()),pThread02,SLOT(startRun()));//运行2
         connect(ui->pause_2,SIGNAL(clicked()),pThread02,SLOT(startPause()));//暂停2
-        connect(ui->alarm_2,SIGNAL(clicked()),pThread02,SLOT(startAlarm()));//报警2
-        connect(ui->init_2,SIGNAL(clicked()),pThread02,SLOT(startRestart()));//重启2
-        pThread02->start();
+        connect(ui->init_2,SIGNAL(clicked()),pThread02,SLOT(startReset()));//重启2
     }
     if(pThread03==nullptr)
     {
@@ -199,9 +179,7 @@ void mainForm::StartAllThread()
         connect(ui->init_3,SIGNAL(clicked()),pThread03,SLOT(startInit()));//初始化3
         connect(ui->run_3,SIGNAL(clicked()),pThread03,SLOT(startRun()));//运行3
         connect(ui->pause_3,SIGNAL(clicked()),pThread03,SLOT(startPause()));//暂停3
-        connect(ui->alarm_3,SIGNAL(clicked()),pThread03,SLOT(startAlarm()));//报警3
-        connect(ui->init_3,SIGNAL(clicked()),pThread03,SLOT(startRestart()));//重启3
-        pThread03->start();
+        connect(ui->init_3,SIGNAL(clicked()),pThread03,SLOT(startReset()));//重启3
     }
     if(pThread04==nullptr)
     {
@@ -210,9 +188,7 @@ void mainForm::StartAllThread()
         connect(ui->init_4,SIGNAL(clicked()),pThread04,SLOT(startInit()));//初始化4
         connect(ui->run_4,SIGNAL(clicked()),pThread04,SLOT(startRun()));//运行4
         connect(ui->pause_4,SIGNAL(clicked()),pThread04,SLOT(startPause()));//暂停4
-        connect(ui->alarm_4,SIGNAL(clicked()),pThread04,SLOT(startAlarm()));//报警4
-        connect(ui->init_4,SIGNAL(clicked()),pThread04,SLOT(startRestart()));//重启4
-        pThread04->start();
+        connect(ui->init_4,SIGNAL(clicked()),pThread04,SLOT(startReset()));//重启4
     }
     if(pThread05==nullptr)
     {
@@ -221,15 +197,23 @@ void mainForm::StartAllThread()
         connect(ui->init_5,SIGNAL(clicked()),pThread05,SLOT(startInit()));//初始化5
         connect(ui->run_5,SIGNAL(clicked()),pThread05,SLOT(startRun()));//运行5
         connect(ui->pause_5,SIGNAL(clicked()),pThread05,SLOT(startPause()));//暂停5
-        connect(ui->alarm_5,SIGNAL(clicked()),pThread05,SLOT(startAlarm()));//报警5
-        connect(ui->init_5,SIGNAL(clicked()),pThread05,SLOT(startRestart()));//重启5
-        pThread05->start();
+        connect(ui->init_5,SIGNAL(clicked()),pThread05,SLOT(startReset()));//重启5
+    }
+    if(pThread06==nullptr)
+    {
+        pThread06=new RunThread06(this);
+        connect(pThread06,SIGNAL(SendMsgToPluginInterface(QString)),this,SLOT(dealSignalOfThread(QString)));
+        connect(ui->init_6,SIGNAL(clicked()),pThread06,SLOT(startInit()));//初始化6
+        connect(ui->run_6,SIGNAL(clicked()),pThread06,SLOT(startRun()));//运行6
+        connect(ui->pause_6,SIGNAL(clicked()),pThread06,SLOT(startPause()));//暂停6
+        connect(ui->init_6,SIGNAL(clicked()),pThread06,SLOT(startReset()));//重启6
     }
 }
 //总初始化流程
 void mainForm::Init()
 {
-    BaseProcess::state ALLState=BaseProcess::state::Unknown;
+    QString ALLState_str=GlobalVariable::instance()->getValue("ALLState");
+    BaseProcess::state ALLState = (BaseProcess::state)QMetaEnum::fromType<BaseProcess::state>().keyToValue(ALLState_str.toUtf8());
     if ((ALLState == BaseProcess::state::Unknown) ||
         (ALLState == BaseProcess::state::IsPause) ||
         (ALLState == BaseProcess::state::IsAlarm))
@@ -245,7 +229,8 @@ void mainForm::Init()
 //总运行流程
 void mainForm::Run()
 {
-    BaseProcess::state ALLState=BaseProcess::state::IsPause;
+    QString ALLState_str=GlobalVariable::instance()->getValue("ALLState");
+    BaseProcess::state ALLState = (BaseProcess::state)QMetaEnum::fromType<BaseProcess::state>().keyToValue(ALLState_str.toUtf8());
     if ((ALLState == BaseProcess::state::IsPause))
     {
         pThread01->startRun();
@@ -259,9 +244,9 @@ void mainForm::Run()
 //总暂停流程
 void mainForm::Pause()
 {
-    BaseProcess::state ALLState=BaseProcess::state::IsRuning;
-    if ((ALLState == BaseProcess::state::IsRuning) ||
-        (ALLState == BaseProcess::state::IsAlarm))
+    QString ALLState_str=GlobalVariable::instance()->getValue("ALLState");
+    BaseProcess::state ALLState = (BaseProcess::state)QMetaEnum::fromType<BaseProcess::state>().keyToValue(ALLState_str.toUtf8());
+    if (ALLState == BaseProcess::state::IsRuning)
     {
         pThread01->startPause();
         pThread02->startPause();
@@ -271,64 +256,19 @@ void mainForm::Pause()
         ALLState = BaseProcess::state::IsPause;
     }
 }
-//总急停流程
-void mainForm::Estop()
-{
-    pThread01->StartStop();
-    pThread02->StartStop();
-    pThread03->StartStop();
-    pThread04->StartStop();
-    pThread05->StartStop();
-//    ALLState = BaseAutoProcess.state.IsScraming;
-}
-//总报警流程
-void mainForm::Alarm()
-{
-    BaseProcess::state ALLState=BaseProcess::state::IsScraming;
-    if (ALLState != BaseProcess::state::IsScraming)
-    {
-        pThread01->startAlarm();
-        pThread02->startAlarm();
-        pThread03->startAlarm();
-        pThread04->startAlarm();
-        pThread05->startAlarm();
-        ALLState =BaseProcess::state::IsAlarm;
-    }
-}
 //总报警复位流程
 void mainForm::Reset()
 {
-    BaseProcess::state ALLState=BaseProcess::state::IsAlarm;
+    QString ALLState_str=GlobalVariable::instance()->getValue("ALLState");
+    BaseProcess::state ALLState = (BaseProcess::state)QMetaEnum::fromType<BaseProcess::state>().keyToValue(ALLState_str.toUtf8());
     if ((ALLState == BaseProcess::state::IsAlarm))
     {
-        pThread01->startRestart();
-        pThread02->startRestart();
-        pThread03->startRestart();
-        pThread04->startRestart();
-        pThread05->startRestart();
+        pThread01->startReset();
+        pThread02->startReset();
+        pThread03->startReset();
+        pThread04->startReset();
+        pThread05->startReset();
         ALLState = BaseProcess::state::IsPause;
-    }
-    else if ((ALLState == BaseProcess::state::Unknown))
-    {
-        pThread01->startRestart();
-        pThread02->startRestart();
-        pThread03->startRestart();
-        pThread04->startRestart();
-        pThread05->startRestart();
-    }
-}
-//总重启流程
-void mainForm::Restart()
-{
-    BaseProcess::state ALLState=BaseProcess::state::IsScraming;
-    if (ALLState == BaseProcess::state::IsScraming)
-    {
-        pThread01->startRestart();
-        pThread02->startRestart();
-        pThread03->startRestart();
-        pThread04->startRestart();
-        pThread05->startRestart();
-        ALLState = BaseProcess::state::Unknown;
     }
 }
 /*加载信息*/

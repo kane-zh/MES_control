@@ -1,12 +1,12 @@
-#ifndef RUNTHREAD03_H
-#define RUNTHREAD03_H
+#ifndef RUNTHREAD06_H
+#define RUNTHREAD06_H
 #include "baseprocess.h"
-class RunThread03: public BaseProcess
+class RunThread06: public BaseProcess
 {
     Q_OBJECT
 public:
-    explicit RunThread03(QObject *parent = nullptr);
-    ~RunThread03();
+    explicit RunThread06(QObject *parent = nullptr);
+    ~RunThread06();
 protected:
     virtual void initAndReset();
     virtual void startAndRun();
@@ -18,4 +18,4 @@ private:
     void run_1();
 };
 
-#endif // RUNTHREAD03_H
+#endif // RUNTHREAD06_H

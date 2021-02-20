@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>918</width>
-    <height>606</height>
+    <width>1968</width>
+    <height>815</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="elideMode">
       <enum>Qt::ElideNone</enum>
@@ -42,58 +42,20 @@
      <property name="tabBarAutoHide">
       <bool>false</bool>
      </property>
-     <widget class="QWidget" name="tab1">
+     <widget class="QWidget" name="tab01">
       <attribute name="title">
        <string>总控界面</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="">
        <property name="geometry">
         <rect>
-         <x>50</x>
-         <y>20</y>
-         <width>361</width>
-         <height>42</height>
-        </rect>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>操作模式:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="comboBox_2">
-          <item>
-           <property name="text">
-            <string>单入库模式</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>单出库模式</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>混合出入库</string>
-           </property>
-          </item>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>750</x>
-         <y>110</y>
+         <x>1070</x>
+         <y>100</y>
          <width>145</width>
-         <height>361</height>
+         <height>271</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
          <widget class="QPushButton" name="init_all">
           <property name="text">
@@ -116,89 +78,71 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="alarm_all">
-          <property name="text">
-           <string>总报警</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="reset_all">
           <property name="text">
            <string>总报警复位</string>
           </property>
          </widget>
         </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="">
+       <property name="geometry">
+        <rect>
+         <x>680</x>
+         <y>40</y>
+         <width>291</width>
+         <height>98</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QPushButton" name="restart_all">
-          <property name="text">
-           <string>总重启</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>操作模式:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="comboBox_3">
+            <item>
+             <property name="text">
+              <string>单入库模式</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>单出库模式</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>混合出入库</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
-      <widget class="QLabel" name="currentTime">
-       <property name="geometry">
-        <rect>
-         <x>666</x>
-         <y>10</y>
-         <width>181</width>
-         <height>61</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
      </widget>
-     <widget class="QWidget" name="tab3">
+     <widget class="QWidget" name="tab02">
       <attribute name="title">
        <string>原料入库</string>
       </attribute>
-      <widget class="QWidget" name="layoutWidget">
+      <widget class="QWidget" name="layoutWidget_8">
        <property name="geometry">
         <rect>
-         <x>20</x>
-         <y>40</y>
-         <width>161</width>
-         <height>281</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>人工检测</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_5">
-          <property name="text">
-           <string>人工搬运</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_6">
-          <property name="text">
-           <string>屏蔽入库</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>710</x>
-         <y>30</y>
+         <x>1730</x>
+         <y>120</y>
          <width>145</width>
          <height>361</height>
         </rect>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <layout class="QVBoxLayout" name="verticalLayout_9">
         <item>
          <widget class="QPushButton" name="init_1">
           <property name="text">
@@ -221,13 +165,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="alarm_1">
-          <property name="text">
-           <string>报警</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="reset_1">
           <property name="text">
            <string>报警复位</string>
@@ -235,37 +172,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="restart_1">
+         <widget class="QPushButton" name="stop_1">
           <property name="text">
-           <string>重启</string>
+           <string>结束流程</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab4">
+     <widget class="QWidget" name="tab03">
       <attribute name="title">
        <string>原料出库</string>
       </attribute>
-      <widget class="QPushButton" name="pushButton_7">
-       <property name="geometry">
-        <rect>
-         <x>20</x>
-         <y>30</y>
-         <width>201</width>
-         <height>41</height>
-        </rect>
-       </property>
-       <property name="text">
-        <string>人工拆跺</string>
-       </property>
-      </widget>
       <widget class="QWidget" name="layoutWidget_3">
        <property name="geometry">
         <rect>
-         <x>730</x>
-         <y>90</y>
+         <x>1780</x>
+         <y>150</y>
          <width>145</width>
          <height>361</height>
         </rect>
@@ -293,13 +217,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="alarm_2">
-          <property name="text">
-           <string>报警</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="reset_2">
           <property name="text">
            <string>报警复位</string>
@@ -307,24 +224,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="restart_2">
+         <widget class="QPushButton" name="stop_2">
           <property name="text">
-           <string>重启</string>
+           <string>结束流程</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab5">
+     <widget class="QWidget" name="tab04">
       <attribute name="title">
-       <string>产品入库</string>
+       <string>混合出入库</string>
       </attribute>
       <widget class="QWidget" name="layoutWidget_4">
        <property name="geometry">
         <rect>
-         <x>710</x>
-         <y>90</y>
+         <x>1790</x>
+         <y>150</y>
          <width>145</width>
          <height>361</height>
         </rect>
@@ -352,13 +269,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="alarm_3">
-          <property name="text">
-           <string>报警</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="reset_3">
           <property name="text">
            <string>报警复位</string>
@@ -366,23 +276,23 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="restart_3">
+         <widget class="QPushButton" name="stop_3">
           <property name="text">
-           <string>重启</string>
+           <string>结束流程</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab6">
+     <widget class="QWidget" name="tab05">
       <attribute name="title">
-       <string>产品出库</string>
+       <string>产品入库</string>
       </attribute>
       <widget class="QWidget" name="layoutWidget_5">
        <property name="geometry">
         <rect>
-         <x>740</x>
+         <x>1730</x>
          <y>70</y>
          <width>145</width>
          <height>361</height>
@@ -411,13 +321,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="alarm_4">
-          <property name="text">
-           <string>报警</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="reset_4">
           <property name="text">
            <string>报警复位</string>
@@ -425,24 +328,24 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="restart_4">
+         <widget class="QPushButton" name="stop_4">
           <property name="text">
-           <string>重启</string>
+           <string>结束流程</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tab06">
       <attribute name="title">
-       <string>页</string>
+       <string>产品出库</string>
       </attribute>
       <widget class="QWidget" name="layoutWidget_6">
        <property name="geometry">
         <rect>
-         <x>730</x>
-         <y>80</y>
+         <x>1740</x>
+         <y>90</y>
          <width>145</width>
          <height>361</height>
         </rect>
@@ -470,13 +373,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="alarm_5">
-          <property name="text">
-           <string>报警</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="reset_5">
           <property name="text">
            <string>报警复位</string>
@@ -484,26 +380,78 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="restart_5">
+         <widget class="QPushButton" name="stop_5">
           <property name="text">
-           <string>重启</string>
+           <string>结束流程</string>
           </property>
          </widget>
         </item>
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab2">
+     <widget class="QWidget" name="tab07">
+      <attribute name="title">
+       <string>混合出入库</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget_7">
+       <property name="geometry">
+        <rect>
+         <x>1790</x>
+         <y>160</y>
+         <width>145</width>
+         <height>361</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_8">
+        <item>
+         <widget class="QPushButton" name="init_6">
+          <property name="text">
+           <string>初始化</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="run_6">
+          <property name="text">
+           <string>运行</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pause_6">
+          <property name="text">
+           <string>暂停</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="reset_6">
+          <property name="text">
+           <string>报警复位</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="stop_6">
+          <property name="text">
+           <string>结束流程</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab08">
       <attribute name="title">
        <string>配置界面</string>
       </attribute>
-      <widget class="QPushButton" name="showForm">
+      <widget class="QPushButton" name="dataPointConfig">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>40</y>
-         <width>241</width>
-         <height>31</height>
+         <x>200</x>
+         <y>110</y>
+         <width>221</width>
+         <height>51</height>
         </rect>
        </property>
        <property name="text">
@@ -511,13 +459,19 @@
        </property>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tab09">
       <attribute name="title">
        <string>浏览器</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <widget class="QWidget" name="widget" native="true"/>
+        <widget class="QWidget" name="widget" native="true">
+         <layout class="QVBoxLayout" name="verticalLayout" stretch="0">
+          <item>
+           <widget class="QWidget" name="widget_4" native="true"/>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

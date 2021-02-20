@@ -105,22 +105,25 @@ void ConfigDialog::readTest()
 {
     for (int i = 0; i < dataModel->rowCount(); i++)
      {
-             RequestMetaData_dialog request;
-             request.type="getValue";
-             request.drive=dataModel->data(dataModel->index(i,1)).toString();
-             request.id=dataModel->data(dataModel->index(i,3)).toString();
-             getValueResult="";
-             emit SendMsgToPluginInterface(request);
-             while(getValueResult==""){
-                  QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-             }
-             QJsonDocument document=QJsonDocument::fromJson(getValueResult.toUtf8());
-             QJsonObject object=document.object();
-              if(document.object().value("result").toString()=="err"){
-              QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataModel->data(dataModel->index(i,0)).toString()+"失败："
-                                   +document.object().value("value").toString(),QMessageBox::Yes);
-               }
-             dataModel->setData(dataModel->index(i,5),document.object().value("value").toString());
+        if(!this->isVisible()){
+         return;
+        }
+         RequestMetaData_dialog request;
+         request.type="getValue";
+         request.drive=dataModel->data(dataModel->index(i,1)).toString();
+         request.id=dataModel->data(dataModel->index(i,3)).toString();
+         getValueResult="";
+         emit SendMsgToPluginInterface(request);
+         while(getValueResult==""){
+              QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+         }
+         QJsonDocument document=QJsonDocument::fromJson(getValueResult.toUtf8());
+         QJsonObject object=document.object();
+          if(document.object().value("result").toString()=="err"){
+          QMessageBox::warning(this,tr("提示"),tr("获取数据")+dataModel->data(dataModel->index(i,0)).toString()+"失败："
+                               +document.object().value("value").toString(),QMessageBox::Yes);
+           }
+         dataModel->setData(dataModel->index(i,5),document.object().value("value").toString());
        }
      QMessageBox::information(this,tr("提示"),tr("读数据完成"),QMessageBox::Ok);
 }

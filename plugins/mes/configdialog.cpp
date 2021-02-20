@@ -388,6 +388,9 @@ void ConfigDialog::saveValueTest()
     QJsonObject json;
     for (int i = 0; i < array.count(); i++)
      {
+        if(!this->isVisible()){
+           return;
+        }
         QJsonObject value = array.at(i).toObject();
         if(value["dataId"].toString()!=""){
             RequestMetaData_dialog data;
